@@ -12,6 +12,9 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
+        // OAuth token requests are authenticated with the registered client secret.
+        'oauth/token',
+        // Userinfo is protected by a bearer token, not the browser's Laravel session.
+        'oauth/userinfo',
     ];
 }

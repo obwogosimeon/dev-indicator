@@ -7,6 +7,16 @@ Route::get('/', function () {
 
 Auth::routes();
 
+// OpenID Connect endpoints used by trusted first-party applications such as Kobo.
+Route::get('/.well-known/openid-configuration', 'OidcController@discovery');
+Route::get('/.well-known/jwks.json', 'OidcController@jwks');
+Route::get('/oauth/authorize', 'OidcController@authorizationRequest')->middleware('auth');
+Route::post('/oauth/authorize/approve', 'OidcController@approve')->middleware('auth');
+Route::post('/oauth/authorize/deny', 'OidcController@deny')->middleware('auth');
+Route::post('/oauth/token', 'OidcController@token')->middleware('throttle:60,1');
+Route::get('/oauth/userinfo', 'OidcController@userinfo');
+Route::post('/oauth/userinfo', 'OidcController@userinfo');
+
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/organization', 'HomeController@organization')->name('organization');
 Route::get('/thankyou', 'HomeController@thankyou')->name('thankyou');
