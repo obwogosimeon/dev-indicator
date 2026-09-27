@@ -1,0 +1,214 @@
+{
+	"info": {
+		"_postman_id": "67e435cc-5b2f-4792-a73a-96d5088883d1",
+		"name": "AIRTEL-SERVICES",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20638572"
+	},
+	"item": [
+		{
+			"name": "Validate-transaction-localhost",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<COMMAND>\r\n    <TYPE>C2B</TYPE>\r\n    <CUSTOMERMSISDN>0705080437</CUSTOMERMSISDN>\r\n    <MERCHANTMSISDN></MERCHANTMSISDN>\r\n    <CUSTOMERNAME>Madaline Albright</CUSTOMERNAME>\r\n    <AMOUNT></AMOUNT>\r\n    <PIN></PIN>\r\n    <REFERENCE>1181784484</REFERENCE>\r\n    <USERNAME></USERNAME>\r\n    <PASSWORD></PASSWORD>\r\n    <REFERENCE1>{{$guid}}</REFERENCE1>\r\n</COMMAND>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/api/v1/validate/airtel/account-number",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"api",
+						"v1",
+						"validate",
+						"airtel",
+						"account-number"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Process-transaction-localhost",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<COMMAND>\r\n    <TYPE>C2B</TYPE>\r\n    <CUSTOMERMSISDN>0705080437</CUSTOMERMSISDN>\r\n    <MERCHANTMSISDN>test</MERCHANTMSISDN>\r\n    <CUSTOMERNAME>Madaline Albright</CUSTOMERNAME>\r\n    <AMOUNT>50</AMOUNT>\r\n    <PIN>test</PIN>\r\n    <USERNAME>test</USERNAME>\r\n    <PASSWORD>test</PASSWORD>\r\n    <REFERENCE>1181784484</REFERENCE>\r\n    <REFERENCE1>{{$guid}}</REFERENCE1>\r\n    <REFERENCE2>{{$guid}}</REFERENCE2>\r\n</COMMAND>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/api/v1/process/airtel/transaction",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"api",
+						"v1",
+						"process",
+						"airtel",
+						"transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Process-transaction-ocp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<COMMAND>\r\n    <TYPE>C2B</TYPE>\r\n    <CUSTOMERMSISDN>0705080437</CUSTOMERMSISDN>\r\n    <MERCHANTMSISDN>test</MERCHANTMSISDN>\r\n    <CUSTOMERNAME>Madaline Albright</CUSTOMERNAME>\r\n    <AMOUNT>50</AMOUNT>\r\n    <PIN>test</PIN>\r\n    <USERNAME>test</USERNAME>\r\n    <PASSWORD>test</PASSWORD>\r\n    <REFERENCE>1181784484</REFERENCE>\r\n    <REFERENCE1>{{$guid}}</REFERENCE1>\r\n    <REFERENCE2>{{$guid}}</REFERENCE2>\r\n</COMMAND>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://kcb-airtel-money-process-trxn-kcb-airtel-money-services.apps.dev.aro.kcbgroup.com/api/v1/process/airtel/transaction",
+					"protocol": "https",
+					"host": [
+						"kcb-airtel-money-process-trxn-kcb-airtel-money-services",
+						"apps",
+						"dev",
+						"aro",
+						"kcbgroup",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"process",
+						"airtel",
+						"transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate-transaction-ocp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<COMMAND>\r\n    <TYPE>C2B</TYPE>\r\n    <CUSTOMERMSISDN>0705080437</CUSTOMERMSISDN>\r\n    <MERCHANTMSISDN>test</MERCHANTMSISDN>\r\n    <CUSTOMERNAME>Madaline Albright</CUSTOMERNAME>\r\n    <AMOUNT>50</AMOUNT>\r\n    <PIN>123456</PIN>\r\n    <REFERENCE>1181784484</REFERENCE>\r\n    <USERNAME>test</USERNAME>\r\n    <PASSWORD>test</PASSWORD>\r\n    <REFERENCE1>{{$guid}}</REFERENCE1>\r\n</COMMAND>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://kcb-airtel-money-validate-trxn-kcb-airtel-money-services.apps.dev.aro.kcbgroup.com/api/v1/validate/airtel/account-number",
+					"protocol": "https",
+					"host": [
+						"kcb-airtel-money-validate-trxn-kcb-airtel-money-services",
+						"apps",
+						"dev",
+						"aro",
+						"kcbgroup",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"validate",
+						"airtel",
+						"account-number"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction-enquiry-localhost",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<COMMAND>\r\n    <TXNID>5e7d8ab4</TXNID>\r\n    <MSISDN>25423456789</MSISDN>\r\n</COMMAND>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8084/api/v1/query/airtel/transaction-status",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"api",
+						"v1",
+						"query",
+						"airtel",
+						"transaction-status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction-enquiry-ocp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<COMMAND>\r\n    <TXNID>5e7d8ab4</TXNID>\r\n    <MSISDN>25423456789</MSISDN>\r\n</COMMAND>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://kcb-airtel-money-transaction-enquiry-kcb-airtel-money-services.apps.dev.aro.kcbgroup.com/api/v1/query/airtel/transaction-status",
+					"protocol": "https",
+					"host": [
+						"kcb-airtel-money-transaction-enquiry-kcb-airtel-money-services",
+						"apps",
+						"dev",
+						"aro",
+						"kcbgroup",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"query",
+						"airtel",
+						"transaction-status"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

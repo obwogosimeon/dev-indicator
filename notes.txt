@@ -1,0 +1,13 @@
+- First Container should have 0 previous expense - Done
+- Succeing container Previous expense = Previous Containers total expanse  - WIP
+- Each value should belong to a container (Budget Value).
+- Counter for containers (Activity and Indicator)
+- Open a single implementation container
+
+@if($expensepreviousperiod->reporting_frequency == '1')
+<td>0</td>
+@elseif($expensepreviousperiod->reporting_frequency != '1' && )
+<td>0</td>
+@endif
+
+if the project reporting frequenct = 1/4 && implementation 

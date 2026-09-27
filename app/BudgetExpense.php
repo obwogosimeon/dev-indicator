@@ -1,0 +1,110 @@
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class BudgetExpense extends Model
+{
+    protected $fillable = [
+        'workplancontainer_id', 
+        'annual_budget',
+        //Yearly
+        'budget_current_period_yearly1',
+        'budget_current_period_yearly2',
+        'expense_current_period_yearly1',
+        'expense_current_period_yearly2',
+        //Semi_Annual
+        'budget_current_period_firstsemi1',
+        'budget_current_period_firstsemi2',
+        'expense_current_period_firstsemi1',
+        'expense_current_period_firstsemi2',
+        'budget_current_period_secondsemi1',
+        'budget_current_period_secondsemi2',
+        'expense_current_period_secondsemi1',
+        'expense_current_period_secondsemi2',
+        //Quaterly
+        'budget_current_period_firstq1',
+        'budget_current_period_firstq2',
+        'expense_current_period_firstq1',
+        'expense_current_period_firstq2',
+        'budget_current_period_secondq1',
+        'budget_current_period_secondq2',
+        'expense_current_period_secondq1',
+        'expense_current_period_secondq2',
+        'budget_current_period_thirdq1',
+        'budget_current_period_thirdq2',
+        'expense_current_period_thirdq1',
+        'expense_current_period_thirdq2',
+        'budget_current_period_lastq1',
+        'budget_current_period_lastq2',
+        'expense_current_period_lastq1',
+        'expense_current_period_lastq2',
+        //Monthly
+        'budget_current_period_monthone1',
+        'budget_current_period_monthone2',
+        'expense_current_period_monthone1',
+        'expense_current_period_monthone2',
+        'budget_current_period_monthtwo1',
+        'budget_current_period_monthtwo2',
+        'expense_current_period_monthtwo1',
+        'expense_current_period_monthtwo2',
+        'budget_current_period_monththree1',
+        'budget_current_period_monththree2',
+        'expense_current_period_monththree1',
+        'expense_current_period_monththree2',
+        'budget_current_period_monthfour1',
+        'budget_current_period_monthfour2',
+        'expense_current_period_monthfour1',
+        'expense_current_period_monthfour2',
+        'budget_current_period_monthfive1',
+        'budget_current_period_monthfive2',
+        'expense_current_period_monthfive1',
+        'expense_current_period_monthfive2',
+        'budget_current_period_monthsix1',
+        'budget_current_period_monthsix2',
+        'expense_current_period_monthsix1',
+        'expense_current_period_monthsix2',
+        'budget_current_period_monthseven1',
+        'budget_current_period_monthseven2',
+        'expense_current_period_monthseven1',
+        'expense_current_period_monthseven2',
+        'budget_current_period_montheight1',
+        'budget_current_period_montheight2',
+        'expense_current_period_montheight1',
+        'expense_current_period_montheight2',
+        'budget_current_period_monthnine1',
+        'budget_current_period_monthnine2',
+        'expense_current_period_monthnine1',
+        'expense_current_period_monthnine2',
+        'budget_current_period_monthten1',
+        'budget_current_period_monthten2',
+        'expense_current_period_monthten1',
+        'expense_current_period_monthten2',
+        'budget_current_period_montheleven1',
+        'budget_current_period_montheleven2',
+        'expense_current_period_montheleven1',
+        'expense_current_period_montheleven2',
+        'budget_current_period_monththwelve1',
+        'budget_current_period_monththwelve2',
+        'expense_current_period_monththwelve1',
+        'expense_current_period_monththwelve2',
+        //last
+        'expense_total',
+        'utilization',
+        'organization_id',
+        'status',
+        'created_by',
+        'project_id',
+        'budget_id',
+        'comment1',
+        'comment2',
+        'implementation_container_id',
+        'funding_id',
+    ];
+
+    public function budget()
+    {
+        return $this->belongsTo('App\Budget');
+    }
+}
