@@ -3,6 +3,9 @@
 
 <h1>Welcome to Kobo</h1>
 
-<iframe src="https://kf.kobo.visystem.net" width="1000" height="400" frameborder="0" allowfullscreen></iframe>
+<p>Open KoboToolbox in a new tab to continue.</p>
+<a class="btn btn-primary" href="https://kf.kobo.visystem.net/" target="_blank" rel="noopener noreferrer">
+    Open KoboToolbox
+</a>
 
 @endsection
