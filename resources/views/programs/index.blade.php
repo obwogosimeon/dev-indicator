@@ -1,74 +1,99 @@
 @extends('layouts.apps')
+
 @section('content')
+<main class="container-fluid admin-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Portfolio management</p>
+            <h1 class="admin-page__title">Programmes</h1>
+            <p class="admin-page__description">Plan, coordinate, and monitor your organization’s programmes.</p>
+        </div>
+        <a href="{{ route('programs.create') }}" class="admin-page__button">
+            <em class="icon ni ni-plus" aria-hidden="true"></em>
+            Add programme
+        </a>
+    </header>
 
-<div class="nk-block nk-block-lg">
-    <div class="nk-block-head">
-        <div class="nk-block-head-content">
-            <nav>
-                <ul class="breadcrumb breadcrumb-pipe">
-                    <li class="breadcrumb-item"><a href="{{ url('/home')}}">Home</a></li>
-                    <li class="breadcrumb-item active">Programs</li>
-                    <!-- <li class="breadcrumb-item active">Add Project</li> -->
-                </ul>
-            </nav>
-            <br>
+    @if (session('success'))
+        <div class="alert alert-success" role="status">{{ session('success') }}</div>
+    @endif
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
-            @if ($message = Session::get('success'))
-            <div class="alert alert-success">
-                <p>{{ $message }}</p>
-            </div>
-            @endif
+    <section class="admin-page__stats" aria-label="Programme summary">
+        <div class="admin-page__stat">
+            <span class="admin-page__stat-icon admin-page__stat-icon--teal"><em class="icon ni ni-grid-alt" aria-hidden="true"></em></span>
+            <div><strong>{{ $programs->count() }}</strong><span>Total programmes</span></div>
+        </div>
+        <div class="admin-page__stat">
+            <span class="admin-page__stat-icon admin-page__stat-icon--green"><em class="icon ni ni-check-circle" aria-hidden="true"></em></span>
+            <div><strong>{{ $programs->where('status', '00')->count() }}</strong><span>Active</span></div>
+        </div>
+        <div class="admin-page__stat">
+            <span class="admin-page__stat-icon admin-page__stat-icon--amber"><em class="icon ni ni-clock" aria-hidden="true"></em></span>
+            <div><strong>{{ $programs->where('status', '01')->count() }}</strong><span>Unverified</span></div>
+        </div>
+    </section>
 
-
-            <a href="{{ route('programs.create')}}" style="align: left;" class="btn btn-round btn-primary"><em class="icon ni ni-plus"></em><span>New Programme</span></a>
-
-
-            <br>
-            <br>
-
-            <div class="card card-bordered card-preview">
-                <div class="card-inner">
-                    <table class="datatable-init table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Programme Name</th>
-                                <th>Base Currency</th>
-                                <th>Date Range</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $i = 1; ?>
-                            @foreach ($programs as $key => $object)
-                            <tr>
-                                <td>{{ $i }}</td>
-                                <td>{{ $object->program_name }}</td>
-                                <td>{{ $object->basecurrency->currency_name }}</td>
-                                <td>{{ $object->start_date }} - {{ $object->end_date }}</td>
-                                @if($object->status == '01')
-                                <td><span class="badge bg-warning">Unverified</td>
-                                    @elseif($object->status == '00')  
-                                    <td><span class="badge bg-success">Active</td>  
-                                        @endif    
-                                        <td>
-                                            <div class="tb-odr-btns d-none d-sm-inline">
-                                                <a href="{{ route('programs.edit', $object->id) }}" class="btn btn-dim btn-sm btn-primary"><em class="icon ni ni-edit"></em></a>
-                                                <a href="{{ route('programs.show', $object->id) }}" class="btn btn-dim btn-sm btn-primary"><em class="icon ni ni-eye"></em></a>
-                                            </div>
-                                            <a href="#" class="btn btn-pd-auto d-sm-none"><em class="icon ni ni-chevron-right"></em></a>
-                                        </td>
-                                    </tr>
-                                    <?php $i++; ?>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+    <section class="admin-page__card" aria-label="Programmes">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Programme directory</h2>
+                <p>{{ $programs->count() }} {{ \Illuminate\Support\Str::plural('programme', $programs->count()) }} in your organization</p>
             </div>
         </div>
-
-
-        @endsection
+        <div class="table-responsive">
+            <table class="table admin-page__table">
+                <thead>
+                    <tr>
+                        <th>Programme</th>
+                        <th>Base currency</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($programs as $program)
+                        <tr>
+                            <td>
+                                <a href="{{ route('programs.show', $program->id) }}">{{ $program->program_name }}</a>
+                                <span class="admin-page__table-secondary">Programme #{{ $program->id }}</span>
+                            </td>
+                            <td>{{ optional($program->basecurrency)->currency_name ?: 'Not set' }}</td>
+                            <td>
+                                {{ $program->start_date ?: '—' }}
+                                <span class="admin-page__date-separator">to</span>
+                                {{ $program->end_date ?: '—' }}
+                            </td>
+                            <td>
+                                @if ($program->status === '00')
+                                    <span class="admin-page__badge admin-page__badge--green">Active</span>
+                                @elseif ($program->status === '01')
+                                    <span class="admin-page__badge admin-page__badge--amber">Unverified</span>
+                                @else
+                                    <span class="admin-page__badge admin-page__badge--neutral">Pending</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="admin-page__actions">
+                                    <a class="admin-page__action" href="{{ route('programs.show', $program->id) }}">View</a>
+                                    <a class="admin-page__action" href="{{ route('programs.edit', $program->id) }}">Edit</a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @if ($programs->isEmpty())
+            <p class="admin-page__empty">No programmes have been created for your organization yet.</p>
+        @endif
+    </section>
+</main>
+@endsection

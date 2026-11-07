@@ -6,54 +6,131 @@
 <script>
     $(document).ready(function () {
         $('#tabMenu a[href="#{{ old('tab') }}"]').tab('show')
+        $('.nk-content .modal-content').addClass('project-detail__modal')
+        var logframeDialogs = [
+            '#addGoalDialog', '#editgoal_modal', '#practice_modal', '#editoutcome_modal',
+            '#activity_modal', '#activity1', '#activity2', '#editactivity_modal',
+            '#editoutcomeactivity_modal', '#editoutputactivity_modal', '#output_model',
+            '#editoutput_modal', '#indicator_modal', '#indicator1', '#indicator2',
+            '#editindicator_modal', '#addOutcomeDialog', '#addGoalIndicatorDialog',
+            '#editGoalIndicatorDialog', '#addGoalActivityDialog', '#editGoalActivityDialog',
+            '#addOutputDialog', '#editOutputDialog', '#addOutcomeIndicatorDialog',
+            '#editOutcomeIndicatorDialog', '#addOutcomeActivityDialog',
+            '#editOutcomeActivityDialog', '#addOutputIndicatorDialog',
+            '#editOutputIndicatorDialog', '#addOutputActivityDialog',
+            '#editOutputActivityDialog', '#updatecurreny'
+        ].join(', ')
+        $(logframeDialogs).find('.modal-content').addClass('logframe-form-modal')
+        $('#indicator_modal .modal-content').addClass('logframe-indicator-modal')
+        $('#indicator1 .modal-content, #indicator2 .modal-content').addClass('logframe-nested-indicator-modal')
+        $('#updatecurreny .modal-content').addClass('logframe-currency-modal')
     });
 </script>
 
 
-<div class="nk-block nk-block-lg">
-    <nav>
-        <ul class="breadcrumb breadcrumb-pipe">
-            <li class="breadcrumb-item"><a href="{{ url('/home')}}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('projects.index')}}">Projects</a></li>
-            <li class="breadcrumb-item active">Project Details</li>
-            <hr>
-            <h5 class="title nk-block-title"><span class="badge bg-success">{{$reportingf}}</span></h5>
-        </ul>
-    </nav>
-    <br>
-    <hr>
+<div class="container-fluid admin-page project-detail-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Project workspace</p>
+            <h1 class="admin-page__title">{{ $projectshow->project_name }}</h1>
+            <p class="admin-page__description">
+                {{ optional($projectshow->program)->program_name ?: 'Programme not assigned' }}
+                @if ($projectshow->start_date || $projectshow->end_date)
+                    <span class="project-detail__description-divider">·</span>
+                    {{ $projectshow->start_date ?: 'Start date not set' }} – {{ $projectshow->end_date ?: 'End date not set' }}
+                @endif
+            </p>
+        </div>
+        <div class="admin-page__actions project-detail__header-actions">
+            <a href="{{ route('projects.index') }}" class="admin-page__button-secondary">
+                <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+                All projects
+            </a>
+            <a href="{{ route('projects.edit', $projectshow->id) }}" class="admin-page__button-secondary">
+                <em class="icon ni ni-edit" aria-hidden="true"></em>
+                Edit project
+            </a>
+            <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#updatecurreny">
+                <em class="icon ni ni-coins" aria-hidden="true"></em>
+                Update base currency
+            </button>
+        </div>
+    </header>
 
-    <button type="button" style="margin-left: 78%" class="btn btn-round btn-primary" data-bs-toggle="modal" data-bs-target="#updatecurreny"><em class="icon ni ni-edit"></em>&nbsp Update Base Currency</button>
-    <br>
-    <br>
+    <section class="project-detail__summary" aria-label="Project overview">
+        <div class="project-detail__summary-item">
+            <span class="project-detail__summary-icon"><em class="icon ni ni-calendar-alt" aria-hidden="true"></em></span>
+            <div>
+                <span>Reporting frequency</span>
+                <strong>{{ $reportingf ?: 'Not set' }}</strong>
+            </div>
+        </div>
+        <div class="project-detail__summary-item">
+            <span class="project-detail__summary-icon project-detail__summary-icon--blue"><em class="icon ni ni-clock" aria-hidden="true"></em></span>
+            <div>
+                <span>Project period</span>
+                <strong>{{ $projectshow->start_date ?: '—' }} <span class="project-detail__date-divider">to</span> {{ $projectshow->end_date ?: '—' }}</strong>
+            </div>
+        </div>
+        <div class="project-detail__summary-item">
+            <span class="project-detail__summary-icon project-detail__summary-icon--green"><em class="icon ni ni-check-circle" aria-hidden="true"></em></span>
+            <div>
+                <span>Project status</span>
+                @if ($projectshow->status === '00')
+                    <strong><span class="admin-page__badge admin-page__badge--green">Active</span></strong>
+                @elseif ($projectshow->status === '01')
+                    <strong><span class="admin-page__badge admin-page__badge--amber">Unverified</span></strong>
+                @else
+                    <strong><span class="admin-page__badge admin-page__badge--neutral">In progress</span></strong>
+                @endif
+            </div>
+        </div>
+        <div class="project-detail__summary-item">
+            <span class="project-detail__summary-icon project-detail__summary-icon--violet"><em class="icon ni ni-coin" aria-hidden="true"></em></span>
+            <div>
+                <span>Base currency</span>
+                <strong>{{ optional($projectshow->basecurrency)->currency_name ?: optional(optional($projectshow->program)->basecurrency)->currency_name ?: 'Not set' }}</strong>
+            </div>
+        </div>
+    </section>
 
-    <div class="card card-bordered card-preview">
+    <div class="card card-bordered card-preview project-detail__workspace">
         <div class="card-inner">
             <div class="card-inner">
-                <ul class="nav nav-tabs mt-n3" id="tabMenu">
+                <ul class="nav nav-tabs mt-n3 project-detail__tabs" id="tabMenu" aria-label="Project management sections" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" data-bs-toggle="tab" href="#tabItem1">Implementation</a>
+                        <a class="nav-link active" id="project-implementation-tab" role="tab" aria-controls="tabItem1" aria-selected="true" data-bs-toggle="tab" href="#tabItem1">
+                            <span>Implementation</span><span class="project-detail__tab-count">{{ $impcontainers->count() }}</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tabItem2">Work plan</a>
+                        <a class="nav-link" id="project-workplan-tab" role="tab" aria-controls="tabItem2" aria-selected="false" data-bs-toggle="tab" href="#tabItem2">
+                            <span>Work plan</span><span class="project-detail__tab-count">{{ $workplancontaines->count() }}</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tabItem3">Intervention</a>
+                        <a class="nav-link" id="project-intervention-tab" role="tab" aria-controls="tabItem3" aria-selected="false" data-bs-toggle="tab" href="#tabItem3">
+                            <span>Intervention</span><span class="project-detail__tab-count">{{ $intervencontainers->count() }}</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tabItem4">Logframe</a>
+                        <a class="nav-link" id="project-logframe-tab" role="tab" aria-controls="tabItem4" aria-selected="false" data-bs-toggle="tab" href="#tabItem4">Logframe</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tabItem5">Funding</a>
+                        <a class="nav-link" id="project-funding-tab" role="tab" aria-controls="tabItem5" aria-selected="false" data-bs-toggle="tab" href="#tabItem5">
+                            <span>Funding</span><span class="project-detail__tab-count">{{ $accounts->count() }}</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tabItem6">Project Users</a>
+                        <a class="nav-link" id="project-users-tab" role="tab" aria-controls="tabItem6" aria-selected="false" data-bs-toggle="tab" href="#tabItem6">
+                            <span>Project users</span><span class="project-detail__tab-count">{{ $projectusers->count() }}</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tabItem7">Documents</a>
+                        <a class="nav-link" id="project-documents-tab" role="tab" aria-controls="tabItem7" aria-selected="false" data-bs-toggle="tab" href="#tabItem7">Documents</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tabItem8">Project Expenses</a>
+                        <a class="nav-link" id="project-expenses-tab" role="tab" aria-controls="tabItem8" aria-selected="false" data-bs-toggle="tab" href="#tabItem8">Project expenses</a>
                     </li>
                 </ul>
                 
@@ -63,550 +140,39 @@
                             @include('projects.implementation.implementation') 
 
 
-                               <div class="tab-pane" id="tabItem2">
+                               <div class="tab-pane project-detail__tab-pane" id="tabItem2" role="tabpanel" aria-labelledby="project-workplan-tab">
                                 <div class="content  d-flex flex-column flex-column-fluid" id="kt_content">
-                                    <div class="subheader py-2 py-lg-4  subheader-solid " id="kt_subheader">
+                                    <div class="subheader py-2 py-lg-4 project-workspace__header" id="kt_subheader">
                                         <div class=" container-fluid  d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
-                                            <!--begin::Info-->
-                                            <div class="d-flex align-items-center flex-wrap mr-2">
-                                                <!--begin::Page Title-->
-                                                <h6 class="text-dark font-weight-bolder mt-2 mb-2 mr-10">
-                                                    WorkPlans
-                                                </h6>
+                                            <div class="project-workspace__heading">
+                                                <p class="admin-page__eyebrow">Planning and budgeting</p>
+                                                <h2>Work plans</h2>
+                                                <p>Organize activity and indicator plans by financial year.</p>
                                             </div>
-                                            <!--end::Info-->
-                                            <div class="d-flex align-items-center">
-                                                <div class="d-flex align-items-center">
-                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalZoom87">Add WorkPlan Container</button>
-                                                </div>
+                                            <div class="project-workspace__header-actions">
+                                                <span class="project-workspace__count">{{ $workplancontaines->count() }} {{ \Illuminate\Support\Str::plural('plan', $workplancontaines->count()) }}</span>
+                                                <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom87">
+                                                    <em class="icon ni ni-plus" aria-hidden="true"></em>
+                                                    Add work plan
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="nk-block nk-block-lg">
-                                        <div class="card card-bordered card-preview">
+                                        <div class="card card-bordered card-preview project-workspace__content">
                                             <div class="card-inner">
-                                              @foreach($workplancontaines as $key1 => $containers)
-                                              <div id="" class="accordion">
-                                                <div class="accordion-item">
-                                                    <div class="dropdown">
-                                                        <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                                                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                                            <ul class="link-list-plain">
-                                                                @if($containers->status == '01')
-                                                                @if($containers->planning_type == 'Activity')
-                                                                <li><a href="{{ route('createwp', $containers->id)}}">Add Activity Work Plan</a></li>
-                                                                @elseif($containers->planning_type == 'Indicator')
-                                                                <li><a href="{{ route('createindicatorwp', $containers->id)}}">Add Indicator Work Plan</a>
-                                                                </li>
-                                                                @endif
-
-                                                                <li class="preview-item">
-                                                                    <button type="button" class="btn btn-success icon ni ni-send" id="workplan2" data-id="{{ $containers->id }}" data-bs-toggle="modal" data-bs-target="#workplan1"></em>Submit</button>
-                                                                </li> 
-                                                                @elseif($containers->status == '02') 
-                                    <!-- <li class="preview-item">
-                                        <button type="button" class="btn btn-success icon ni ni-forward-arrow" id="forwardcontainer" data-id="{{ $containers->id }}" data-bs-toggle="modal" data-bs-target="#forwardcontainer"></em>Forward</button>
-                                    </li>  -->
-                                    <li class="preview-item">
-                                        <button type="button" class="btn btn-warning icon ni ni-setting" id="worktimeline" data-id="{{ $containers->id }}" data-bs-toggle="modal" data-bs-target="#worktimeline1"></em>Timeline</button>
-                                    </li> 
-                                    <li class="preview-item">
-                                        <button type="button" class="btn btn-success icon ni ni-cross" id="cancelworkplan" data-id="{{ $containers->id }}" data-bs-toggle="modal" data-bs-target="#cancelworkplan1"></em>Cancel</button>
-                                    </li> 
-                                    @endif
-                                </ul>
-                            </div>
-                        </div>
-
-
-                        <div class="modal fade zoom" tabindex="-1" id="worktimeline1">
-                            <div class="modal-dialog modal-lg" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Timeline</h5>
-                                        <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                            <em class="icon ni ni-cross"></em>
-                                        </a>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="nk-block nk-block-lg">
-                                            <div class="card card-bordered card-preview">
-                                                <div class="card-inner">
-                                                    <div class="example-alerts">
-                                                        <div class="gy-4">
-                                                            <div class="example-alert">
-                                                                <div class="alert alert-success alert-icon">
-                                                                    <em class="icon ni ni-check-circle"></em> <strong>{{$containers->container_name}} Created on</strong>
-                                                                    <i>{{$containers->created_at}}</i> <strong>created
-                                                                    by </strong>{{Auth::user()->name}}
-                                                                </div>
-                                                            </div>
-                                                            @if($containers->submitted_by != NULL)
-                                                            <div class="example-alert">
-                                                                <div class="alert alert-secondary alert-icon">
-                                                                    <em class="icon ni ni-alert-circle"></em> <strong>{{$containers->container_name}} Submitted on</strong>
-                                                                    <i>{{$containers->submitted_on}}</i></strong>. 
-                                                                </div>
-                                                            </div>
-                                                            @endif
-                                                            @if($containers->cancel_date != NULL)
-                                                            <div class="example-alert">
-                                                                <div class="alert alert-danger alert-icon">
-                                                                    <em class="icon ni ni-alert-circle"></em> <strong>{{$containers->container_name}} Cancelled on</strong>
-                                                                    <i>{{$containers->cancel_date}}</i></strong>.
-                                                                </div>
-                                                            </div>
-                                                            @endif
-
-                                                        </div>
-                                                    </div> 
+                                              @if($workplancontaines->isEmpty())
+                                                <div class="project-detail__empty-state">
+                                                    <span class="project-detail__record-icon program-detail__record-icon--blue"><em class="icon ni ni-calendar-alt" aria-hidden="true"></em></span>
+                                                    <h3>No work plans yet</h3>
+                                                    <p>Create a work plan container to start organizing this project’s activities and indicators.</p>
+                                                    <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom87">
+                                                        <em class="icon ni ni-plus" aria-hidden="true"></em>
+                                                        Add work plan
+                                                    </button>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer bg-light">
-                                        <span class="sub-text"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-
-
-                        <a href="#" class="accordion-head collapsed" data-bs-toggle="collapse" data-bs-target="#accordion-item-1">
-                            <h6 class="title"><span class="badge bg-success">Container Name:</span> {{$containers->container_name}} - ( {{$containers->planning_type}} ) - {{$containers->financial_year}}
-                            </h6>
-                            <span class="accordion-icon"></span>
-                        </a>
-                        <div class="accordion-body collapse" id="accordion-item-1" data-bs-parent="#accordion">
-                            <div class="accordion-inner">
-                                <div class="card card-bordered card-preview">
-                                    @if($containers->planning_type == 'Activity')
-                                    <div class="card-inner">
-                                        <table class="datatable-init-export nowrap table" data-export-title="Export">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Workplan Name</th>
-
-                                                    <th>Date Range</th>
-                                                    <!-- <th>Funding One</th> -->
-                                                    @foreach($accounts as $key => $object)
-                                                    <th>{{$object->funding_name}}</th>
-                                                    @endforeach
-                                                    <th>Funding Total</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-
-                                              <?php $i = 1; ?>
-                                              @foreach ($containers->budget as $key => $object)
-                                              <tr>
-                                                <td>{{$i}}</td>
-                                                <td>{{ $object->workplan_name }}</td>
-                                                <!-- <td>{{ $object->financial_year }}</td> -->
-                                                <!-- <td>{{ $object->activity }}</td> -->
-                                                <td>{{ $object->start_date }} - {{ $object->end_date }}</td>
-                                                @if($projectshow->basecurrency_id != '')
-                                                <td>{{$projectshow->basecurrency->currency_code}} @convert($object->annual_amounta)</td>
-                                                <td>{{$projectshow->basecurrency->currency_code}} @convert($object->annual_amountb)</td>
-                                                <td>{{$projectshow->basecurrency->currency_code}} @convert($object->total)</td>
-                                                <td>
-                                                    @else
-                                                    <td>{{$projectshow->program->basecurrency->currency_code}} @convert($object->annual_amounta)</td>
-                                                    <td>{{$projectshow->program->basecurrency->currency_code}} @convert($object->annual_amountb)</td>
-                                                    <td>{{$projectshow->program->basecurrency->currency_code}} @convert($object->total)</td>
-                                                    <td>
-                                                        @endif
-
-                                                        
-
-
-                                                        <li class="col-sm-6 col-lg-3">
-                                                            <div class="dropdown">
-                                                                <a href="#" class="btn btn-primary" data-bs-toggle="dropdown"><span>Select Action</span><em class="icon ni ni-chevron-down"></em></a>
-                                                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-auto mt-1">
-                                                                    <ul class="link-list-plain">
-                                                                        <li><a href="{{ url('budgetupdate',$object->id)}}">Edit Workplan</a></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                    </td>
-
-                                                </tr>
-                                                <?php $i++; ?>
-                                                @endforeach
-
-                                            </tbody>
-                                        </table>
-                                        <hr>
-                                        <style type="text/css">
-                                            .styled-table thead tr {
-                                                background-color: #009879;
-                                                color: #ffffff;
-                                                text-align: left;
-                                            }
-
-                                            .styled-table th,
-                                            .styled-table td {
-                                                padding: 12px 15px;
-                                            }
-
-                                            .styled-table tbody tr {
-                                                border-bottom: 1px solid #dddddd;
-                                            }
-
-                                            .styled-table tbody tr:nth-of-type(even) {
-                                                background-color: #f3f3f3;
-                                            }
-
-                                            .styled-table tbody tr:last-of-type {
-                                                border-bottom: 2px solid #009879;
-                                            }
-                                        </style>
-                                        <table class="styled-table" style="margin-left: 70%;">
-                                          <tr>
-                                            @foreach($accounts as $key => $object)
-                                            <th>{{$object->funding_name}}</th>
-                                            @endforeach
-                                            <th>Total Fundings</th>
-                                        </tr>
-                                        <tr>
-                                            @if($projectshow->basecurrency_id != '')
-                                            <td>{{$projectshow->basecurrency->currency_code}} @convert($fundingonetotal)</td>
-                                            <td>{{$projectshow->basecurrency->currency_code}} @convert($fundingtwototal)</td>
-                                            <td>{{$projectshow->basecurrency->currency_code}} @convert($fundingtotal)</td>
-                                            @else
-                                            <td>{{$projectshow->program->basecurrency->currency_code}} @convert($fundingonetotal)</td>
-                                            <td>{{$projectshow->program->basecurrency->currency_code}} @convert($fundingtwototal)</td>
-                                            <td>{{$projectshow->program->basecurrency->currency_code}} @convert($fundingtotal)</td>
-                                            @endif
-                                        </tr>
-
-                                    </table>
-
-                                </div>
-
-                                @elseif($containers->planning_type == 'Indicator')
-
-                                <div class="nk-block nk-block-lg">
-                                    <div class="nk-block-head">
-                                        <div class="nk-block-head-content">
-                                            <div class="card card-bordered card-preview">
-                                                <div class="card-inner">
-                                                    <ul class="nav nav-tabs mt-n3">
-                                                        <li class="nav-item">
-                                                            <a class="nav-link active" data-bs-toggle="tab" href="#tabItem88">All</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-bs-toggle="tab" href="#tabItem89">Monthly</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-bs-toggle="tab" href="#tabItem90">Bi-Monthly</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-bs-toggle="tab" href="#tabItem91">Quaterly</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-bs-toggle="tab" href="#tabItem92">Semi-Annual</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" data-bs-toggle="tab" href="#tabItem93">Annual</a>
-                                                        </li>
-                                                    </ul>
-                                                    <div class="tab-content">
-                                                        <div class="tab-pane active" id="tabItem88">
-                                                            <div class="card-inner">
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>#</th>
-                                                                            <th>Indicator</th>
-                                                                            <th>Label</th>
-                                                                            <th>Baseline</th>
-                                                                            <th>Target</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-
-                                                                        <?php $i = 1; ?>
-                                                                        @foreach($containers->indicatortarget as $key => $object)
-                                                                        <tr>
-                                                                            <td>{{$i}}</td>
-                                                                            <td>{{ $object->indicator->indicator_title}}</td>
-                                                                            <td>{{ $object->label }}</td>
-                                                                            <th>{{ $object->baseline }}</th>
-                                                                            <td>{{ $object->target }}</td>
-                                                                        </tr>
-                                                                        <?php $i++; ?>
-                                                                        @endforeach
-
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="tab-pane" id="tabItem89">
-
-                                                            <div class="card-inner">
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>#</th>
-                                                                            <!-- <th>Indicator</th> -->
-                                                                            <th>Label</th>
-                                                                            <th>January</th>
-                                                                            <th>February</th>
-                                                                            <th>March</th>
-                                                                            <th>April</th>
-                                                                            <th>May</th>
-                                                                            <th>June</th>
-                                                                            <th>July</th>
-                                                                            <th>August</th>
-                                                                            <th>September</th>
-                                                                            <th>October</th>
-                                                                            <th>November</th>
-                                                                            <th>December</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-
-
-                                                                        <!-- $string = str_replace('[] ', '""', $reporting); -->
-
-                                                                        <?php $i = 1; ?>
-                                                                        @foreach ($reporting as  $object)
-
-                                                                        <tr>
-                                                                            <td>{{$i}}</td>
-                                                                            <td>{{ $object->label }}</td>
-                                                                            <th>{{ preg_replace('/["]/', '', $object->january) }}</th>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->february) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->march)}}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->april) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->may) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->june) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->july) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->august) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->september) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->october) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->november) }}</td>
-                                                                            <td>{{ preg_replace('/["]/', '', $object->december) }}</td>
-
-
-                                                                        </tr>
-                                                                        <?php $i++; ?>
-                                                                        @endforeach
-
-                                                                    </tbody>
-                                                                </table>
-                                                                <hr>
-
-
-                                                            </div>
-
-                                                        </div>
-
-                                                        <div class="tab-pane" id="tabItem90">
-                                                            <div class="card-inner">
-                                                                <table class="datatable-init table">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>#</th>
-                                                                            <!-- <th>Indicator</th> -->
-                                                                            <th>Label</th>
-                                                                            <th>Jan-Feb</th>
-                                                                            <th>March-April</th>
-                                                                            <th>May-June</th>
-                                                                            <th>July-August</th>
-                                                                            <th>September-October</th>
-                                                                            <th>November-December</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-
-                                                                        <?php $i = 1; ?>
-                                                                        @foreach ($reporting2 as $object)
-                                                                        <tr>
-                                                                            <td>{{$i}}</td>
-
-                                                                            <td>{{ $object->label }}</td>
-                                                                            <!-- <th>{{ $object->baseline }}</th> -->
-                                                                            <td>{{ $object->jan_feb }}</td>
-
-                                                                            <td>{{ $object->mar_apr }}</td>
-                                                                            <td>{{ $object->may_june }}</td>
-                                                                            <td>{{ $object->july_aug }}</td>
-                                                                            <td>{{ $object->sep_oct }}</td>
-                                                                            <td>{{ $object->nov_dec }}</td>
-
-
-                                                                        </tr>
-                                                                        <?php $i++; ?>
-                                                                        @endforeach
-
-                                                                    </tbody>
-                                                                </table>
-                                                                <hr>
-
-
-                                                            </div>
-                                                        </div>
-                                                        <div class="tab-pane" id="tabItem91">
-                                                            <div class="card-inner">
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>#</th>
-                                                                            <!-- <th>Indicator</th> -->
-                                                                            <th>Label</th>
-                                                                            <th>Jan-March</th>
-                                                                            <th>Aprill-June</th>
-                                                                            <th>July-September</th>
-                                                                            <th>October-December</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-
-                                                                        <?php $i = 1; ?>
-                                                                        @foreach ($reporting3 as $object)
-                                                                        <tr>
-                                                                            <td>{{$i}}</td>
-
-                                                                            <td>{{ $object->label }}</td>
-                                                                            <!-- <th>{{ $object->baseline }}</th> -->
-                                                                            <td>{{ $object->jan_march }}</td>
-
-                                                                            <td>{{ $object->april_june }}</td>
-                                                                            <td>{{ $object->july_september }}</td>
-                                                                            <td>{{ $object->october_december }}</td>
-
-
-                                                                        </tr>
-                                                                        <?php $i++; ?>
-                                                                        @endforeach
-
-                                                                    </tbody>
-                                                                </table>
-                                                                <hr>
-
-
-                                                            </div>
-                                                        </div>
-                                                        <div class="tab-pane" id="tabItem92">
-                                                         <div class="card-inner">
-                                                            <table class="datatable-init-export nowrap table" data-export-title="Export">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>#</th>
-                                                                        <!-- <th>Indicator</th> -->
-                                                                        <th>Label</th>
-                                                                        <th>Jan-June</th>
-                                                                        <th>July-December</th>
-                                                                                            <!-- <th>July-September</th>
-                                                                                                <th>October-December</th> -->
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-
-                                                                                            <?php $i = 1; ?>
-                                                                                            @foreach ($reporting4 as $object)
-                                                                                            <tr>
-                                                                                                <td>{{$i}}</td>
-
-                                                                                                <td>{{ $object->label }}</td>
-                                                                                                <!-- <th>{{ $object->baseline }}</th> -->
-                                                                                                <td>{{ $object->jan_june }}</td>
-
-                                                                                                <td>{{ $object->july_december }}</td>
-                                                                                            <!-- <td>{{ $object->july_september }}</td>
-                                                                                                <td>{{ $object->october_december }}</td> -->
-
-
-                                                                                            </tr>
-                                                                                            <?php $i++; ?>
-                                                                                            @endforeach
-
-                                                                                        </tbody>
-                                                                                    </table>
-                                                                                    <hr>
-
-
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="tab-pane" id="tabItem93">
-                                                                                <div class="card-inner">
-                                                                                    <table class="datatable-init-export nowrap table" data-export-title="Export">
-                                                                                        <thead>
-                                                                                            <tr>
-                                                                                                <th>#</th>
-                                                                                                <!-- <th>Indicator</th> -->
-                                                                                                <th>Label</th>
-                                                                                                <!-- <th>Jan-June</th> -->
-                                                                                                <th>Jan-December</th>
-                                                                                            <!-- <th>July-September</th>
-                                                                                                <th>October-December</th> -->
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-
-                                                                                            <?php $i = 1; ?>
-                                                                                            @foreach ($reporting5 as $object)
-                                                                                            <tr>
-                                                                                                <td>{{$i}}</td>
-
-                                                                                                <td>{{ $object->label }}</td>
-                                                                                                <!-- <th>{{ $object->baseline }}</th> -->
-                                                                                                <td>{{ $object->jan_december }}</td>
-
-                                                                                            <!-- <td>{{ $object->april_june }}</td>
-                                                                                            <td>{{ $object->july_september }}</td>
-                                                                                            <td>{{ $object->october_december }}</td> -->
-
-
-                                                                                        </tr>
-                                                                                        <?php $i++; ?>
-                                                                                        @endforeach
-
-                                                                                    </tbody>
-                                                                                </table>
-                                                                                <hr>
-
-
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                                @endif
-                                                @if($containers->status == '01')
-                                                <h6 class="title"><span class="badge bg-warning">Draft</span> 
-                                                    @elseif($containers->status == '02')    
-                                                    <h6 class="title"><span class="badge bg-success">Submitted</span> 
-                                                        @elseif($containers->status == '03')    
-                                                        <h6 class="title"><span class="badge bg-success">Forwarded</span> 
-                                                            @elseif($containers->status == '04')    
-                                                            <h6 class="title"><span class="badge bg-success">Approved</span> 
-                                                                @elseif($containers->status == '05')    
-                                                                <h6 class="title"><span class="badge bg-success">Rejected</span> 
-                                                                    @endif
-
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                                <br>
-                                                <hr>
-                                                @endforeach  
+                                              @endif
+                                              @include('projects.workplan-content')
                                             </div>
                                         </div>
                                     </div>
@@ -619,7 +185,7 @@
                             </div>
 
 
-                            <div class="tab-pane" id="tabItem3">
+                            <div class="tab-pane project-detail__tab-pane" id="tabItem3" role="tabpanel" aria-labelledby="project-intervention-tab">
 
                                 <script type="text/javascript">
                                   $(function(){
@@ -650,71 +216,112 @@
                     </script>
                     <div class="content  d-flex flex-column flex-column-fluid" id="kt_content">
                         <!--begin::Subheader-->
-                        <div class="subheader py-2 py-lg-4  subheader-solid " id="kt_subheader">
+                        <div class="subheader py-2 py-lg-4 project-workspace__header" id="kt_subheader">
                             <div class=" container-fluid  d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
-                                <!--begin::Info-->
-                                <div class="d-flex align-items-center flex-wrap mr-2">
-                                    <!--begin::Page Title-->
-                                    <h6 class="text-dark font-weight-bolder mt-2 mb-2 mr-10">
-                                        Interventions
-                                    </h6>
+                                <div class="project-workspace__heading">
+                                    <p class="admin-page__eyebrow">Delivery tracking</p>
+                                    <h2>Interventions</h2>
+                                    <p>Track delivery entries, submission status, and approvals.</p>
                                 </div>
-                                <!--end::Info-->
-                                <div class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalZoom8787">Add Intervention Container</button>
-                                    </div>
+                                <div class="project-workspace__header-actions">
+                                    <span class="project-workspace__count">{{ $intervencontainers->count() }} {{ \Illuminate\Support\Str::plural('container', $intervencontainers->count()) }}</span>
+                                    <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom8787">
+                                        <em class="icon ni ni-plus" aria-hidden="true"></em>
+                                        Add intervention container
+                                    </button>
                                 </div>
                             </div>
                         </div>
                         <div class="nk-block nk-block-lg">
-                            <div class="card card-bordered card-preview">
+                            <div class="card card-bordered card-preview project-workspace__content">
                                 <div class="card-inner">
+                                    @if($intervencontainers->isEmpty())
+                                        <div class="project-detail__empty-state">
+                                            <span class="project-detail__record-icon"><em class="icon ni ni-activity" aria-hidden="true"></em></span>
+                                            <h3>No intervention containers yet</h3>
+                                            <p>Create an intervention container to begin recording project delivery.</p>
+                                            <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom8787">
+                                                <em class="icon ni ni-plus" aria-hidden="true"></em>
+                                                Add intervention container
+                                            </button>
+                                        </div>
+                                    @endif
                                     @foreach($intervencontainers as $key1 => $incontainer)
-                                    <div id="" class="accordion">
+                                    @php
+                                        $containerInterventions = $interventions->where('intervention_container_id', $incontainer->id);
+                                        $containerFundingOne = $containerInterventions->sum('funding1');
+                                        $containerFundingTwo = $containerInterventions->sum('funding2');
+                                        $containerTotal = $containerInterventions->sum('total');
+                                        $projectCurrencyCode = optional($projectshow->basecurrency)->currency_code
+                                            ?: optional(optional($projectshow->program)->basecurrency)->currency_code;
+                                    @endphp
+                                    <div id="intervention-accordion-{{ $incontainer->id }}" class="accordion project-workspace__accordion project-intervention__container">
                                         <div class="accordion-item">
-                                            <div class="dropdown">
-                                                <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                                    <ul class="link-list-plain">
+                                            <div class="project-intervention__container-head">
+                                                <a href="#intervention-content-{{ $incontainer->id }}" class="accordion-head collapsed project-intervention__toggle" data-bs-toggle="collapse" data-bs-target="#intervention-content-{{ $incontainer->id }}" aria-expanded="false" aria-controls="intervention-content-{{ $incontainer->id }}">
+                                                    <span class="project-intervention__container-icon"><em class="icon ni ni-activity" aria-hidden="true"></em></span>
+                                                    <span class="project-intervention__container-heading">
+                                                        <span>Intervention container</span>
+                                                        <strong>{{ $incontainer->container_name }}</strong>
+                                                    </span>
+                                                    @if($incontainer->status == '01')
+                                                        <span class="project-intervention__status project-intervention__status--draft">Draft</span>
+                                                    @elseif($incontainer->status == '02')
+                                                        <span class="project-intervention__status project-intervention__status--submitted">Submitted</span>
+                                                    @elseif($incontainer->status == '03')
+                                                        <span class="project-intervention__status project-intervention__status--forwarded">Forwarded</span>
+                                                    @elseif($incontainer->status == '04')
+                                                        <span class="project-intervention__status project-intervention__status--approved">Approved</span>
+                                                    @elseif($incontainer->status == '05')
+                                                        <span class="project-intervention__status project-intervention__status--rejected">Rejected</span>
+                                                    @endif
+                                                    <span class="accordion-icon"></span>
+                                                </a>
+                                                <div class="dropdown project-intervention__actions">
+                                                    <button type="button" class="project-intervention__actions-trigger" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions for {{ $incontainer->container_name }}">
+                                                        <span>Actions</span><em class="icon ni ni-chevron-down" aria-hidden="true"></em>
+                                                    </button>
+                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                        <ul class="link-list-plain">
                                                         @if($incontainer->status == '01')
                                                         <li class="preview-item">
-                                                            <button type="button" class="btn btn-success icon ni ni-plus" id="addintervention12" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#addintervention1"></em>Add Intervention</button>
+                                                            <button type="button" id="addintervention12" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#addintervention1"><em class="icon ni ni-plus" aria-hidden="true"></em>Add intervention</button>
                                                         </li> 
 
                                                         <li class="preview-item">
-                                                            <button type="button" class="btn btn-success" id="uploadintervention" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#uploadintervention1"></em>Upload Excel/CSV</button>
+                                                            <button type="button" id="uploadintervention" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#uploadintervention1"><em class="icon ni ni-upload" aria-hidden="true"></em>Upload Excel/CSV</button>
                                                         </li> 
 
                                                         <li class="preview-item">
-                                                            <button type="button" class="btn btn-success icon ni ni-send" id="submitcontainer" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#submitcontainer"></em>Submit</button>
+                                                            <button type="button" id="submitcontainer" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#submitcontainer"><em class="icon ni ni-send" aria-hidden="true"></em>Submit container</button>
                                                         </li> 
                                                         @elseif($incontainer->status == '02') 
                                                         @can('forward-intervention')
                                                         <li class="preview-item">
-                                                            <button type="button" class="btn btn-success icon ni ni-forward-arrow" id="forwardintervention2" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#forwardintervention1"></em>Forward</button>
+                                                            <button type="button" id="forwardintervention2" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#forwardintervention1"><em class="icon ni ni-forward-arrow" aria-hidden="true"></em>Forward</button>
                                                         </li> 
                                                         @endcan
                                                         @can('approve-intervention')
                                                         <li class="preview-item">
-                                                            <button type="button" class="btn btn-success icon ni ni-done" id="approveintervention2" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#approveintervention1"></em>Approve</button>
+                                                            <button type="button" id="approveintervention2" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#approveintervention1"><em class="icon ni ni-done" aria-hidden="true"></em>Approve</button>
                                                         </li> 
                                                         @endcan
                                                         @can('reject-intervention')
                                                         <li class="preview-item">
-                                                            <button type="button" class="btn btn-danger icon ni ni-done" id="rejectintervention2" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#rejectintervention1"></em>Reject</button>
+                                                            <button type="button" id="rejectintervention2" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#rejectintervention1"><em class="icon ni ni-cross" aria-hidden="true"></em>Reject</button>
                                                         </li> 
                                                         @endcan
                                                         <li class="preview-item">
-                                                            <button type="button" class="btn btn-danger icon ni ni-cross" id="cancelintervention" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#cancelintervention1"></em>Cancel</button>
+                                                            <button type="button" id="cancelintervention" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#cancelintervention1"><em class="icon ni ni-cross" aria-hidden="true"></em>Cancel</button>
                                                         </li> 
 
                                                         <li class="preview-item">
-                                                            <button type="button" class="btn btn-warning icon ni ni-setting" id="timeline12" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#timeline2"></em>Timeline</button>
+                                                            <button type="button" id="timeline12" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#timeline2"><em class="icon ni ni-setting" aria-hidden="true"></em>Timeline</button>
                                                         </li> 
                                                         @endif
                                                     </ul>
                                                 </div>
+                                            </div>
                                             </div>
 
                                             <div class="modal fade zoom" tabindex="-1" id="timeline2">
@@ -780,130 +387,92 @@
                                             </div> 
 
 
-                                            <a href="#" class="accordion-head collapsed" data-bs-toggle="collapse" data-bs-target="#accordion-item-1">
-                                                <h6 class="title"><span class="badge bg-success">Container Name:</span> {{$incontainer->container_name}}
-                                                </h6>
-                                                <span class="accordion-icon"></span>
-                                            </a>
-                                            <div class="accordion-body collapse" id="accordion-item-1" data-bs-parent="#accordion">
+                                            <div class="accordion-body collapse" id="intervention-content-{{ $incontainer->id }}" data-bs-parent="#intervention-accordion-{{ $incontainer->id }}">
                                                 <div class="accordion-inner">
-                                                    <div class="card card-bordered card-preview">
-                                                        <div class="card-inner">
-                                                            <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                                    @if($containerInterventions->isEmpty())
+                                                    <div class="project-intervention__empty">
+                                                        <span class="project-intervention__empty-icon"><em class="icon ni ni-activity" aria-hidden="true"></em></span>
+                                                        <div>
+                                                            <strong>No interventions in this container</strong>
+                                                            <p>Add an intervention to start tracking delivery and expenditure.</p>
+                                                        </div>
+                                                        @if($incontainer->status == '01')
+                                                        <button type="button" class="admin-page__button-secondary" id="addintervention12" data-id="{{ $incontainer->id }}" data-bs-toggle="modal" data-bs-target="#addintervention1">
+                                                            <em class="icon ni ni-plus" aria-hidden="true"></em>Add intervention
+                                                        </button>
+                                                        @endif
+                                                    </div>
+                                                    @else
+                                                            <div class="project-intervention__table-wrap">
+                                                            <table class="table project-intervention__table">
                                                                 <thead>
                                                                     <tr>
                                                                         <th>#</th>
                                                                         <th>Activity</th>
-                                                                        @foreach($accounts as $key => $object)
-                                                                        <th>{{$object->funding_name}}</th>
+                                                                        @foreach($accounts->take(2) as $account)
+                                                                        <th>{{ $account->funding_name }}</th>
                                                                         @endforeach
-                                                                        <th>Total Amount</th>
-                                                                        <th>Action</th>
+                                                                        <th>Total</th>
+                                                                        <th><span class="sr-only">Actions</span></th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    <?php $i = 1; ?>
-                                                                    @foreach ($interventions as $key => $object)
-                                                                    @if($object->intervention_container_id == $incontainer->id)
-
-
+                                                                    @foreach($containerInterventions as $object)
                                                                     <tr>
-                                                                        <td>{{$i}}</td>
-                                                                        <td>{{$object->activity->activity_title}}</td>
-                                                                        @if($projectshow->basecurrency_id != '')
-                                                                        <td>{{$projectshow->basecurrency->currency_code}} @convert($object->funding1)</td>
-                                                                        <td>{{$projectshow->basecurrency->currency_code}} @convert($object->funding2)</td>
-                                                                        <td>{{$projectshow->basecurrency->currency_code}} @convert($object->total)</td>
-                                                                        @else
-                                                                        <td>{{$projectshow->program->basecurrency->currency_code}} @convert($object->funding1)</td>
-                                                                        <td>{{$projectshow->program->basecurrency->currency_code}} @convert($object->funding2)</td>
-                                                                        <td>{{$projectshow->program->basecurrency->currency_code}} @convert($object->total)</td>
-                                                                        @endif
+                                                                        <td data-label="#"> {{ $loop->iteration }} </td>
                                                                         <td>
-                                                                            <li class="col-sm-6 col-lg-3">
-                                                                                <div class="dropdown">
-                                                                                    <a href="#" class="btn btn-primary" data-bs-toggle="dropdown"><span>Select Action</span><em class="icon ni ni-chevron-down"></em></a>
-                                                                                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-auto mt-1">
-                                                                                        <ul class="link-list-opt no-bdr">
-
-
-                                                                                            <li class="preview-item">
-                                                                                                <button type="button" class="btn btn-success icon ni ni-edit" id="editintervention" data-id="{{ $object->id }}" data-bs-toggle="modal" data-bs-target="#editinterventi"></em>Edit Intervention</button>
-                                                                                            </li> 
-                                                                                            <li class="preview-item">
-                                                                                                <button type="button" class="btn btn-success icon ni ni-eye" id="viewintervention" data-id="{{ $object->id }}" data-bs-toggle="modal" data-bs-target="#viewinterventi"></em>View Intervention</button>
-                                                                                            </li> 
-                                                                                        </ul>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </li>
+                                                                            <div class="project-intervention__activity">
+                                                                                <span class="project-intervention__activity-icon"><em class="icon ni ni-activity" aria-hidden="true"></em></span>
+                                                                                <span>{{ optional($object->activity)->activity_title ?: 'Activity unavailable' }}</span>
+                                                                            </div>
                                                                         </td>
-                                                                        
+                                                                        @if($accounts->count() > 0)
+                                                                        <td>{{ $projectCurrencyCode }} @convert($object->funding1)</td>
+                                                                        @endif
+                                                                        @if($accounts->count() > 1)
+                                                                        <td>{{ $projectCurrencyCode }} @convert($object->funding2)</td>
+                                                                        @endif
+                                                                        <td class="project-intervention__amount">{{ $projectCurrencyCode }} @convert($object->total)</td>
+                                                                        <td class="project-intervention__row-actions">
+                                                                            <div class="dropdown">
+                                                                                <button type="button" class="project-intervention__row-action" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions for {{ optional($object->activity)->activity_title ?: 'intervention' }}">
+                                                                                    <em class="icon ni ni-more-h" aria-hidden="true"></em>
+                                                                                </button>
+                                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                                    <ul class="link-list-plain">
+                                                                                        <li><button type="button" id="editintervention" data-id="{{ $object->id }}" data-bs-toggle="modal" data-bs-target="#editinterventi"><em class="icon ni ni-edit" aria-hidden="true"></em>Edit intervention</button></li>
+                                                                                        <li><button type="button" id="viewintervention" data-id="{{ $object->id }}" data-bs-toggle="modal" data-bs-target="#viewinterventi"><em class="icon ni ni-eye" aria-hidden="true"></em>View details</button></li>
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </div>
+                                                                        </td>
                                                                     </tr>
-                                                                    <?php $i++; ?>
-                                                                    @endif
-                                                                    @endforeach  
+                                                                    @endforeach
                                                                 </tbody>
                                                             </table>
-                                                            <hr>
-                                                            <style type="text/css">
-                                                                .styled-table thead tr {
-                                                                    background-color: #009879;
-                                                                    color: #ffffff;
-                                                                    text-align: left;
-                                                                }
-
-                                                                .styled-table th,
-                                                                .styled-table td {
-                                                                    padding: 12px 15px;
-                                                                }
-
-                                                                .styled-table tbody tr {
-                                                                    border-bottom: 1px solid #dddddd;
-                                                                }
-
-                                                                .styled-table tbody tr:nth-of-type(even) {
-                                                                    background-color: #f3f3f3;
-                                                                }
-
-                                                                .styled-table tbody tr:last-of-type {
-                                                                    border-bottom: 2px solid #009879;
-                                                                }
-                                                            </style>
-                                                            <table class="styled-table" style="margin-left: 70%;">
-                                                              <tr>
-                                                                @foreach($accounts as $key => $object)
-                                                                <th>{{$object->funding_name}}</th>
-                                                                @endforeach
-                                                                <th>Total Amount</th>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>{{$projectshow->program->basecurrency->currency_code}} @convert($purchases1)</td>
-                                                                <td>{{$projectshow->program->basecurrency->currency_code}} @convert($purchases2)</td>
-                                                                <td>{{$projectshow->program->basecurrency->currency_code}} @convert($purchases)</td>
-                                                            </tr>
-
-                                                        </table>
-                                                        @if($incontainer->status == '01')
-                                                        <h6 class="title"><span class="badge bg-warning">Draft</span> 
-                                                            @elseif($incontainer->status == '02')    
-                                                            <h6 class="title"><span class="badge bg-success">Submitted</span> 
-                                                                @elseif($incontainer->status == '03')    
-                                                                <h6 class="title"><span class="badge bg-success">Forwarded</span> 
-                                                                    @elseif($incontainer->status == '04')    
-                                                                    <h6 class="title"><span class="badge bg-success">Approved</span> 
-                                                                        @elseif($incontainer->status == '05')    
-                                                                        <h6 class="title"><span class="badge bg-success">Rejected</span> 
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
+                                                            </div>
+                                                    @endif
+                                                            <div class="project-intervention__summary">
+                                                                <div>
+                                                                    <span>{{ optional($accounts->get(0))->funding_name ?: 'Funding 1' }}</span>
+                                                                    <strong>{{ $projectCurrencyCode }} @convert($containerFundingOne)</strong>
+                                                                </div>
+                                                                <div>
+                                                                    <span>{{ optional($accounts->get(1))->funding_name ?: 'Funding 2' }}</span>
+                                                                    <strong>{{ $projectCurrencyCode }} @convert($containerFundingTwo)</strong>
+                                                                </div>
+                                                                <div class="project-intervention__summary-total">
+                                                                    <span>Container total</span>
+                                                                    <strong>{{ $projectCurrencyCode }} @convert($containerTotal)</strong>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <br>
                                                     <hr>
-                                                    @endforeach
+                                        </div>
+                                    </div>
+                                    @endforeach
                                                 </div>
 
                                             </div>
@@ -912,56 +481,45 @@
                                     </div>
 
 
-                                    <div class="modal fade zoom" tabindex="-1" id="modalZoom8787">
-                                        <div class="modal-dialog modal-lg" role="document">
-                                            <div class="modal-content">
+                                    <div class="modal fade" tabindex="-1" id="modalZoom8787" aria-labelledby="add-intervention-container-title" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered project-detail__modal-dialog" role="document">
+                                            <div class="modal-content project-detail__modal">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">Intervention Container</h5>
-                                                    <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                    <div class="project-detail__modal-heading">
+                                                        <span class="project-detail__modal-icon"><em class="icon ni ni-activity" aria-hidden="true"></em></span>
+                                                        <div>
+                                                            <h5 class="modal-title" id="add-intervention-container-title">Add intervention container</h5>
+                                                            <p>Create a container to organize project interventions.</p>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                                         <em class="icon ni ni-cross"></em>
-                                                    </a>
+                                                    </button>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <div class="nk-block nk-block-lg">
-                                                        <div class="card card-bordered card-preview">
-                                                            <div class="card-inner">
-                                                                <ul class="nav nav-tabs mt-n3">
-                                                                    <li class="nav-item">
-                                                                        <a class="nav-link active" data-bs-toggle="tab" href="#tabItem5fgt56"><em class="icon ni ni-user"></em><span>Intervention</span></a>
-                                                                    </li>
-                                                                </ul>
+                                                <form method="POST" action="{{ route('createicontainer') }}" class="project-detail__modal-form">
+                                                    @csrf
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="status" value="01">
+                                                        <input type="hidden" name="created_by" value="{{ Auth::user()->id }}">
+                                                        <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+                                                        <input type="hidden" name="project_id" value="{{ $projectshow->id }}">
 
-                                                                <div class="tab-content">
-                                                                    <div class="tab-pane active" id="tabItem5fgt56">
-                                                                        <form method="POST" action="{{ route('createicontainer')}}">
-                                                                            @csrf
-                                                                            <div class="row gy-4">
-
-                                                                             <input type="hidden" class="form-control" value="01" name="status" id="default-01">
-                                                                             <input type="hidden" class="form-control" value="{{Auth::user()->id}}" name="created_by" id="default-01">
-                                                                             <input type="hidden" class="form-control" value="{{Auth::user()->organization_id}}" name="organization_id" id="default-01">
-                                                                             <input type="hidden" class="form-control" value="{{$projectshow->id}}" name="project_id" id="default-01">
-
-                                                                             <div class="form-group">
-                                                                                <label class="form-label" for="default-01">Container Name</label>
-                                                                                <div class="form-control-wrap">
-                                                                                    <input type="text" class="form-control" name="container_name" id="default-01" placeholder="Input Intervention Container Name">
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <!-- <button type="submit" class="btn btn-primary"></button> -->
-                                                                        </div>
-                                                                        <br>
-                                                                        <button style="margin-left: 40%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Save Container</button>
-                                                                    </form>
-                                                                </div>
+                                                        <div class="project-detail__form-grid">
+                                                            <div class="project-detail__form-field project-detail__form-field--full">
+                                                                <label class="form-label" for="intervention-container-name">Container name</label>
+                                                                <input type="text" class="form-control" name="container_name" id="intervention-container-name" placeholder="Enter an intervention container name">
+                                                                <small>Use a clear name that describes this group of interventions.</small>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer bg-light">
-                                                <span class="sub-text"></span>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="admin-page__button">
+                                                            <em class="icon ni ni-check" aria-hidden="true"></em>
+                                                            Save container
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -1149,115 +707,89 @@
         </div>
     </div>
 
-</div>
-
-
-
-
-<div class="tab-pane" id="tabItem4">
-    <div class="content  d-flex flex-column flex-column-fluid" id="kt_content">
-        <!--begin::Subheader-->
-        <div class="subheader py-2 py-lg-4  subheader-solid " id="kt_subheader">
-            <div class=" container-fluid  d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
-                <!--begin::Info-->
-                <div class="d-flex align-items-center flex-wrap mr-2">
-                    <!--begin::Page Title-->
-                    <h6 class="text-dark font-weight-bolder mt-2 mb-2 mr-10">
-                        {{$logframes->logframe_name}}<span class="text-muted"> - Logframe design</span>
-                    </h6>
-                    <button class="btn btn-icon btn-circle w-30px h-30px btn-hover-success shadow" data-toggle="modal" data-target="#addGoalDialog" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Goal">
-                        <i class="flaticon2-plus text-dark icon-nm"></i>
-                    </button>
-                </div>
-                <!--end::Info-->
-                <div class="d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGoalDialog">Add Goal</button>
-                    </div>
-                </div>
-            </div>
+<div class="tab-pane project-detail__tab-pane project-logframe" id="tabItem4" role="tabpanel" aria-labelledby="project-logframe-tab">
+    <div class="project-logframe__header">
+        <div>
+            <p class="admin-page__eyebrow">Results framework · Project</p>
+            <h2>Project Logframe</h2>
         </div>
-        <div class="nk-block nk-block-lg">
-            <div class="card card-bordered card-preview">
-                <div class="card-inner">
-                    @if($loopgoals != null)
+        <button type="button" class="project-logframe__add-goal" data-bs-toggle="modal" data-bs-target="#addGoalDialog">
+            <em class="icon ni ni-plus" aria-hidden="true"></em>
+            Goal
+        </button>
+    </div>
+    <div class="nk-block nk-block-lg project-logframe__tree">
+        <div class="card card-bordered card-preview">
+            <div class="card-inner">
+                    <div class="project-logframe__table-head" aria-hidden="true">
+                        <span>Results hierarchy</span><span aria-hidden="true"></span><span>Baseline</span><span>Target</span><span>Frequency</span><span>Type</span><span aria-hidden="true"></span>
+                    </div>
+                    @if($loopgoals != null && $loopgoals->count())
                     @foreach($loopgoals as $obj)
-                    <div id="accordion" class="accordion">
+                    <div id="logframe-project-{{ $projectshow->id }}-goal-{{ $obj->id }}" class="accordion project-logframe__accordion">
                         <div class="accordion-item">
-                            <div class="dropdown">
-                                <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
+                            <div class="project-logframe__row-actions">
+                            <div class="dropdown project-logframe__dropdown project-logframe__dropdown--add">
+                                <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" aria-label="Add to goal" role="button" tabindex="0" data-bs-toggle="dropdown"><em class="icon ni ni-plus" aria-hidden="true"></em></a>
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                     <ul class="link-list-plain">
                                         <li class="preview-item">
-                                            <button type="button" class="btn btn-success icon ni ni-plus" id="editCompany" data-id="{{ $obj->id }}" data-bs-toggle="modal" data-bs-target="#practice_modal"></em>Add Outcome</button>
+                                            <button type="button" class="btn btn-success icon ni ni-plus" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#practice_modal">Add Outcome</button>
                                         </li> 
                                         <li class="preview-item">
-                                            <button type="button" class="btn btn-success icon ni ni-plus" id="addactivity" data-id="{{ $obj->id }}" data-bs-toggle="modal" data-bs-target="#activity_modal"></em>Add Activity</button>
+                                            <button type="button" class="btn btn-success icon ni ni-plus" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#activity_modal">Add Activity</button>
                                         </li> 
                                         <li class="preview-item">
-                                            <button type="button" class="btn btn-success icon ni ni-plus" id="addindicator" data-id="{{ $obj->id }}" data-bs-toggle="modal" data-bs-target="#indicator_modal"></em>Add Indicator</button>
-                                        </li> 
-                                        <li class="preview-item">
-                                            <button type="button" class="btn btn-success icon ni ni-edit" id="editgoal" data-id="{{ $obj->id }}" data-bs-toggle="modal" data-bs-target="#editgoal_modal"></em>Edit Goal</button>
-                                        </li> 
-                                        <li class="preview-item">
-                                            <button type="button" class="btn btn-success icon ni ni-trash" id="deletegoal" data-id="{{ $obj->id }}" data-bs-toggle="modal" data-bs-target="#deletegoal"></em>Delete Goal</button>
+                                            <button type="button" class="btn btn-success icon ni ni-plus" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#indicator_modal">Add Indicator</button>
                                         </li> 
                                     </ul>
                                 </div>
                             </div>
+                            <div class="project-logframe__row-options">
+                                <button type="button" id="editgoal" data-id="{{ $obj->id }}" data-bs-toggle="modal" data-bs-target="#editgoal_modal" aria-label="Edit goal"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                <button type="button" id="deletegoal" data-id="{{ $obj->id }}" data-bs-toggle="modal" data-bs-target="#deletegoal" aria-label="Delete goal"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                            </div>
+                            </div>
 
-                            <a href="#" class="accordion-head collapsed" data-bs-toggle="collapse" data-bs-target="#accordion-item-1">
-                                <h6 class="title"><span class="badge bg-success">GOAL</span> {{$obj->goal_code}} -  {{$obj->goal_name}}
-                                </h6>
-                                <span class="accordion-icon"></span>
+                            <a href="#logframe-project-goal-{{ $obj->id }}" class="accordion-head collapsed project-logframe__row-toggle" data-bs-toggle="collapse" data-bs-target="#logframe-project-goal-{{ $obj->id }}" aria-expanded="false" aria-controls="logframe-project-goal-{{ $obj->id }}">
+                                <h6 class="title"><span class="badge bg-success">GOAL</span><span class="project-logframe__row-title">{{ $obj->goal_code }} - {{ $obj->goal_name }}</span><span class="accordion-icon"></span></h6>
                             </a>
-                            <div class="accordion-body collapse" id="accordion-item-1" data-bs-parent="#accordion">
+                            <div class="accordion-body collapse" id="logframe-project-goal-{{ $obj->id }}" data-bs-parent="#logframe-project-{{ $projectshow->id }}-goal-{{ $obj->id }}">
                                 <div class="accordion-inner">
 
-                                    @foreach($goalindicator as $goalindicator) 
-                                    <div class="dropdown">
-                                        <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                            <ul class="link-list-plain">
-                                                <li class="preview-item">
-                                                    <button type="button" class="btn btn-success icon ni ni-edit" id="editgoalIndicator" data-id="{{ $goalindicator->id }}" data-bs-toggle="modal" data-bs-target="#editindicator_modal"></em>Edit Indicator</button>
-                                                </li> 
-                                                <li class="preview-item">
-                                                    <button type="button" class="btn btn-success icon ni ni-trash" id="deleteindicator" data-id="{{ $goalindicator->id }}" data-bs-toggle="modal" data-bs-target="#deleteindicator"></em>Delete Indicator</button>
-                                                </li> 
-                                            </ul>
-                                        </div>
-                                    </div> 
-                                    <h6><span class="badge bg-blue">INDICATOR</span> {{$goalindicator->indicator_title}}
+                                    @foreach($goalindicator->where('goal_id', $obj->id) as $goalindicator)
+                                    <div class="project-logframe__data-row">
+                                    <h6 class="project-logframe__indicator-row">
+                                        <span class="project-logframe__indicator-name"><span class="badge bg-blue">INDICATOR</span><span>{{ $goalindicator->indicator_title }}</span></span>
+                                        <span data-label="Baseline">{{ $goalindicator->baseline_none !== null && $goalindicator->baseline_none !== '' ? $goalindicator->baseline_none : '—' }}</span>
+                                        <span data-label="Target">{{ $goalindicator->target_none !== null && $goalindicator->target_none !== '' ? $goalindicator->target_none : '—' }}</span>
+                                        <span data-label="Frequency">{{ $goalindicator->reporting_frequency ?: '—' }}</span>
+                                        <span data-label="Type">{{ $goalindicator->type ?: '—' }}</span>
                                     </h6>
-                                    <hr>
+                                    <div class="project-logframe__row-options">
+                                        <button type="button" id="editgoalIndicator" data-id="{{ $goalindicator->id }}" data-bs-toggle="modal" data-bs-target="#editindicator_modal" aria-label="Edit indicator"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                        <button type="button" id="deleteindicator" data-id="{{ $goalindicator->id }}" data-bs-toggle="modal" data-bs-target="#deleteindicator" aria-label="Delete indicator"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                                    </div>
+                                    </div>
+                                        </div>
                                     @endforeach
 
-                                    @foreach($activitygoal as $goalactivity) 
-                                    <div class="dropdown">
-                                        <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                            <ul class="link-list-plain">
-                                                <li class="preview-item">
-                                                    <button type="button" class="btn btn-success icon ni ni-edit" id="editactivity" data-id="{{ $goalactivity->id }}" data-bs-toggle="modal" data-bs-target="#editactivity_modal"></em>Edit Activity</button>
-                                                </li> 
-                                                <li class="preview-item">
-                                                    <button type="button" class="btn btn-success icon ni ni-trash" id="deleteactivity" data-id="{{ $goalactivity->id }}" data-bs-toggle="modal" data-bs-target="#deleteactivity"></em>Delete Activity</button>
-                                                </li> 
-                                            </ul>
-                                        </div>
-                                    </div> 
-                                    <h6><span class="badge bg-danger">ACTIVITY</span> {{$goalactivity->activity_code}} -  {{$goalactivity->activity_title}}
+                                    @foreach($activitygoal->where('goal_id', $obj->id) as $goalactivity)
+                                    <div class="project-logframe__data-row">
+                                    <h6 class="project-logframe__activity-row"><span class="badge bg-danger">ACTIVITY</span><span class="project-logframe__entry-label">{{$goalactivity->activity_code}} -  {{$goalactivity->activity_title}}</span>
                                     </h6>
+                                    <div class="project-logframe__row-options">
+                                        <button type="button" id="editactivity" data-id="{{ $goalactivity->id }}" data-bs-toggle="modal" data-bs-target="#editactivity_modal" aria-label="Edit activity"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                        <button type="button" id="deleteactivity" data-id="{{ $goalactivity->id }}" data-bs-toggle="modal" data-bs-target="#deleteactivity" aria-label="Delete activity"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                                    </div>
+                                    </div>
                                     @endforeach
-                                </div>  
-                            </div>
                             <!-- <hr> -->
-                            @foreach($goaloutcomes as $outcom)
+                            @foreach($goaloutcomes->where('goal_id', $obj->id) as $outcom)
                             <div class="accordion-item">
-                                <div class="dropdown">
-                                    <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
+                                <div class="project-logframe__row-actions">
+                                <div class="dropdown project-logframe__dropdown project-logframe__dropdown--add">
+                                    <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" aria-label="Add to outcome" role="button" tabindex="0" data-bs-toggle="dropdown"><em class="icon ni ni-plus" aria-hidden="true"></em></a>
                                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                         <ul class="link-list-plain">
                                             <li class="preview-item">
@@ -1269,72 +801,58 @@
                                             <li class="preview-item">
                                                 <button type="button" class="btn btn-success icon ni ni-plus" id="addoutcomeindicator" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#indicator1"></em>Add Indicator</button>
                                             </li>
-                                            <li class="preview-item">
-                                                <button type="button" class="btn btn-success icon ni ni-edit" id="editoutcome" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#editoutcome_modal"></em>Edit Outcome</button>
-
-                                            </li> 
-                                            <li class="preview-item">
-                                                <button type="button" class="btn btn-success icon ni ni-trash" id="deleteoutcome" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutcome"></em>Delete Outcome</button>
-                                            </li> 
                                         </ul>
                                     </div>
                                 </div>
-                                <a href="#" class="accordion-head collapsed" data-bs-toggle="collapse" data-bs-target="#accordion-item-2">
-                                    <h6><span class="badge bg-warning">OUTCOME</span> {{$outcom->outcome_code}} - {{$outcom->outcome_title}}
-                                    </h6>
-                                    <span class="accordion-icon"></span>
+                                <div class="project-logframe__row-options">
+                                    <button type="button" id="editoutcome" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#editoutcome_modal" aria-label="Edit outcome"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                    <button type="button" id="deleteoutcome" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutcome" aria-label="Delete outcome"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                                </div>
+                                </div>
+                                <a href="#logframe-project-outcome-{{ $outcom->id }}" class="accordion-head collapsed project-logframe__row-toggle" data-bs-toggle="collapse" data-bs-target="#logframe-project-outcome-{{ $outcom->id }}" aria-expanded="false" aria-controls="logframe-project-outcome-{{ $outcom->id }}">
+                                    <h6><span class="badge bg-warning">OUTCOME</span><span class="project-logframe__row-title">{{ $outcom->outcome_code }} - {{ $outcom->outcome_title }}</span><span class="accordion-icon"></span></h6>
                                 </a>
-                                <div class="accordion-body collapse" id="accordion-item-2" data-bs-parent="#accordion">
+                                <div class="accordion-body collapse" id="logframe-project-outcome-{{ $outcom->id }}">
                                     <div class="accordion-inner">
 
-                                        @foreach($indicators2 as $outcomeindicator2)
+                                        @foreach($indicators2->where('outcome_id', $outcom->id) as $outcomeindicator2)
                                         @if($outcomeindicator2->outcome_id == $outcom->id) 
-                                        <div class="dropdown">
-                                            <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                                <ul class="link-list-plain">
-                                                    <li class="preview-item">
-                                                        <button type="button" class="btn btn-success icon ni ni-edit" id="editoutcomeindicator" data-id="{{ $outcomeindicator2->id }}" data-bs-toggle="modal" data-bs-target="#editoutcomeindicator"></em>Edit Outcome Indicator</button>
-                                                    </li> 
-                                                    <li class="preview-item">
-                                                        <button type="button" class="btn btn-success icon ni ni-trash" id="deleteoutcomeindicator" data-id="{{ $outcomeindicator2->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutcomeindicator"></em>Delete Outcome Indicator</button>
-                                                    </li> 
-                                                </ul>
-                                            </div>
-                                        </div>  
-                                        <h6><span class="badge bg-blue">INDICATOR</span>  {{$outcomeindicator2->indicator_title}}
+                                        <div class="project-logframe__data-row">
+                                        <h6 class="project-logframe__indicator-row">
+                                            <span class="project-logframe__indicator-name"><span class="badge bg-blue">INDICATOR</span><span>{{ $outcomeindicator2->indicator_title }}</span></span>
+                                            <span data-label="Baseline">{{ $outcomeindicator2->baseline_none !== null && $outcomeindicator2->baseline_none !== '' ? $outcomeindicator2->baseline_none : '—' }}</span>
+                                            <span data-label="Target">{{ $outcomeindicator2->target_none !== null && $outcomeindicator2->target_none !== '' ? $outcomeindicator2->target_none : '—' }}</span>
+                                            <span data-label="Frequency">{{ $outcomeindicator2->reporting_frequency ?: '—' }}</span>
+                                            <span data-label="Type">{{ $outcomeindicator2->type ?: '—' }}</span>
                                         </h6>
+                                        <div class="project-logframe__row-options">
+                                            <button type="button" id="editoutcomeindicator" data-id="{{ $outcomeindicator2->id }}" data-bs-toggle="modal" data-bs-target="#editoutcomeindicator" aria-label="Edit indicator"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                            <button type="button" id="deleteoutcomeindicator" data-id="{{ $outcomeindicator2->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutcomeindicator" aria-label="Delete indicator"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                                        </div>
+                                        </div>
                                         @endif
                                         @endforeach
 
                                         <hr>
                                         @foreach($activity2 as $outcomeactivity)
                                         @if($outcomeactivity->outcome_id == $outcom->id && $outcomeactivity->project_id == $projectshow->id)  
-                                        <div class="dropdown">
-                                            <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                                <ul class="link-list-plain">
-                                                    <li class="preview-item">
-                                                        <button type="button" class="btn btn-success icon ni ni-edit" id="editoutcomeactivity" data-id="{{ $outcomeactivity->id }}" data-bs-toggle="modal" data-bs-target="#editoutcomeactivity_modal"></em>Edit Outcome Activity</button>
-                                                    </li> 
-                                                    <li class="preview-item">
-                                                        <button type="button" class="btn btn-success icon ni ni-trash" id="deleteoutcomeactivity" data-id="{{ $outcomeactivity->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutcomeactivity"></em>Delete Outcome Activity</button>
-                                                    </li> 
-                                                </ul>
-                                            </div>
-                                        </div> 
-                                        <h6><span class="badge bg-danger">ACTIVITY</span> {{$outcomeactivity->activity_code}} -  {{$outcomeactivity->activity_title}}
+                                        <div class="project-logframe__data-row">
+                                        <h6 class="project-logframe__activity-row"><span class="badge bg-danger">ACTIVITY</span><span class="project-logframe__entry-label">{{$outcomeactivity->activity_code}} -  {{$outcomeactivity->activity_title}}</span>
                                         </h6>
+                                        <div class="project-logframe__row-options">
+                                            <button type="button" id="editoutcomeactivity" data-id="{{ $outcomeactivity->id }}" data-bs-toggle="modal" data-bs-target="#editoutcomeactivity_modal" aria-label="Edit activity"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                            <button type="button" id="deleteoutcomeactivity" data-id="{{ $outcomeactivity->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutcomeactivity" aria-label="Delete activity"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                                        </div>
+                                        </div>
                                         @endif
                                         @endforeach
-                                    </div>
-                                </div>
                                 <!-- <hr> -->
-                                @foreach($projectoutput as $output)    
+                                @foreach($projectoutput->where('outcome_id', $outcom->id) as $output)
                                 @if($output->outcome_id == $outcom->id)
                                 <div class="accordion-item">
-                                    <div class="dropdown">
-                                        <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
+                                    <div class="project-logframe__row-actions">
+                                    <div class="dropdown project-logframe__dropdown project-logframe__dropdown--add">
+                                        <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" aria-label="Add to output" role="button" tabindex="0" data-bs-toggle="dropdown"><em class="icon ni ni-plus" aria-hidden="true"></em></a>
                                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                             <ul class="link-list-plain">
                                                 <li class="preview-item">
@@ -1343,41 +861,36 @@
                                                 <li class="preview-item">
                                                     <button type="button" class="btn btn-success icon ni ni-plus" id="addoutputindicator" data-id="{{ $output->id }}" data-bs-toggle="modal" data-bs-target="#indicator2"></em>Add Indicator</button>
                                                 </li> 
-                                                <li class="preview-item">
-                                                    <button type="button" class="btn btn-success icon ni ni-edit" data-bs-toggle="modal" data-bs-target="#editoutput_modal" id="editoutput" data-id="{{ $output->id }}"></em>Edit Output</button>
-                                                </li> 
-                                                <li class="preview-item">
-                                                    <button type="button" class="btn btn-success icon ni ni-trash" id="deleteoutput" data-id="{{ $output->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutput"></em>Delete Output</button>
-                                                </li> 
                                             </ul>
                                         </div>
                                     </div> 
+                                    <div class="project-logframe__row-options">
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#editoutput_modal" id="editoutput" data-id="{{ $output->id }}" aria-label="Edit output"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                        <button type="button" id="deleteoutput" data-id="{{ $output->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutput" aria-label="Delete output"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                                    </div>
+                                    </div>
 
-                                    <a href="#" class="accordion-head collapsed" data-bs-toggle="collapse" data-bs-target="#accordion-item-3">
-                                        <h6><span class="badge bg-purple">OUTPUT</span> {{$output->output_code}} - {{$output->output_name}}
-                                        </h6>
-                                        <span class="accordion-icon"></span>
+                                    <a href="#logframe-project-output-{{ $output->id }}" class="accordion-head collapsed project-logframe__row-toggle" data-bs-toggle="collapse" data-bs-target="#logframe-project-output-{{ $output->id }}" aria-expanded="false" aria-controls="logframe-project-output-{{ $output->id }}">
+                                        <h6><span class="badge bg-purple">OUTPUT</span><span class="project-logframe__row-title">{{ $output->output_code }} - {{ $output->output_name }}</span><span class="accordion-icon"></span></h6>
                                     </a>
-                                    <div class="accordion-body collapse" id="accordion-item-3" data-bs-parent="#accordion">
+                                    <div class="accordion-body collapse" id="logframe-project-output-{{ $output->id }}">
                                         <div class="accordion-inner">
 
                                            @foreach($outoutindicator2 as $outputindicator2)
                                            @if($outputindicator2->output_id == $output->id) 
-                                           <div class="dropdown">
-                                            <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                                <ul class="link-list-plain">
-                                                    <li class="preview-item">
-                                                        <button type="button" class="btn btn-success icon ni ni-edit" id="editoutputindicator" data-id="{{ $outputindicator2->id }}" data-bs-toggle="modal" data-bs-target="#editoutputindicator"></em>Edit Output Indicator</button>
-                                                    </li> 
-                                                    <li class="preview-item">
-                                                        <button type="button" class="btn btn-success icon ni ni-trash" id="deleteoutputindicator" data-id="{{ $outputindicator2->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutputindicator"></em>Delete Output Indicator</button>
-                                                    </li> 
-                                                </ul>
-                                            </div>
-                                        </div>  
-                                        <h6><span class="badge bg-blue">INDICATOR</span>  {{$outputindicator2->indicator_title}}
+                                              <div class="project-logframe__data-row">
+                                           <h6 class="project-logframe__indicator-row">
+                                            <span class="project-logframe__indicator-name"><span class="badge bg-blue">INDICATOR</span><span>{{ $outputindicator2->indicator_title }}</span></span>
+                                            <span data-label="Baseline">{{ $outputindicator2->baseline_none !== null && $outputindicator2->baseline_none !== '' ? $outputindicator2->baseline_none : '—' }}</span>
+                                            <span data-label="Target">{{ $outputindicator2->target_none !== null && $outputindicator2->target_none !== '' ? $outputindicator2->target_none : '—' }}</span>
+                                            <span data-label="Frequency">{{ $outputindicator2->reporting_frequency ?: '—' }}</span>
+                                            <span data-label="Type">{{ $outputindicator2->type ?: '—' }}</span>
                                         </h6>
+                                        <div class="project-logframe__row-options">
+                                            <button type="button" id="editoutputindicator" data-id="{{ $outputindicator2->id }}" data-bs-toggle="modal" data-bs-target="#editoutputindicator" aria-label="Edit indicator"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                            <button type="button" id="deleteoutputindicator" data-id="{{ $outputindicator2->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutputindicator" aria-label="Delete indicator"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                                        </div>
+                                        </div>
                                         @endif
                                         @endforeach
 
@@ -1385,21 +898,14 @@
 
                                         @foreach($outputactivity2 as $outputactv)
                                         @if($outputactv->output_id == $output->id && $outputactv->project_id == $projectshow->id)  
-                                        <div class="dropdown">
-                                            <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                                <ul class="link-list-plain">
-                                                    <li class="preview-item">
-                                                        <button type="button" class="btn btn-success icon ni ni-edit" id="editoutputcomeactivity" data-id="{{ $outputactv->id }}" data-bs-toggle="modal" data-bs-target="#editoutputactivity_modal"></em>Edit Output Activity</button>
-                                                    </li> 
-                                                    <li class="preview-item">
-                                                        <button type="button" class="btn btn-success icon ni ni-trash" id="deleteoutputactivity" data-id="{{ $outputactv->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutputactivity"></em>Delete Output Activity</button>
-                                                    </li> 
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <h6><span class="badge bg-danger">ACTIVITY</span> {{$outputactv->activity_code}} -  {{$outputactv->activity_title}}
+                                        <div class="project-logframe__data-row">
+                                        <h6 class="project-logframe__activity-row"><span class="badge bg-danger">ACTIVITY</span><span class="project-logframe__entry-label">{{$outputactv->activity_code}} -  {{$outputactv->activity_title}}</span>
                                         </h6>
+                                        <div class="project-logframe__row-options">
+                                            <button type="button" id="editoutputcomeactivity" data-id="{{ $outputactv->id }}" data-bs-toggle="modal" data-bs-target="#editoutputactivity_modal" aria-label="Edit activity"><em class="icon ni ni-edit" aria-hidden="true"></em></button>
+                                            <button type="button" id="deleteoutputactivity" data-id="{{ $outputactv->id }}" data-bs-toggle="modal" data-bs-target="#deleteoutputactivity" aria-label="Delete activity"><em class="icon ni ni-trash" aria-hidden="true"></em></button>
+                                        </div>
+                                        </div>
                                         @endif
                                         @endforeach
                                     </div>
@@ -1407,216 +913,277 @@
                             </div>
                             @endif
                             @endforeach
-
-                        </div>
-
-                        @endforeach
-                        
-                    </div>
-                    @endforeach
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-
-<div class="tab-pane" id="tabItem5">
-    <div class="card card-bordered card-preview">
-        <div class="card-inner">
-            <table class="datatable-init table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Funding</th>
-                        <th>Funding Type</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $i = 1; ?>
-                    @foreach ($accounts as $key => $object)
-                    <tr>
-                        <td>{{$i}}</td>
-                        <td>{{ $object->funding_name }}</td>
-                        <td>{{ $object->funding_type }}</td>                                         
-                        <td>
-                            <a class="btn btn-primary" href="#">Edit</a>
-                        </td>
-                    </tr>
-                    <?php $i++; ?>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="tab-pane" id="tabItem6">
-
-    <div class="d-flex align-items-center">
-        <div class="d-flex align-items-center">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addusers">Add Project User</button>
-        </div>
-    </div>
-    <br>
-    <div class="card card-bordered card-preview">
-        <div class="card-inner">
-            <table class="datatable-init table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Name</th>
-                        <!-- <th>Role</th> -->
-                        <!-- <th>Action</th> -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $i = 1; ?>
-                    @foreach ($projectusers as $key => $object)
-                    <tr>
-                        <td>{{$i}}</td>
-                        <td>{{ $object->name }}</td>
-                    </tr>
-                    <?php $i++; ?>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="tab-pane" id="tabItem8">
-    <div class="card card-bordered card-preview">
-        <div class="card-inner">
-            <table class="datatable-init table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Budget</th>
-                        <th>Funding</th>
-                        <th>Annual Budget</th>
-                        <th>Total Expense</th>
-                        <th>Reporting Frequency</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $i = 1; ?>
-                    @foreach ($projectexpenses as $key => $object)
-                    <tr>
-                        <td>{{$i}}</td>
-                        <td>{{ $object->budget_id }}</td>
-                        <td>{{ $object->funding_id }}</td>
-                        <td>{{ $object->total_budget }}</td>
-                        <td>{{ $object->total_expense }}</td>
-                        <td>{{ $object->reporting_frequency_tally }}</td>
-                    </tr>
-                    <?php $i++; ?>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="tab-pane" id="tabItem7">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addprogdoc">Add Project Document</button>
-    <br>
-    <br>
-    <div class="card card-bordered card-preview">
-        <div class="card-inner">
-            <table class="datatable-init table">
-                <thead>
-                    <tr>
-                        <th>SN</th>
-                        <th>File Name</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $i = 1; ?>
-                    @foreach ($documents as $key => $object)
-                    <tr>
-                        <td>{{$i}}</td>
-                        <td>{{ $object->doc_name }}</td>
-                        <td>
-                            @if($object->status == '01')
-                            <span class="badge bg-gray">Draft</span></h6>
-                            @elseif($object->status == '02')
-                            <span class="badge bg-success">Approved</span></h6>
-                            @endif
-                        </td>
-                        <td>
-                            <ul class="nk-tb-actions gx-1 my-n1">
-                                <li class="me-n1">
-                                    <div class="dropdown">
-                                        <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <ul class="link-list-opt no-bdr">
-                                                <li><a href="{{ url('download/'.$object->id)}}"><em class="icon ni ni-download"></em><span>Download Document</span></a></li>
-                                                <li><a href="{{ url('documentview/'.$object->id)}}"><em class="icon ni ni-eye"></em><span>Archive Document</span></a></li>
-                                            </ul>
-                                        </div>
                                     </div>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                    <?php $i++; ?>
-                    @endforeach
-
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="modal fade zoom" tabindex="-1" id="addprogdoc">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Project Document</h5>
-                    <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <em class="icon ni ni-cross"></em>
-                    </a>
-                </div>
-                <div class="modal-body">
-
-                    <form method="POST" action="{{ route('documents.store')}}" enctype="multipart/form-data">
-                        @csrf
-
-                        <div class="row gy-4">
-
-                            <div class="form-group">
-                                <label class="form-label" for="default-01">Document Name</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" name="doc_name" class="form-control" id="default-01" placeholder="Input Document Name">
                                 </div>
                             </div>
-
-                            <input type="hidden" name="user_id" class="form-control" value="{{Auth::user()->id}}">
-                            <input type="hidden" name="status" class="form-control" value="01">
-                            <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}">
-                            <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}">
-
-                            <div class="form-group">
-                                <label class="form-label" for="default-01">Browse Document</label>
-                                <div class="form-control-wrap">
-                                    <input type="file" name="file" class="form-control" id="default-01">
+                            @endforeach
+                            </div>
                                 </div>
-                            </div>  
+                            </div>
                         </div>
-                        <br>
-                        <button style="margin-left: 40%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Upload</button>
-                    </form>
-                </div>
+                    @endforeach
+                    @else
+                        <div class="project-logframe__empty">
+                            <span class="project-logframe__empty-icon"><em class="icon ni ni-view-col" aria-hidden="true"></em></span>
+                            <div>
+                                <h3>No results hierarchy yet</h3>
+                                <p>Add a goal to start building this project’s logframe.</p>
+                            </div>
+                            @if ($logframes)
+                                <button type="button" class="admin-page__button-secondary" data-bs-toggle="modal" data-bs-target="#addGoalDialog">
+                                    <em class="icon ni ni-plus" aria-hidden="true"></em>
+                                    Add goal
+                                </button>
+                            @endif
+                        </div>
+                    @endif
             </div>
         </div>
     </div>
 </div>
 
+<div class="tab-pane project-detail__tab-pane" id="tabItem5" role="tabpanel" aria-labelledby="project-funding-tab">
+    <section class="project-detail__panel">
+        <header class="project-detail__panel-header">
+            <div>
+                <p class="admin-page__eyebrow">Programme resources</p>
+                <h2>Funding sources</h2>
+                <p>Funding categories available to this project through its programme.</p>
+            </div>
+            <span class="project-workspace__count">{{ $accounts->count() }} {{ \Illuminate\Support\Str::plural('source', $accounts->count()) }}</span>
+        </header>
+
+        @if ($accounts->isEmpty())
+            <div class="project-detail__empty-state">
+                <span class="project-detail__record-icon"><em class="icon ni ni-wallet-out" aria-hidden="true"></em></span>
+                <h3>No funding sources available</h3>
+                <p>Link this project to a programme and configure funding sources there to make them available here.</p>
+            </div>
+        @else
+            <div class="project-funding__list" aria-label="Project funding sources">
+                @foreach ($accounts as $object)
+                    <article class="project-funding__resource">
+                        <span class="project-funding__icon" aria-hidden="true"><em class="icon ni ni-wallet-out"></em></span>
+                        <div class="project-funding__content">
+                            <h3>{{ $object->funding_name }}</h3>
+                            <div class="project-funding__details">
+                                <div class="project-funding__detail">
+                                    <span>Funding type</span>
+                                    <strong>{{ $object->funding_type ?: 'Not specified' }}</strong>
+                                </div>
+                                @if ($object->expenditure)
+                                    <div class="project-funding__detail">
+                                        <span>Expenditure</span>
+                                        <strong>{{ $object->expenditure }}</strong>
+                                    </div>
+                                @endif
+                            </div>
+                            @if ($object->description)
+                                <p class="project-funding__description">{{ $object->description }}</p>
+                            @endif
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
 </div>
+
+<div class="tab-pane project-detail__tab-pane" id="tabItem6" role="tabpanel" aria-labelledby="project-users-tab">
+    <section class="project-detail__panel">
+        <header class="project-detail__panel-header">
+            <div>
+                <p class="admin-page__eyebrow">Project team</p>
+                <h2>Project users</h2>
+                <p>People who have access to collaborate on this project.</p>
+            </div>
+            <div class="project-workspace__header-actions">
+                <span class="project-workspace__count">{{ $projectusers->count() }} {{ \Illuminate\Support\Str::plural('member', $projectusers->count()) }}</span>
+                <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#addusers">
+                    <em class="icon ni ni-user-add" aria-hidden="true"></em>
+                    Add project user
+                </button>
+            </div>
+        </header>
+
+        @if ($projectusers->isEmpty())
+            <div class="project-detail__empty-state">
+                <span class="project-detail__record-icon program-detail__record-icon--blue"><em class="icon ni ni-users" aria-hidden="true"></em></span>
+                <h3>No project users yet</h3>
+                <p>Invite colleagues from your organization or affiliated organizations to collaborate.</p>
+                <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#addusers">
+                    <em class="icon ni ni-user-add" aria-hidden="true"></em>
+                    Add project user
+                </button>
+            </div>
+        @else
+            <div class="project-detail__record-list" aria-label="Project team members">
+                @foreach ($projectusers as $object)
+                    <article class="project-detail__record project-team__record">
+                        <span class="project-team__avatar" aria-hidden="true">{{ strtoupper(substr($object->name ?: $object->email, 0, 1)) }}</span>
+                        <div class="project-detail__record-main">
+                            <h3>{{ trim(($object->name ?: '') . ' ' . ($object->last_name ?: '')) ?: $object->email }}</h3>
+                            @if ($object->email)
+                                <div class="project-detail__record-meta"><span>{{ $object->email }}</span></div>
+                            @endif
+                        </div>
+                        <span class="admin-page__badge admin-page__badge--green">Project member</span>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
+</div>
+
+<div class="tab-pane project-detail__tab-pane" id="tabItem8" role="tabpanel" aria-labelledby="project-expenses-tab">
+    <section class="project-detail__panel">
+        <header class="program-detail__panel-header">
+            <div>
+                <p class="admin-page__eyebrow">Financial tracking</p>
+                <h2>Project expenses</h2>
+                <p>Review budget, spending, and reporting frequency for each expense record.</p>
+            </div>
+            <span class="project-workspace__count">{{ $projectexpenses->count() }} {{ \Illuminate\Support\Str::plural('record', $projectexpenses->count()) }}</span>
+        </header>
+
+        @if ($projectexpenses->isEmpty())
+            <div class="program-detail__empty-state">
+                <span class="program-detail__record-icon program-detail__record-icon--violet"><em class="icon ni ni-wallet-out" aria-hidden="true"></em></span>
+                <h3>No expense records yet</h3>
+                <p>Expense records associated with this project will appear here.</p>
+            </div>
+        @else
+            <div class="program-detail__record-list" aria-label="Project expense records">
+                @foreach ($projectexpenses as $object)
+                    <article class="program-detail__record">
+                        <span class="program-detail__record-icon program-detail__record-icon--violet" aria-hidden="true">
+                            <em class="icon ni ni-wallet-out"></em>
+                        </span>
+                        <div class="program-detail__record-main">
+                            <h3>Budget #{{ $object->budget_id }} <span class="project-detail__description-divider">·</span> Funding #{{ $object->funding_id }}</h3>
+                            <div class="program-detail__record-meta">
+                                <span><strong>Annual budget:</strong> {{ $object->total_budget }}</span>
+                                <span><strong>Total expense:</strong> {{ $object->total_expense }}</span>
+                                <span><strong>Reporting frequency:</strong> {{ $object->reporting_frequency_tally }}</span>
+                            </div>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
+</div>
+
+<div class="tab-pane project-detail__tab-pane" id="tabItem7" role="tabpanel" aria-labelledby="project-documents-tab">
+    <section class="project-detail__panel">
+        <header class="program-detail__panel-header">
+            <div>
+                <p class="admin-page__eyebrow">Project resources</p>
+                <h2>Documents</h2>
+                <p>Manage and access files shared with this project.</p>
+            </div>
+            <div class="project-workspace__header-actions">
+                <span class="project-workspace__count">{{ $documents->count() }} {{ \Illuminate\Support\Str::plural('document', $documents->count()) }}</span>
+                <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#addprogdoc">
+                    <em class="icon ni ni-file" aria-hidden="true"></em>
+                    Add project document
+                </button>
+            </div>
+        </header>
+
+        @if ($documents->isEmpty())
+            <div class="program-detail__empty-state">
+                <span class="program-detail__record-icon program-detail__record-icon--blue"><em class="icon ni ni-file" aria-hidden="true"></em></span>
+                <h3>No project documents yet</h3>
+                <p>Upload a project document to make it available to your team.</p>
+                <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#addprogdoc">
+                    <em class="icon ni ni-file" aria-hidden="true"></em>
+                    Add project document
+                </button>
+            </div>
+        @else
+            <div class="program-detail__record-list" aria-label="Project documents">
+                @foreach ($documents as $object)
+                    <article class="program-detail__record">
+                        <span class="program-detail__record-icon program-detail__record-icon--blue" aria-hidden="true">
+                            <em class="icon ni ni-file"></em>
+                        </span>
+                        <div class="program-detail__record-main">
+                            <h3>{{ $object->doc_name }}</h3>
+                            <div class="program-detail__record-meta">
+                                @if ($object->status == '01')
+                                    <span class="admin-page__badge admin-page__badge--neutral">Draft</span>
+                                @elseif ($object->status == '02')
+                                    <span class="admin-page__badge admin-page__badge--green">Approved</span>
+                                @else
+                                    <span class="admin-page__badge admin-page__badge--neutral">Status {{ $object->status }}</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="program-detail__record-actions">
+                            <a class="admin-page__action" href="{{ url('download/'.$object->id) }}">
+                                <em class="icon ni ni-download" aria-hidden="true"></em>
+                                Download
+                            </a>
+                            <a class="admin-page__action" href="{{ url('documentview/'.$object->id) }}">
+                                <em class="icon ni ni-eye" aria-hidden="true"></em>
+                                Archive
+                            </a>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
+
+    <div class="modal fade" tabindex="-1" id="addprogdoc" aria-labelledby="add-project-document-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered project-detail__modal-dialog" role="document">
+            <div class="modal-content project-detail__modal">
+                <div class="modal-header">
+                    <div class="project-detail__modal-heading">
+                        <span class="project-detail__modal-icon"><em class="icon ni ni-file" aria-hidden="true"></em></span>
+                        <div>
+                            <h5 class="modal-title" id="add-project-document-title">Add project document</h5>
+                            <p>Upload a file for the project team to access.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <em class="icon ni ni-cross"></em>
+                    </button>
+                </div>
+                <form method="POST" action="{{ route('documents.store') }}" enctype="multipart/form-data" class="project-detail__modal-form">
+                    @csrf
+                    <div class="modal-body">
+                        <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
+                        <input type="hidden" name="status" value="01">
+                        <input type="hidden" name="project_id" value="{{ $projectshow->id }}">
+                        <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+
+                        <div class="project-detail__form-grid">
+                            <div class="project-detail__form-field project-detail__form-field--full">
+                                <label class="form-label" for="project-document-name">Document name</label>
+                                <input type="text" name="doc_name" class="form-control" id="project-document-name" placeholder="e.g. Project implementation plan">
+                            </div>
+                            <div class="project-detail__form-field project-detail__form-field--full">
+                                <label class="form-label" for="project-document-file">Choose a file</label>
+                                <input type="file" name="file" class="form-control" id="project-document-file">
+                                <small>Choose the document you want to upload.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="admin-page__button">
+                            <em class="icon ni ni-upload" aria-hidden="true"></em>
+                            Upload document
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 </div>
 </div>
 </div>
@@ -1709,7 +1276,12 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Project Goal Indicator</h5>
+                <div class="logframe-indicator__heading">
+                    <h5 class="modal-title">Add Project Goal Indicator</h5>
+                    <p class="logframe-indicator__goal-context">
+                        For goal: {{ optional($goalframe)->goal_code }} - {{ optional($goalframe)->goal_name }}
+                    </p>
+                </div>
                 <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
                 </a>
@@ -1718,42 +1290,32 @@
 
                 <form id="projectgoalindicator">
                     @csrf
-                    <div class="row gy-4">
-
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Goal</label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="goal_name" class="form-control" id="default-01" placeholder=""
-                                value="{{$goalframe->goal_code}} - {{$goalframe->goal_name}}" readonly="">
-                            </div>
-                        </div>
-
-
+                    <div class="logframe-indicator__form-grid">
+                        <input type="hidden" name="goal_name" value="{{ optional($goalframe)->goal_code }} - {{ optional($goalframe)->goal_name }}">
                         <input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" readonly="">
                         <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}" readonly="">
                         <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" readonly="">
-                        <input type="hidden" name="goal_id" class="form-control" value="{{$goalframe->id}}" readonly="">
+                        <input type="hidden" name="goal_id" class="form-control" value="{{ optional($goalframe)->id }}" readonly="">
                         <input type="hidden" name="status" class="form-control" value="01" readonly="">
 
 
 
-                        <div class="form-group">
+                        <div class="form-group logframe-indicator__title">
                             <label class="form-label" for="default-01">Indicator Title<span style="color:red">*</span></label>
                             <div class="form-control-wrap">
                                 <input type="text" name="indicator_title" class="form-control" id="indicator_title" placeholder="Enter Indicator Title">
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group logframe-indicator__frequency">
                             <label class="form-label" for="default-06">Reporting Frequency<span style="color:red">*</span></label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
                                     <select class="form-control" name="reporting_frequency" id="reporting_frequency">
-                                        <option value="">-------Select Reporting Frequency-------</option>
-                                        <option></option>
+                                        <option value="">Select reporting frequency</option>
                                         <option value="Monthly">Monthly</option>
                                         <option value="Bi-Monthly">Bi-Monthly</option>
-                                        <option value="Quaterly">Quaterly</option>
+                                        <option value="Quaterly">Quarterly</option>
                                         <option value="Semi-Annual">Semi-Annual</option>
                                         <option value="Annual">Annual</option>
                                     </select>
@@ -1761,13 +1323,12 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group logframe-indicator__type">
                             <label class="form-label" for="default-06">Type<span style="color:red">*</span></label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
                                     <select class="form-control" name="type" id="type">
-                                        <option value="">-------Select Type-------</option>
-                                        <option></option>
+                                        <option value="">Select indicator type</option>
                                         <option value="Quantitative">Quantitative</option>
                                         <option value="Qualitative">Qualitative</option>
                                     </select>
@@ -1775,13 +1336,12 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group logframe-indicator__disaggregation">
                             <label class="form-label" for="default-06">Disaggregation<span style="color:red">*</span></label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
                                     <select class="form-control" name="disaggregation" id="disaggregation">
-                                        <option value="">-------Select Disaggregation-------</option>
-                                        <option></option>
+                                        <option value="">Select disaggregation</option>
                                         <!-- <option value="none">None</option> -->
                                         <option value="Disaggregation">Disaggregation</option>
                                     </select>
@@ -1790,38 +1350,41 @@
                         </div>
 
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-indicator__measure">
                             <div class="form-group" id="label">
                                 <label class="form-label" for="default-01">Label</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="label_none" class="form-control" id="default-01" placeholder="Input Label">
+                                    <input type="text" name="label_none" class="form-control" id="default-01" placeholder="Enter label">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-indicator__measure">
                             <div class="form-group" id="baseline">
                                 <label class="form-label" for="default-01">Baseline</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="baseline_none" class="form-control" id="default-01" placeholder="Input Baselime">
+                                    <input type="text" name="baseline_none" class="form-control" id="default-01" placeholder="Enter baseline">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-indicator__measure">
                             <div class="form-group" id="target">
                                 <label class="form-label" for="default-01">Target</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="target_none" class="form-control" id="default-01" placeholder="Input Target">
+                                    <input type="text" name="target_none" class="form-control" id="default-01" placeholder="Enter target">
                                 </div>
                             </div>
                         </div>
 
 
-                        <div role="tabpanel" class="tab-pane" id="Disaggregation">
+                        <div role="tabpanel" class="tab-pane logframe-indicator__breakdown" id="Disaggregation">
 
-                            <!-- <h4 align="center"><strong>Disaggregation</strong></h4> -->
                             <div id='ncontainer'>
+                              <div class="logframe-indicator__breakdown-heading">
+                                <h6>Disaggregation breakdown</h6>
+                                <p>Add the categories you want to track, with a baseline and target for each.</p>
+                              </div>
 
                               <table id="nextkin" border="1" cellspacing="0">
                                 <tr>
@@ -1841,8 +1404,10 @@
                               </tr>
                           </table>
 
-                          <button type="button" class='ndelete'>- Delete</button>
-                          <button type="button" class='naddmore'>+ Add More</button>
+                          <div class="logframe-indicator__breakdown-actions">
+                            <button type="button" class='ndelete'>Delete selected</button>
+                            <button type="button" class='naddmore'>Add category</button>
+                          </div>
                       </div>
                       <script>
                         $(".ndelete").on('click', function() {
@@ -1889,7 +1454,7 @@
                   </script>
               </div>
 
-              <div class="col-sm-12">
+              <div class="col-sm-12 logframe-indicator__description">
                 <div class="form-group">
                     <label class="form-label" for="default-textarea">Indicator Description<i><span style="color:grey">(Optional)</span></i></label>
                     <div class="form-control-wrap">
@@ -2010,7 +1575,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Project Goal Outcome</h5>
+                <div class="logframe-indicator__heading">
+                    <h5 class="modal-title">Add Project Goal Outcome</h5>
+                    <p class="logframe-parent__goal-context"></p>
+                </div>
                 <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
                 </a>
@@ -2019,49 +1587,38 @@
 
                 <form id="projectgoaloutcome">
                     @csrf
-                    <div class="row gy-4">
-
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Goal Name</label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="outcome_goal" class="form-control" id="outcome_goal" placeholder=""
-                                value="{{$goalframe->goal_code}} - {{$goalframe->goal_name}}" readonly="">
-                            </div>
-                        </div>
-
                         <input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" readonly="">
                         <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}" readonly="">
                         <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" readonly="">
-                        <input type="hidden" name="goal_id" class="form-control" value="{{$goalframe->id}}" readonly="">
+                        <input type="hidden" name="goal_id" class="form-control" value="{{ optional($goalframe)->id }}" readonly="">
                         <input type="hidden" name="status" class="form-control" value="01" readonly="">
+                        <input type="hidden" name="outcome_goal" id="outcome_goal" value="{{ optional($goalframe)->goal_code }} - {{ optional($goalframe)->goal_name }}">
 
-
-
+                        <div class="logframe-parent-form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="default-01">OutCome Title<span style="color:red">*</span></label>
+                            <label class="form-label" for="outcome_title">Outcome title<span style="color:red">*</span></label>
                             <div class="form-control-wrap">
                                 <input type="text" name="outcome_title" class="form-control" id="outcome_title" placeholder="Enter Outcome Title">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">OutCome code<i><span style="color:grey">(Optional)</span></i></label>
+                        <div class="form-group logframe-parent-form-grid__full">
+                            <label class="form-label" for="outcome_code">Outcome code<i><span style="color:grey">(Optional)</span></i></label>
                             <div class="form-control-wrap">
                                 <input type="text" name="outcome_code" class="form-control" id="outcome_code" placeholder="Enter outcome Code">
                             </div>
                         </div>
 
-                        <div class="col-sm-12">
+                        <div class="col-sm-12 logframe-parent-form-grid__full">
                             <div class="form-group">
-                                <label class="form-label" for="default-textarea">Outcome Description<i><span style="color:grey">(Optional)</span></i></label>
+                                <label class="form-label" for="outcome_description">Outcome description<i><span style="color:grey">(Optional)</span></i></label>
                                 <div class="form-control-wrap">
-                                    <textarea class="form-control no-resize" name="outcome_description" id="default-textarea"></textarea>
+                                    <textarea class="form-control no-resize" name="outcome_description" id="outcome_description" placeholder="Add context for this outcome"></textarea>
                                 </div>
                             </div>
                         </div>
-
                         <button type="submit" class="btn btn-primary">Add Goal Outcome</button>
-                    </div>
+                        </div>
                 </form>
                 <script>
                     $(document).ready(function() {
@@ -2136,7 +1693,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Project Goal Activity</h5>
+                <div class="logframe-indicator__heading">
+                    <h5 class="modal-title">Add Project Goal Activity</h5>
+                    <p class="logframe-parent__goal-context"></p>
+                </div>
                 <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
                 </a>
@@ -2146,42 +1706,33 @@
                 <form id="projectgoalactivity">
                     @csrf
 
-                    <div class="row gy-4">
-
                         <input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" readonly="">
                         <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}" readonly="">
                         <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" readonly="">
                         <input type="hidden" name="status" class="form-control" value="01" readonly="">
-                        <input type="hidden" name="goal_id" class="form-control" value="{{$goalframe->id}}" readonly="">
+                        <input type="hidden" name="goal_id" class="form-control" value="{{ optional($goalframe)->id }}" readonly="">
+                        <input type="hidden" name="activity_name" value="{{ optional($goalframe)->goal_code }} - {{ optional($goalframe)->goal_name }}">
 
-
+                    <div class="logframe-parent-form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="default-01">Goal</label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="activity_name" class="form-control" id="default-01" placeholder=""
-                                value="{{$goalframe->goal_code}} - {{$goalframe->goal_name}}" readonly="">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Activity Title<span style="color:red">*</span></label>
+                            <label class="form-label" for="activity_title">Activity title<span style="color:red">*</span></label>
                             <div class="form-control-wrap">
                                 <input type="text" name="activity_title" class="form-control" id="activity_title" placeholder="Enter Activity Title">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Activity code<i><span style="color:grey">(Optional)</span></i></label>
+                        <div class="form-group logframe-parent-form-grid__full">
+                            <label class="form-label" for="activity_code">Activity code<i><span style="color:grey">(Optional)</span></i></label>
                             <div class="form-control-wrap">
                                 <input type="text" name="activity_code" class="form-control" id="activity_code" placeholder="Enter Activity Code">
                             </div>
                         </div>
 
-                        <div class="col-sm-12">
+                        <div class="col-sm-12 logframe-parent-form-grid__full">
                             <div class="form-group">
-                                <label class="form-label" for="default-textarea">Activity Description<i><span style="color:grey">(Optional)</span></i></label>
+                                <label class="form-label" for="activity_description">Activity description<i><span style="color:grey">(Optional)</span></i></label>
                                 <div class="form-control-wrap">
-                                    <textarea class="form-control no-resize" name="activity_description" id="default-textarea"></textarea>
+                                    <textarea class="form-control no-resize" name="activity_description" id="activity_description" placeholder="Add context for this activity"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -2257,6 +1808,25 @@
     </div>
 </div>
 
+<script>
+    $(function () {
+        $('#practice_modal, #activity_modal, #indicator_modal').on('show.bs.modal', function (event) {
+            var trigger = $(event.relatedTarget);
+            var form = $(this).find('form');
+            var labelField = this.id === 'practice_modal'
+                ? 'outcome_goal'
+                : (this.id === 'activity_modal' ? 'activity_name' : 'goal_name');
+
+            form.find('[name="goal_id"]').val(trigger.data('goal-id'));
+            form.find('[name="' + labelField + '"]').val(trigger.data('goal-label'));
+            if (this.id === 'indicator_modal') {
+                $(this).find('.logframe-indicator__goal-context').text('For goal: ' + trigger.data('goal-label'));
+            } else {
+                $(this).find('.logframe-parent__goal-context').text('For goal: ' + trigger.data('goal-label'));
+            }
+        });
+    });
+</script>
 
 <!-- Add Project Outcome Output -->
 
@@ -2264,7 +1834,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Project Outcome Output</h5>
+                <div class="logframe-indicator__heading">
+                    <h5 class="modal-title">Add Project Outcome Output</h5>
+                    <p class="logframe-nested__parent-context"></p>
+                </div>
                 <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
                 </a>
@@ -2274,44 +1847,33 @@
                 <form id="projectoutcomeoutput">
                     @csrf
 
-                    <div class="row gy-4">
-
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Output Title</label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="output_title" class="form-control" id="output_title" placeholder=""
-                                readonly="">
-                            </div>
-                        </div>
-                        
-
-
                         <input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" readonly="">
                         <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}" readonly="">
                         <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" readonly="">
                         <input type="hidden" name="status" class="form-control" value="01" readonly="">
                         <input type="hidden" name="outcome_id" id="outcome_id" class="form-control" readonly="">
+                        <input type="hidden" name="output_title" id="output_title" value="">
 
-
+                    <div class="logframe-parent-form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="default-01">Output Name</label>
+                            <label class="form-label" for="project_output_name">Output name</label>
                             <div class="form-control-wrap">
-                                <input type="text" name="output_name" class="form-control" id="default-01" placeholder="">
+                                <input type="text" name="output_name" class="form-control" id="project_output_name" placeholder="Enter output name">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Output code</label>
+                        <div class="form-group logframe-parent-form-grid__full">
+                            <label class="form-label" for="project_output_code">Output code</label>
                             <div class="form-control-wrap">
-                                <input type="text" name="output_code" class="form-control" id="default-01" placeholder="">
+                                <input type="text" name="output_code" class="form-control" id="project_output_code" placeholder="Enter output code">
                             </div>
                         </div>
 
-                        <div class="col-sm-12">
+                        <div class="col-sm-12 logframe-parent-form-grid__full">
                             <div class="form-group">
-                                <label class="form-label" for="default-textarea">Output Description(Optional)</label>
+                                <label class="form-label" for="project_output_description">Output description (optional)</label>
                                 <div class="form-control-wrap">
-                                    <textarea class="form-control no-resize" name="output_description" id="default-textarea"></textarea>
+                                    <textarea class="form-control no-resize" name="output_description" id="project_output_description" placeholder="Add context for this output"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -2371,7 +1933,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Project Outcome Activity</h5>
+                <div class="logframe-indicator__heading">
+                    <h5 class="modal-title">Add Project Outcome Activity</h5>
+                    <p class="logframe-nested__parent-context"></p>
+                </div>
                 <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
                 </a>
@@ -2381,42 +1946,33 @@
                 <form id="projectoutcomeactivity">
                     @csrf
 
-                    <div class="row gy-4">
-
-                        <div class="form-group">
-
-                            <label class="form-label" for="default-01">Outcome</label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="activity_name" class="form-control" id="activity_name2" placeholder=""
-                                readonly="">
-                            </div>
-                        </div>
-
                         <input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" readonly="">
                         <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}" readonly="">
                         <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" readonly="">
                         <input type="hidden" name="outcome_id" class="form-control" id="outcome_id1" readonly="">
                         <input type="hidden" name="status" class="form-control" value="01" readonly="">
+                        <input type="hidden" name="activity_name" id="activity_name2" value="">
 
+                    <div class="logframe-parent-form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="default-01">Outcome Activity Title</label>
+                            <label class="form-label" for="outcome_activity_title">Activity title</label>
                             <div class="form-control-wrap">
-                                <input type="text" name="activity_title" class="form-control" id="default-01" placeholder="">
+                                <input type="text" name="activity_title" class="form-control" id="outcome_activity_title" placeholder="Enter activity title">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Outcome Activity code</label>
+                        <div class="form-group logframe-parent-form-grid__full">
+                            <label class="form-label" for="outcome_activity_code">Activity code</label>
                             <div class="form-control-wrap">
-                                <input type="text" name="activity_code" class="form-control" id="default-01" placeholder="">
+                                <input type="text" name="activity_code" class="form-control" id="outcome_activity_code" placeholder="Enter activity code">
                             </div>
                         </div>
 
-                        <div class="col-sm-12">
+                        <div class="col-sm-12 logframe-parent-form-grid__full">
                             <div class="form-group">
-                                <label class="form-label" for="default-textarea">Outcome Activity Description(Optional)</label>
+                                <label class="form-label" for="outcome_activity_description">Activity description (optional)</label>
                                 <div class="form-control-wrap">
-                                    <textarea class="form-control no-resize" name="activity_description" id="default-textarea"></textarea>
+                                    <textarea class="form-control no-resize" name="activity_description" id="outcome_activity_description" placeholder="Add context for this activity"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -2475,7 +2031,10 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Project Output Activity</h5>
+                <div class="logframe-indicator__heading">
+                    <h5 class="modal-title">Add Project Output Activity</h5>
+                    <p class="logframe-nested__parent-context"></p>
+                </div>
                 <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
                 </a>
@@ -2485,44 +2044,33 @@
                 <form id="projectoutputactivity">
                     @csrf
 
-                    <div class="row gy-4">
-
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Ouput Activity</label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="activity_name" class="form-control" id="output_title7" placeholder=""
-                                readonly="">
-                            </div>
-                        </div>
-
-
-
                         <input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" readonly="">
                         <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}" readonly="">
                         <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" readonly="">
                         <input type="hidden" name="output_id" class="form-control" id="output_id5" readonly="">
                         <input type="hidden" name="status" class="form-control" value="01" readonly="">
+                        <input type="hidden" name="activity_name" id="output_title7" value="">
 
-
+                    <div class="logframe-parent-form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="default-01">Output Activity Title</label>
+                            <label class="form-label" for="output_activity_title">Activity title</label>
                             <div class="form-control-wrap">
-                                <input type="text" name="activity_title" class="form-control" id="default-01" placeholder="">
+                                <input type="text" name="activity_title" class="form-control" id="output_activity_title" placeholder="Enter activity title">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Output Activity code</label>
+                        <div class="form-group logframe-parent-form-grid__full">
+                            <label class="form-label" for="output_activity_code">Activity code</label>
                             <div class="form-control-wrap">
-                                <input type="text" name="activity_code" class="form-control" id="default-01" placeholder="">
+                                <input type="text" name="activity_code" class="form-control" id="output_activity_code" placeholder="Enter activity code">
                             </div>
                         </div>
 
-                        <div class="col-sm-12">
+                        <div class="col-sm-12 logframe-parent-form-grid__full">
                             <div class="form-group">
-                                <label class="form-label" for="default-textarea">Output Activity Description(Optional)</label>
+                                <label class="form-label" for="output_activity_description">Activity description (optional)</label>
                                 <div class="form-control-wrap">
-                                    <textarea class="form-control no-resize" name="activity_description" id="default-textarea"></textarea>
+                                    <textarea class="form-control no-resize" name="activity_description" id="output_activity_description" placeholder="Add context for this activity"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -2610,7 +2158,10 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Project Output Indicator</h5>
+                <div class="logframe-indicator__heading">
+                    <h5 class="modal-title">Add Project Output Indicator</h5>
+                    <p class="logframe-nested__parent-context"></p>
+                </div>
                 <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
                 </a>
@@ -2619,41 +2170,30 @@
 
                 <form id="projectoutputindicator">
                     @csrf
-                    <div class="row gy-4">
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Output</label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="goal_name" class="form-control" id="output_indicator7" placeholder=""
-                                readonly="">
-                            </div>
-                        </div>
-
-
                         <input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" readonly="">
                         <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}" readonly="">
                         <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" readonly="">
                         <input type="hidden" name="output_id" class="form-control" id="output_indicator5" readonly="">
                         <input type="hidden" name="status" class="form-control" value="01" readonly="">
+                        <input type="hidden" name="goal_name" id="output_indicator7" value="">
 
-
-
+                    <div class="logframe-nested-indicator__grid">
                         <div class="form-group">
-                            <label class="form-label" for="default-01">Indicator Title</label>
+                            <label class="form-label" for="output_indicator_title">Indicator title</label>
                             <div class="form-control-wrap">
-                                <input type="text" name="indicator_title" class="form-control" id="default-01" placeholder="">
+                                <input type="text" name="indicator_title" class="form-control" id="output_indicator_title" placeholder="Enter indicator title">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="default-06">Reporting Frequency</label>
+                            <label class="form-label" for="output_indicator_frequency">Reporting frequency</label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
-                                    <select class="form-control" name="reporting_frequency" id="default-06">
-                                        <option value="#">-------Select Reporting Frequency-------</option>
-                                        <option></option>
+                                    <select class="form-control" name="reporting_frequency" id="output_indicator_frequency">
+                                        <option value="">Select reporting frequency</option>
                                         <option value="Monthly">Monthly</option>
                                         <option value="Bi-Monthly">Bi-Monthly</option>
-                                        <option value="Quaterly">Quaterly</option>
+                                        <option value="Quaterly">Quarterly</option>
                                         <option value="Semi-Annual">Semi-Annual</option>
                                         <option value="Annual">Annual</option>
                                     </select>
@@ -2662,12 +2202,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="default-06">Type</label>
+                            <label class="form-label" for="output_indicator_type">Type</label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
-                                    <select class="form-control" name="type" id="type">
-                                        <option value="#">-------Select Type-------</option>
-                                        <option></option>
+                                    <select class="form-control" name="type" id="output_indicator_type">
+                                        <option value="">Select indicator type</option>
                                         <option value="Quantitative">Quantitative</option>
                                         <option value="Qualitative">Qualitative</option>
                                     </select>
@@ -2676,13 +2215,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="default-06">Disaggregation</label>
+                            <label class="form-label" for="output_indicator_disaggregation">Disaggregation</label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
                                     <select class="form-control" name="disaggregation" id="disaggregation2">
-                                        <option value="#">-------Select Disaggregation-------</option>
-                                        <option></option>
-                                        <!-- <option value="none">None</option> -->
+                                        <option value="">Select disaggregation</option>
                                         <option value="Disaggregation2">Disaggregation</option>
                                     </select>
                                 </div>
@@ -2690,37 +2227,39 @@
                         </div>
 
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-nested-indicator__measure">
                             <div class="form-group" id="output11">
-                                <label class="form-label" for="default-01">Label</label>
+                                <label class="form-label" for="output_indicator_label">Label</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="label_none" class="form-control" id="default-01" placeholder="Input Label">
+                                    <input type="text" name="label_none" class="form-control" id="output_indicator_label" placeholder="Enter label">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-nested-indicator__measure">
                             <div class="form-group" id="output21">
-                                <label class="form-label" for="default-01">Baseline</label>
+                                <label class="form-label" for="output_indicator_baseline">Baseline</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="baseline_none" class="form-control" id="default-01" placeholder="Input Baselime">
+                                    <input type="text" name="baseline_none" class="form-control" id="output_indicator_baseline" placeholder="Enter baseline">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-nested-indicator__measure">
                             <div class="form-group" id="output31">
-                                <label class="form-label" for="default-01">Target</label>
+                                <label class="form-label" for="output_indicator_target">Target</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="target_none" class="form-control" id="default-01" placeholder="Input Target">
+                                    <input type="text" name="target_none" class="form-control" id="output_indicator_target" placeholder="Enter target">
                                 </div>
                             </div>
                         </div>
 
-                        <div role="tabpanel" class="tab-pane" id="Disaggregation2">
-
-                            <!-- <h4 align="center"><strong>Disaggregation</strong></h4> -->
+                        <div role="tabpanel" class="tab-pane logframe-nested-indicator__breakdown" id="Disaggregation2">
                             <div id='ncontainer'>
+                              <div class="logframe-indicator__breakdown-heading">
+                                <h6>Disaggregation breakdown</h6>
+                                <p>Add the categories you want to track, with a baseline and target for each.</p>
+                              </div>
 
                               <table id="nextkin2" border="1" cellspacing="0">
                                 <tr>
@@ -2788,7 +2327,7 @@
                   </script>
               </div>
 
-              <div class="col-sm-12">
+              <div class="col-sm-12 logframe-nested-indicator__description">
                 <div class="form-group">
                     <label class="form-label" for="default-textarea">Indicator Description(Optional)</label>
                     <div class="form-control-wrap">
@@ -2882,7 +2421,10 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add Project Outcome Indicator</h5>
+                <div class="logframe-indicator__heading">
+                    <h5 class="modal-title">Add Project Outcome Indicator</h5>
+                    <p class="logframe-nested__parent-context"></p>
+                </div>
                 <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
                 </a>
@@ -2891,43 +2433,30 @@
 
                 <form id="projectoutcomeindicator">
                     @csrf
-                    <div class="row gy-4">
-
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">Outcome</label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="goal_name" class="form-control" id="outcome_indicator" placeholder=""
-                                readonly="">
-                            </div>
-                        </div>
-                        
-
-
                         <input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" readonly="">
                         <input type="hidden" name="organization_id" class="form-control" value="{{Auth::user()->organization_id}}" readonly="">
                         <input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" readonly="">
                         <input type="hidden" name="outcome_id" class="form-control" id="outcome_id3" readonly="">
                         <input type="hidden" name="status" class="form-control" value="01" readonly="">
+                        <input type="hidden" name="goal_name" id="outcome_indicator" value="">
 
-
-
+                    <div class="logframe-nested-indicator__grid">
                         <div class="form-group">
-                            <label class="form-label" for="default-01">Indicator Title</label>
+                            <label class="form-label" for="outcome_indicator_title">Indicator title</label>
                             <div class="form-control-wrap">
-                                <input type="text" name="indicator_title" class="form-control" id="default-01" placeholder="">
+                                <input type="text" name="indicator_title" class="form-control" id="outcome_indicator_title" placeholder="Enter indicator title">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="default-06">Reporting Frequency</label>
+                            <label class="form-label" for="outcome_indicator_frequency">Reporting frequency</label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
-                                    <select class="form-control" name="reporting_frequency" id="default-06">
-                                        <option value="#">-------Select Reporting Frequency-------</option>
-                                        <option></option>
+                                    <select class="form-control" name="reporting_frequency" id="outcome_indicator_frequency">
+                                        <option value="">Select reporting frequency</option>
                                         <option value="Monthly">Monthly</option>
                                         <option value="Bi-Monthly">Bi-Monthly</option>
-                                        <option value="Quaterly">Quaterly</option>
+                                        <option value="Quaterly">Quarterly</option>
                                         <option value="Semi-Annual">Semi-Annual</option>
                                         <option value="Annual">Annual</option>
                                     </select>
@@ -2936,12 +2465,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="default-06">Type</label>
+                            <label class="form-label" for="outcome_indicator_type">Type</label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
-                                    <select class="form-control" name="type" id="type">
-                                        <option value="#">-------Select Type-------</option>
-                                        <option></option>
+                                    <select class="form-control" name="type" id="outcome_indicator_type">
+                                        <option value="">Select indicator type</option>
                                         <option value="Quantitative">Quantitative</option>
                                         <option value="Qualitative">Qualitative</option>
                                     </select>
@@ -2950,13 +2478,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="default-06">Disaggregation</label>
+                            <label class="form-label" for="outcome_indicator_disaggregation">Disaggregation</label>
                             <div class="form-control-wrap ">
                                 <div class="form-control-select">
                                     <select class="form-control" name="disaggregation" id="disaggregation3">
-                                        <option value="#">-------Select Disaggregation-------</option>
-                                        <option></option>
-                                        <!-- <option value="none">None</option> -->
+                                        <option value="">Select disaggregation</option>
                                         <option value="Disaggregation3">Disaggregation</option>
                                     </select>
                                 </div>
@@ -2964,37 +2490,39 @@
                         </div>
 
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-nested-indicator__measure">
                             <div class="form-group" id="outcome11">
-                                <label class="form-label" for="default-01">Label</label>
+                                <label class="form-label" for="outcome_indicator_label">Label</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="label_none" class="form-control" id="default-01" placeholder="Input Label">
+                                    <input type="text" name="label_none" class="form-control" id="outcome_indicator_label" placeholder="Enter label">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-nested-indicator__measure">
                             <div class="form-group" id="outcome12">
-                                <label class="form-label" for="default-01">Baseline</label>
+                                <label class="form-label" for="outcome_indicator_baseline">Baseline</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="baseline_none" class="form-control" id="default-01" placeholder="Input Baselime">
+                                    <input type="text" name="baseline_none" class="form-control" id="outcome_indicator_baseline" placeholder="Enter baseline">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6 logframe-nested-indicator__measure">
                             <div class="form-group" id="outcome13">
-                                <label class="form-label" for="default-01">Target</label>
+                                <label class="form-label" for="outcome_indicator_target">Target</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" name="target_none" class="form-control" id="default-01" placeholder="Input Target">
+                                    <input type="text" name="target_none" class="form-control" id="outcome_indicator_target" placeholder="Enter target">
                                 </div>
                             </div>
                         </div>
 
-                        <div role="tabpanel" class="tab-pane" id="Disaggregation3">
-
-                            <!-- <h4 align="center"><strong>Disaggregation</strong></h4> -->
+                        <div role="tabpanel" class="tab-pane logframe-nested-indicator__breakdown" id="Disaggregation3">
                             <div id='ncontainer'>
+                              <div class="logframe-indicator__breakdown-heading">
+                                <h6>Disaggregation breakdown</h6>
+                                <p>Add the categories you want to track, with a baseline and target for each.</p>
+                              </div>
 
                               <table id="nextkin1" border="1" cellspacing="0">
                                 <tr>
@@ -3062,7 +2590,7 @@
                   </script>
               </div>
               
-              <div class="col-sm-12">
+              <div class="col-sm-12 logframe-nested-indicator__description">
                 <div class="form-group">
                     <label class="form-label" for="default-textarea">Indicator Description(Optional)</label>
                     <div class="form-control-wrap">
@@ -3135,140 +2663,107 @@
     });
 </script>
 
-<div class="modal fade zoom" tabindex="-1" id="modalZoom877">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add Implementaion Container</h5>
-                <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <em class="icon ni ni-cross"></em>
-                </a>
-            </div>
-            <div class="modal-body">
-                <div class="nk-block nk-block-lg">
-                    <div class="card card-bordered card-preview">
-                        <div class="card-inner">
-                            <ul class="nav nav-tabs mt-n3">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#tabItem5232"><em class="icon ni ni-file"></em><span>Implementaion Container</span></a>
-                                </li>
-                            </ul>
+    <div class="modal fade" tabindex="-1" id="modalZoom877" aria-labelledby="add-implementation-container-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered project-detail__modal-dialog" role="document">
+            <div class="modal-content project-detail__modal">
+                <div class="modal-header">
+                    <div class="project-detail__modal-heading">
+                        <span class="project-detail__modal-icon"><em class="icon ni ni-check-circle" aria-hidden="true"></em></span>
+                        <div>
+                            <h5 class="modal-title" id="add-implementation-container-title">Add implementation container</h5>
+                            <p>Set up an implementation period and connect it to a work plan.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <em class="icon ni ni-cross"></em>
+                    </button>
+                </div>
+                <form method="POST" action="{{ route('createimcontainer') }}" class="project-detail__modal-form">
+                    @csrf
+                    <div class="modal-body">
+                        <input type="hidden" name="status" value="01">
+                        <input type="hidden" name="created_by" value="{{ Auth::user()->id }}">
+                        <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+                        <input type="hidden" name="exchange_rate" value="FY-2023">
+                        <input type="hidden" name="project_id" value="{{ $projectshow->id }}">
 
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="tabItem5232">
-                                    <form method="POST" action="{{ route('createimcontainer') }}">
-                                        @csrf
-                                        <div class="row gy-4">
-
-                                           <input type="hidden" class="form-control" value="01" name="status" id="default-01">
-                                           <input type="hidden" class="form-control" value="{{Auth::user()->id}}" name="created_by" id="default-01">
-                                           <input type="hidden" class="form-control" value="{{Auth::user()->organization_id}}" name="organization_id" id="default-01">
-                                           <input type="hidden" class="form-control" value="FY-2023" name="exchange_rate" id="default-01">
-                                           <input type="hidden" class="form-control" value="{{$projectshow->id}}" name="project_id" id="default-01">
-
-                                           <div class="form-group">
-                                            <label class="form-label" for="default-01">Conatiner Name</label>
-                                            <div class="form-control-wrap">
-                                                <input type="text" class="form-control" name="container_name" id="default-01" placeholder="Input Work Plan Container Name">
-                                            </div>
-                                        </div>
-
-                                        <script>
-                                            $(document).ready(function(){
-                                                $('#activityworkplan').hide();
-                                                $('#indicatorworkplan').hide();
-                                                $('#planning_typeid').change(function(){
-                                                  if($(this).val() == 'Activity'){
-                                                    $('#activityworkplan').show();
-                                                    $('#indicatorworkplan').hide();
-                                                }else if($(this).val() == 'Indicator'){
-                                                    $('#indicatorworkplan').show();
-                                                    $('#activityworkplan').hide();
-                                                }else if($(this).val() == 'ALIENID'){
-                                                    $('#document_number').show();
-                                                }
-                                                else{
-                                                   $('#null').show('');
-                                               }
-                                           });
-                                            });
-
-                                        </script>
-
-                                        <div class="form-group">
-                                            <label class="form-label" for="default-06">Planning Type</label>
-                                            <div class="form-control-wrap ">
-                                                <div class="form-control-select">
-                                                    <select class="form-control" name="planning_type" id="planning_typeid">
-                                                        <option value="null">-------Select Planning Type-------</option>
-                                                        <option></option>
-                                                        <option value="Activity">Activity</option>
-                                                        <option value="Indicator">Indicator</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group" id="activityworkplan">
-                                            <label class="form-label" for="default-06">Activity Work Plan</label>
-                                            <div class="form-control-wrap ">
-                                                <div class="form-control-select">
-                                                    <select class="form-control" name="workplancontainer_id" id="workplancontainer_id">
-                                                        <option value="null">-------Select Work Plan-------</option>
-                                                        <option></option>
-                                                        @foreach($workplancontaineract as $obj)
-                                                        <option value="{{$obj->id}}">{{$obj->container_name}} - ({{$obj->planning_type}})</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-lg-6 col-sm-12">
-                                            <div class="form-group">
-                                                <div class="form-control-wrap">
-                                                    <div class="form-icon form-icon-right">
-                                                        <em class="icon ni ni-calendar-alt"></em>
-                                                    </div>
-                                                    <input type="text" name="implementation_start_date" class="form-control form-control-xl form-control-outlined date-picker" id="outlined-date-picker">
-                                                    <label class="form-label-outlined" for="outlined-date-picker">Start Date</label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-6 col-sm-12">
-                                            <div class="form-group">
-                                                <div class="form-control-wrap">
-                                                    <div class="form-icon form-icon-right">
-                                                        <em class="icon ni ni-calendar-alt"></em>
-                                                    </div>
-                                                    <input type="text" name="imeplementation_end_date" class="form-control form-control-xl form-control-outlined date-picker" id="outlined-date-picker">
-                                                    <label class="form-label-outlined" for="outlined-date-picker">End Date</label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        </div>
-
-                                        
-
-
-                                        <br>
-                                        <button style="margin-left: 30%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Add Implementation Container</button>
-                                    </form>
+                        <div class="project-detail__form-grid">
+                            <div class="project-detail__form-field project-detail__form-field--full">
+                                <label class="form-label" for="implementation-container-name">Container name</label>
+                                <input type="text" class="form-control" name="container_name" id="implementation-container-name" placeholder="Enter an implementation container name">
+                            </div>
+                            <div class="project-detail__form-field">
+                                <label class="form-label" for="planning_typeid">Planning type</label>
+                                <select class="form-control" name="planning_type" id="planning_typeid">
+                                    <option value="null">Select planning type</option>
+                                    <option value="Activity">Activity</option>
+                                    <option value="Indicator">Indicator</option>
+                                </select>
+                            </div>
+                            <div class="project-detail__form-field" id="activityworkplan" style="display: none;">
+                                <label class="form-label" for="workplancontainer_id">Activity work plan</label>
+                                <select class="form-control" name="workplancontainer_id" id="workplancontainer_id" disabled>
+                                    <option value="">Select an activity work plan</option>
+                                    @foreach($workplancontaineract as $obj)
+                                        <option value="{{ $obj->id }}">{{ $obj->container_name }} - ({{ $obj->planning_type }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="project-detail__form-field" id="indicatorworkplan" style="display: none;">
+                                <label class="form-label" for="indicator_workplancontainer_id">Indicator work plan</label>
+                                <select class="form-control" name="workplancontainer_id" id="indicator_workplancontainer_id" disabled>
+                                    <option value="">Select an indicator work plan</option>
+                                    @foreach($workplancontainerind as $obj)
+                                        <option value="{{ $obj->id }}">{{ $obj->container_name }} - ({{ $obj->planning_type }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="project-detail__form-field">
+                                <label class="form-label" for="implementation-start-date">Start date</label>
+                                <div class="project-detail__date-input">
+                                    <em class="icon ni ni-calendar-alt" aria-hidden="true"></em>
+                                    <input type="text" name="implementation_start_date" class="form-control date-picker" id="implementation-start-date" placeholder="Select start date">
+                                </div>
+                            </div>
+                            <div class="project-detail__form-field">
+                                <label class="form-label" for="implementation-end-date">End date</label>
+                                <div class="project-detail__date-input">
+                                    <em class="icon ni ni-calendar-alt" aria-hidden="true"></em>
+                                    <input type="text" name="imeplementation_end_date" class="form-control date-picker" id="implementation-end-date" placeholder="Select end date">
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="admin-page__button">
+                            <em class="icon ni ni-check" aria-hidden="true"></em>
+                            Save container
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-        
     </div>
 </div>
 
+<script>
+    $(function () {
+        var updateWorkplanOptions = function () {
+            var planningType = $('#planning_typeid').val();
+            var isActivity = planningType === 'Activity';
+            var isIndicator = planningType === 'Indicator';
+
+            $('#activityworkplan').toggle(isActivity);
+            $('#indicatorworkplan').toggle(isIndicator);
+            $('#workplancontainer_id').prop('disabled', !isActivity).prop('required', isActivity);
+            $('#indicator_workplancontainer_id').prop('disabled', !isIndicator).prop('required', isIndicator);
+        };
+
+        $('#planning_typeid').on('change', updateWorkplanOptions);
+        updateWorkplanOptions();
+    });
+</script>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -3297,93 +2792,69 @@
     });
 </script>
 
-<div class="modal fade zoom" tabindex="-1" id="addusers">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+<div class="modal fade" tabindex="-1" id="addusers" aria-labelledby="add-project-user-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered project-detail__modal-dialog" role="document">
+        <div class="modal-content project-detail__modal">
             <div class="modal-header">
-                <h5 class="modal-title">Add User to the Project</h5>
-                <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <div class="project-detail__modal-heading">
+                    <span class="project-detail__modal-icon"><em class="icon ni ni-user-add" aria-hidden="true"></em></span>
+                    <div>
+                        <h5 class="modal-title" id="add-project-user-title">Add user to the project</h5>
+                        <p>Choose a colleague and assign their project profile.</p>
+                    </div>
+                </div>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
-                </a>
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="nk-block nk-block-lg">
-                    <div class="card card-bordered card-preview">
-                        <div class="card-inner">
-                            <ul class="nav nav-tabs mt-n3">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#tabItem5232"><em class="icon ni ni-edit"></em><span>Add User</span></a>
-                                </li>
-                            </ul>
+            <form method="POST" action="{{ route('inviteuser') }}" class="project-detail__modal-form">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="project_id" value="{{ $projectshow->id }}">
+                    <input type="hidden" value="" id="username" name="name" readonly>
+                    <input type="hidden" value="" id="inviteuser" name="email" readonly>
 
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="tabItem5232">
-                                    <form method="POST" action="{{ route('inviteuser')}}">
-                                        @csrf
-                                        <div class="row gy-4">
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-01">Project</label>
-                                                <div class="form-control-wrap">
-                                                    <input type="text" class="form-control" value="{{$projectshow->project_name}}" id="default-01" name="project_name" readonly>
-                                                </div>
-                                            </div>
-
-                                            
-                                            <input type="hidden" class="form-control" value="{{$projectshow->id}}" id="default-01" name="project_id" readonly>
-
-
-                                            <div class="form-group" id="program">
-                                                <label class="form-label" for="default-06">Users</label>
-                                                <div class="form-control-wrap ">
-                                                    <div class="form-control-select">
-                                                        <select class="form-control" id="userid" name="user_id" >
-                                                            <option value="#">Nothing Selected</option>
-                                                            <option></option>                                                
-                                                            @foreach($projectusers1 as $object)
-                                                            <option value="{{$object->id}}">{{$object->name}}  {{$object->last_name}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-06">Profile</label>
-                                                <div class="form-control-wrap ">
-                                                    <div class="form-control-select">
-                                                        <select class="form-control" name="basecurrency_id" id="basecurrency_id">
-                                                            <option value="null">Nothing Selected</option>
-                                                            <option></option>
-                                                            @foreach($roles as $obj)
-                                                            <option value="{{$obj->id}}">{{$obj->name}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <input type="hidden" class="form-control" value="" id="username" name="name" readonly>
-
-                                            <input type="hidden" class="form-control" value="" id="inviteuser" name="email" readonly>
-
-                                        </div> 
-                                    </div>
-                                    <br>
-                                    <button style="margin-left: 30%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Invite User</button>
-                                </form>
-                            </div>
+                    <div class="project-detail__form-grid">
+                        <div class="project-detail__form-field project-detail__form-field--full">
+                            <label class="form-label" for="project-user-project">Project</label>
+                            <input type="text" class="form-control" value="{{ $projectshow->project_name }}" id="project-user-project" name="project_name" readonly>
+                        </div>
+                        <div class="project-detail__form-field project-detail__form-field--full">
+                            <label class="form-label" for="userid">User</label>
+                            <select class="form-control" id="userid" name="user_id">
+                                <option value="#">Select a user</option>
+                                @foreach($projectusers1 as $object)
+                                    <option value="{{ $object->id }}">{{ $object->name }} {{ $object->last_name }}</option>
+                                @endforeach
+                            </select>
+                            <small>Select a user to add to this project.</small>
+                        </div>
+                        <div class="project-detail__form-field project-detail__form-field--full">
+                            <label class="form-label" for="project-user-profile">Profile</label>
+                            <select class="form-control" name="basecurrency_id" id="project-user-profile">
+                                <option value="null">Select a profile</option>
+                                @foreach($roles as $obj)
+                                    <option value="{{ $obj->id }}">{{ $obj->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="admin-page__button">
+                        <em class="icon ni ni-user-add" aria-hidden="true"></em>
+                        Add user
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 
 <div class="modal fade zoom" tabindex="-1" id="updatecurreny">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Update Base Currency</h5>
@@ -3392,58 +2863,29 @@
                 </a>
             </div>
             <div class="modal-body">
-                <div class="nk-block nk-block-lg">
-                    <div class="card card-bordered card-preview">
-                        <div class="card-inner">
-                            <ul class="nav nav-tabs mt-n3">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#tabItem5232"><em class="icon ni ni-edit"></em><span>Update Base Currency</span></a>
-                                </li>
-                            </ul>
-
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="tabItem5232">
-                                    <form method="POST" action="{{ url('updatebasecurrency',$projectshow->id) }}">
-                                        @csrf
-                                        <div class="row gy-4">
-
-
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-06">Base Currency</label>
-                                                <div class="form-control-wrap ">
-                                                    <div class="form-control-select">
-                                                        <select class="form-control" name="basecurrency_id" id="basecurrency_id">
-                                                            <option value="null">-------Select New Base Currency-------</option>
-                                                            <option></option>
-                                                            @foreach($basecurrency as $obj)
-                                                            <option value="{{$obj->id}}">{{$obj->currency_name}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-
-                                        </div>
-
-                                        
-                                    </div>
-                                    <br>
-                                    <button style="margin-left: 30%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Update Base Currency</button>
-                                </form>
+                <form method="POST" action="{{ url('updatebasecurrency', $projectshow->id) }}" class="logframe-currency__form">
+                    @csrf
+                    <div class="form-group">
+                        <label class="form-label" for="basecurrency_id">Base currency</label>
+                        <div class="form-control-wrap">
+                            <div class="form-control-select">
+                                <select class="form-control" name="basecurrency_id" id="basecurrency_id" required>
+                                    <option value="">Select a new base currency</option>
+                                    @foreach($basecurrency as $obj)
+                                    <option value="{{$obj->id}}">{{$obj->currency_name}}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <button type="submit" class="btn btn-primary">
+                        <em class="icon ni ni-navigate-fill"></em>
+                        <span>Update base currency</span>
+                    </button>
+                </form>
             </div>
         </div>
-        <div class="modal-footer bg-light">
-            <span class="sub-text"></span>
-        </div>
     </div>
-</div>
 </div>
 
 <div class="modal fade zoom" tabindex="-1" id="assignrole">
@@ -4130,52 +3572,43 @@
 <div class="modal fade" id="addGoalDialog" tabindex="-1" role="dialog" aria-labelledby="addGoalDialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <form id="addGoalForm" name="addGoalForm" method="post" action="">
-                <input type="hidden" name="project_id" value="9" />
+            <form id="addGoalForm" name="addGoalForm" method="POST" action="{{ route('goals.store') }}">
+                @csrf
+                <input type="hidden" name="tab" value="tabItem4" />
 
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Goal</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <i aria-hidden="true" class="ki ki-close"></i>
+                    <div class="logframe-indicator__heading">
+                        <h5 class="modal-title">Add Goal</h5>
+                        <p class="logframe-goal__subtitle">Create a new top-level result for this project.</p>
+                    </div>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <em class="icon ni ni-cross" aria-hidden="true"></em>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <!-- title -->
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="form-group">
-                                <label class="font-weight-bolder">Title<span class="text-danger">*</span></label>
-                                <input name="goal_name" type="text" class="form-control" required="" />
-                            </div>
-                        </div>
-                    </div>
-
                     <input name="organization_id" type="hidden" class="form-control" value="{{Auth::user()->organization_id}}" />
                     <input name="created_by" type="hidden" class="form-control" value="{{Auth::user()->id}}" />
                     <input name="status" type="hidden" class="form-control" value="01" />
-                    <input name="log_frame_id" type="hidden" class="form-control" value="{{$projectshow->logframe_id}}" />
+                    <input name="log_frame_id" type="hidden" class="form-control" value="{{ optional($logframes)->id }}" />
 
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="form-group">
-                                <label class="font-weight-bolder">Goal Code<span class="text-danger">*</span></label>
-                                <input name="goal_code" type="text" class="form-control" required="" />
-                            </div>
+                    <div class="logframe-parent-form-grid logframe-goal__form-grid">
+                        <div class="form-group">
+                            <label class="font-weight-bolder">Goal title<span class="text-danger">*</span></label>
+                            <input name="goal_name" type="text" class="form-control" placeholder="Enter a clear goal title" required="" />
                         </div>
-                    </div>
 
-                    <!-- description -->
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="form-group">
-                                <label class="font-weight-bolder">Description <small class="text-muted font-weight-bolder">(OPTIONAL)</small></label>
-                                <textarea name="goal_description" class="form-control" rows="5"></textarea>
-                            </div>
+                        <div class="form-group">
+                            <label class="font-weight-bolder">Goal code<span class="text-danger">*</span></label>
+                            <input name="goal_code" type="text" class="form-control" placeholder="e.g. G1" required="" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bolder">Description <small class="text-muted font-weight-bolder">(OPTIONAL)</small></label>
+                            <textarea name="goal_description" class="form-control" rows="4" placeholder="Add context for this goal"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-danger font-weight-bold" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-outline-success font-weight-bold">Save</button>
                 </div>
             </form>
@@ -5598,89 +5031,63 @@
     </div>
 </div>
 
-<div class="modal fade zoom" tabindex="-1" id="modalZoom87">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+<div class="modal fade" tabindex="-1" id="modalZoom87" aria-labelledby="add-work-plan-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered project-detail__modal-dialog" role="document">
+        <div class="modal-content project-detail__modal">
             <div class="modal-header">
-                <h5 class="modal-title">Annual Work Plan Name</h5>
-                <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <div class="project-detail__modal-heading">
+                    <span class="project-detail__modal-icon"><em class="icon ni ni-calendar-alt" aria-hidden="true"></em></span>
+                    <div>
+                        <h5 class="modal-title" id="add-work-plan-title">Add annual work plan</h5>
+                        <p>Name the plan, choose its financial year, and set the planning type.</p>
+                    </div>
+                </div>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
-                </a>
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="nk-block nk-block-lg">
-                    <div class="card card-bordered card-preview">
-                        <div class="card-inner">
-                            <ul class="nav nav-tabs mt-n3">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#tabItem5fgt56"><em class="icon ni ni-user"></em><span>Annual Work Plan</span></a>
-                                </li>
-                            </ul>
+            <form method="POST" action="{{ route('createwpcontainer') }}" class="project-detail__modal-form">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="status" value="01">
+                    <input type="hidden" name="created_by" value="{{ Auth::user()->id }}">
+                    <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+                    <input type="hidden" name="project_id" value="{{ $projectshow->id }}">
 
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="tabItem5fgt56">
-                                    <form method="POST" action="{{ route('createwpcontainer')}}">
-                                        @csrf
-                                        <div class="row gy-4">
-
-                                           <input type="hidden" class="form-control" value="01" name="status" id="default-01">
-                                           <input type="hidden" class="form-control" value="{{Auth::user()->id}}" name="created_by" id="default-01">
-                                           <input type="hidden" class="form-control" value="{{Auth::user()->organization_id}}" name="organization_id" id="default-01">
-                                           <input type="hidden" class="form-control" value="{{$projectshow->id}}" name="project_id" id="default-01">
-
-                                           <div class="form-group">
-                                            <label class="form-label" for="default-01">Annual Work plan Name</label>
-                                            <div class="form-control-wrap">
-                                                <input type="text" class="form-control" name="container_name" id="default-01" placeholder="Input Work Plan Container Name">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-06">Financial Year</label>
-                                                <div class="form-control-wrap ">
-                                                    <div class="form-control-select">
-                                                        <select class="form-control" name="financial_year" id="financial_year">
-                                                            <option value="null">-------Select Financial Year-------</option>
-                                                            <option value="null"></option>
-                                                            @foreach($years as $obj)
-                                                            <option value="{{$obj->year_name}}">{{$obj->year_name}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-06">Planning Type</label>
-                                                <div class="form-control-wrap ">
-                                                    <div class="form-control-select">
-                                                        <select class="form-control" name="planning_type" id="planning_type">
-                                                            <option value="null">-------Select Plan Types-------</option>
-                                                            <option value="null"></option>
-                                                            <option value="Activity">Activities</option>
-                                                            <option value="Indicator">Indicators</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <!-- <button type="submit" class="btn btn-primary"></button> -->
-                                    </div>
-                                    <br>
-                                    <button style="margin-left: 40%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Save Container</button>
-                                </form>
-                            </div>
+                    <div class="project-detail__form-grid">
+                        <div class="project-detail__form-field project-detail__form-field--full">
+                            <label class="form-label" for="work-plan-container-name">Annual work plan name</label>
+                            <input type="text" class="form-control" name="container_name" id="work-plan-container-name" placeholder="e.g. Community health activities">
+                        </div>
+                        <div class="project-detail__form-field">
+                            <label class="form-label" for="financial_year">Financial year</label>
+                            <select class="form-control" name="financial_year" id="financial_year">
+                                <option value="null">Select financial year</option>
+                                @foreach($years as $obj)
+                                    <option value="{{ $obj->year_name }}">{{ $obj->year_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="project-detail__form-field">
+                            <label class="form-label" for="planning_type">Planning type</label>
+                            <select class="form-control" name="planning_type" id="planning_type">
+                                <option value="null">Select planning type</option>
+                                <option value="Activity">Activities</option>
+                                <option value="Indicator">Indicators</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="modal-footer bg-light">
-            <span class="sub-text"></span>
+                <div class="modal-footer">
+                    <button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="admin-page__button">
+                        <em class="icon ni ni-check" aria-hidden="true"></em>
+                        Save work plan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
 </div>
 
 
@@ -7073,7 +6480,9 @@
              $('#submit').val("Output category");
              $('#output_model').modal('show');
              $('#outcome_id').val(data.id);
-             $('#output_title').val(data.outcome_code + '-' + data.outcome_title)
+             var parent = data.outcome_code + ' - ' + data.outcome_title;
+             $('#output_title').val(parent);
+             $('#output_model .logframe-nested__parent-context').text('Outcome: ' + parent);
          })
         });
     }); 
@@ -7092,7 +6501,9 @@
              $('#submit').val("Output category");
              $('#activity1').modal('show');
              $('#outcome_id1').val(data.id);
-             $('#activity_name2').val(data.outcome_code + '-' + data.outcome_title)
+             var parent = data.outcome_code + ' - ' + data.outcome_title;
+             $('#activity_name2').val(parent);
+             $('#activity1 .logframe-nested__parent-context').text('Outcome: ' + parent);
          })
         });
     }); 
@@ -7112,7 +6523,9 @@
              $('#submit').val("Output category");
              $('#indicator1').modal('show');
              $('#outcome_id3').val(data.id);
-             $('#outcome_indicator').val(data.outcome_code + '-' + data.outcome_title)
+             var parent = data.outcome_code + ' - ' + data.outcome_title;
+             $('#outcome_indicator').val(parent);
+             $('#indicator1 .logframe-nested__parent-context').text('Outcome: ' + parent);
          })
              // window.location.reload();
         });
@@ -7133,7 +6546,9 @@
              $('#submit').val("Output category");
              $('#activity2').modal('show');
              $('#output_id5').val(data.id);
-             $('#output_title7').val(data.output_code + '-' + data.output_name)
+             var parent = data.output_code + ' - ' + data.output_name;
+             $('#output_title7').val(parent);
+             $('#activity2 .logframe-nested__parent-context').text('Output: ' + parent);
          })
         });
     }); 
@@ -7153,7 +6568,9 @@
              $('#submit').val("Output category");
              $('#indicator2').modal('show');
              $('#output_indicator5').val(data.id);
-             $('#output_indicator7').val(data.output_code + '-' + data.output_name)
+             var parent = data.output_code + ' - ' + data.output_name;
+             $('#output_indicator7').val(parent);
+             $('#indicator2 .logframe-nested__parent-context').text('Output: ' + parent);
          })
         });
     });
@@ -7610,7 +7027,5 @@
     });
 
 </script>
-
-
 
 @endsection

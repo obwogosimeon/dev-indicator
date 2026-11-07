@@ -1,51 +1,56 @@
-<div class="tab-pane" id="tabItem8">
-    <li class="preview-item">
-        <button type="button" class="btn btn-info icon ni ni-calender-fill" data-bs-toggle="modal" data-bs-target="#modal234567">Add Funding</button>
-    </li> 
-    <div class="card card-bordered card-preview">
-        <div class="card-inner">
-            <table class="datatable-init table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Financier</th>
-                        <th>Used for</th>.
-                        <th>For Expenditure?</th>
-                        <th>Variable Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $i = 1; ?>
-                    @foreach ($fundings as $key => $object)
-                    <tr>
-                        <td>{{$i}}</td>
-                        <td>{{ $object->funding_name }}</td>
-                        <td>{{ $object->funding_type }}</td>
-                        <td>{{ $object->expenditure }}</td>
-                        <td>{{ $object->variable_name }}</td>
-                        <td>
-                            <ul class="nk-tb-actions gx-1 my-n1">
-                                <li class="me-n1">
-                                    <div class="dropdown">
-                                        <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <ul class="link-list-opt no-bdr">
-                                                <li><a href="{{ route('funding.edit', $object->id) }}"><em class="icon ni ni-edit"></em><span>Edit Funding</span></a></li>
-                                                <li><a href="#"><em class="icon ni ni-trash"></em><span>Remove Funding</span></a></li>
-                                                <li><a href="{{ route('funding.show', $object->id) }}"><em class="icon ni ni-eye"></em><span>View Funding</span></a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-
-                        </td>
-                    </tr>
-                    <?php $i++; ?>
-                    @endforeach
-                </tbody>
-            </table>
+<div class="tab-pane" id="tabItem8" role="tabpanel" aria-labelledby="program-funding-tab">
+    <div class="program-detail__panel">
+        <div class="program-detail__panel-header">
+            <div>
+                <p class="admin-page__eyebrow">Programme resources</p>
+                <h2>Funding streams</h2>
+                <p>Manage the financiers and funding variables used by this programme.</p>
+            </div>
+            <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modal234567">
+                <em class="icon ni ni-plus" aria-hidden="true"></em>
+                Add funding
+            </button>
         </div>
+
+        @if ($fundings->isEmpty())
+            <div class="program-detail__empty-state">
+                <span class="program-detail__record-icon"><em class="icon ni ni-wallet-out" aria-hidden="true"></em></span>
+                <h3>No funding streams yet</h3>
+                <p>Add the first funding stream to track how resources are categorized for this programme.</p>
+                <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modal234567">
+                    <em class="icon ni ni-plus" aria-hidden="true"></em>
+                    Add funding
+                </button>
+            </div>
+        @else
+            <div class="program-detail__record-list" aria-label="Programme funding streams">
+                @foreach ($fundings as $object)
+                    <article class="program-detail__record">
+                        <span class="program-detail__record-icon"><em class="icon ni ni-wallet-out" aria-hidden="true"></em></span>
+                        <div class="program-detail__record-main">
+                            <h3>{{ $object->funding_name }}</h3>
+                            <div class="program-detail__record-meta">
+                                <span>{{ $object->funding_type }}</span>
+                                <span>Expenditure: {{ $object->expenditure }}</span>
+                                <span>Variable: <code>{{ $object->variable_name }}</code></span>
+                            </div>
+                            @if ($object->description)
+                                <p class="program-detail__record-description">{{ $object->description }}</p>
+                            @endif
+                        </div>
+                        <div class="program-detail__record-actions">
+                            <a href="{{ route('funding.show', $object->id) }}" class="admin-page__action" aria-label="View {{ $object->funding_name }}">
+                                <em class="icon ni ni-eye" aria-hidden="true"></em>
+                                View
+                            </a>
+                            <a href="{{ route('funding.edit', $object->id) }}" class="admin-page__action" aria-label="Edit {{ $object->funding_name }}">
+                                <em class="icon ni ni-edit" aria-hidden="true"></em>
+                                Edit
+                            </a>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
     </div>
 </div>

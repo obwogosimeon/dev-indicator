@@ -14,7 +14,7 @@ class GoalController extends Controller
     {
         $this->validate($request, [
             'goal_name' => 'required',
-            'goal_code' => 'required',
+            'goal_code' => 'nullable',
             'goal_description' => '',
             'log_frame_id' => '',
             'organization_id' => '',
@@ -26,7 +26,7 @@ class GoalController extends Controller
         $goals = Goal::create($input);
         toastr()
         ->addSuccess('Goal Added successfully');
-        return back()->withInput(['tab'=>'tabItem6']);
+        return back()->withInput(['tab' => $request->input('tab', 'tabItem6')]);
     }
 
 

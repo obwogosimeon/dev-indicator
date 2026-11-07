@@ -25,7 +25,7 @@
 
 <div class="card card-bordered card-preview">
     <div class="card-inner">
-        <table class="datatable-init table">
+        <table class="table">
             <thead>
                 <tr>
                     <th>#</th>

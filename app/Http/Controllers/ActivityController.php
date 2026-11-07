@@ -24,8 +24,8 @@ class ActivityController extends Controller
             'organization_id' => '',
             'log_frame_id' => '',
             'goal_id' => '',
-            'program_id',
-            'project_id',
+            'program_id' => '',
+            'project_id' => '',
         ]);
 
         $input = $request->all();

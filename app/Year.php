@@ -22,4 +22,9 @@ class Year extends Model
     {
         return $this->hasMany('App\WorkPlanContainer');
     }
+
+    public function program()
+    {
+        return $this->belongsTo('App\Program');
+    }
 }

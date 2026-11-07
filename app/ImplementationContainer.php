@@ -25,6 +25,6 @@ class ImplementationContainer extends Model
 
     public function workplancontainer()
     {
-        return $this->belongsTo('App\WorkPlanContainer');
+        return $this->belongsTo('App\WorkPlanContainer', 'workplancontainer_id');
     }
 }

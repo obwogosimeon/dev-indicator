@@ -35,7 +35,7 @@ class ProgramController extends Controller
         ->where('status', '=', '01')
         ->where('user_id', Auth::user()->id)
         ->count();  
-        $programs = Program::where('organization_id', Auth::user()->organization_id)->get();
+        $programs = Program::with('basecurrency')->where('organization_id', Auth::user()->organization_id)->get();
         return view('programs.index', compact('programs','notifcations','notificationcount'));
     }
 
@@ -95,39 +95,25 @@ class ProgramController extends Controller
 
         $programshow = Program::find($id);
 
-        $logframes = LogFrame::where('id', '=', $programshow->log_frame_id)->first();
-
-        $goalframe = null;
-        if($logframes != null){
-            $goalframe = Goal::where('log_frame_id', '=', $logframes->id)->first();
-        }
-        // $output1 = Output::where('log_frame_id', '=', $logframes->id)->first();
-        $loopgoals = null;
-        if($logframes != null){
-            $loopgoals = Goal::where('log_frame_id', $logframes->id)->get();
-        }
+        $logframes = LogFrame::find($programshow->log_frame_id);
+        $loopgoals = $programshow->log_frame_id
+            ? Goal::where('log_frame_id', $programshow->log_frame_id)->get()
+            : collect();
+        $goalframe = $loopgoals->first();
         
         $outcomes2 = Outcome::all();
-        $outputs2 = Output::all();
-        $activity2 = Activity::all();
-        $indicators2 = Indicator::all();
+        $outputs2 = Output::where('program_id', $id)->get();
+        $activity2 = Activity::where('program_id', $id)->get();
+        $indicators2 = Indicator::where('program_id', $id)->get();
         $goaladctiv = Activity::all();
         $goalindicators = Indicator::all();
-        $outoutindicator2 = Indicator::all();
-        $outputactivity2 = Activity::all();
+        $outoutindicator2 = $indicators2;
+        $outputactivity2 = $activity2;
+        $goalIds = $loopgoals ? $loopgoals->pluck('id') : collect();
 
-        $activitygoal = null;
-        if($goalframe != null){
-            $activitygoal = Activity::where('goal_id', '=', $goalframe->id)->where('program_id', $id)->get();
-        }
-        $goalindicator = null;
-        if($goalframe != null){
-            $goalindicator = Indicator::where('goal_id', '=', $goalframe->id)->where('program_id', $id)->get();
-        }
-        $goaloutcomes = null;
-        if($goalframe != null){
-            $goaloutcomes = Outcome::where('goal_id', '=', $goalframe->id)->where('program_id', $id)->get();
-        }
+        $activitygoal = $activity2->whereIn('goal_id', $goalIds);
+        $goalindicator = $indicators2->whereIn('goal_id', $goalIds);
+        $goaloutcomes = Outcome::whereIn('goal_id', $goalIds)->where('program_id', $id)->get();
         // dd($goaloutcomes);
 
         $outcome = null;

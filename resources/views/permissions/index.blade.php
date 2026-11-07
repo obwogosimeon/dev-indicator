@@ -1,63 +1,57 @@
 @extends('layouts.apps')
+
 @section('content')
+<main class="container-fluid admin-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Access control</p>
+            <h1 class="admin-page__title">Permissions</h1>
+            <p class="admin-page__description">Review the actions that can be assigned to roles across the workspace.</p>
+        </div>
+        <a href="{{ route('permissions.create') }}" class="admin-page__button">
+            <em class="icon ni ni-plus" aria-hidden="true"></em>
+            Add permission
+        </a>
+    </header>
 
-<div class="nk-content ">
-    <div class="container-fluid">
-        <div class="nk-content-inner">
-            <div class="nk-content-body">
-                <div class="components-preview wide-md mx-auto">
-                    <div class="nk-block-head nk-block-head-lg wide-sm">
-                        <div class="nk-block-head-content">
-                            <div class="nk-block-head-sub"><a class="back-to" href="{{ url('/home')}}"><em class="icon ni ni-arrow-left"></em><span>Dashboard</span></a></div>
-                            <h2 class="nk-block-title fw-normal">Permissions</h2>
-                        </div>
-                    </div><!-- .nk-block-head -->
+    @if (session('success'))
+        <div class="alert alert-success" role="status">{{ session('success') }}</div>
+    @endif
 
-                     @if ($message = Session::get('success'))
-                  <div class="alert alert-success">
-                    <p>{{ $message }}</p>
-                  </div>
-                  @endif
-
-                    <a href="{{ route('permissions.create')}}" style="align: left;" class="btn btn-round btn-lg btn-primary">Add Permission</a>
-
-                    <br>
-                    <br>
-
-                    <div class="card card-bordered card-preview">
-                            <div class="card-inner">
-                                <table class="datatable-init table">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Permission</th>
-                                            <th>Alias</th>
-                                            <th>Category</th>
-                                            <th>Gurd Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                     <?php $i = 1; ?>
-                                    @foreach($permissions as $key => $object)
-                                    <tr>
-                                        <td>{{$i}}</td>
-                                        <td>{{ $object->name }}</td> 
-                                        <td>{{ $object->alias }}</td>  
-                                        <td>{{ $object->category }}</td>
-                                        <td>{{ $object->guard_name }}</td>
-                                                      
-                                    </tr>
-                                    <?php $i++; ?>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                </div>
+    <section class="admin-page__card" aria-label="Permissions list">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Permission directory</h2>
+                <p>{{ $permissions->count() }} {{ \Illuminate\Support\Str::plural('permission', $permissions->count()) }} available</p>
             </div>
         </div>
-    </div>
-</div>
-
+        <div class="table-responsive">
+            <table class="table admin-page__table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Permission</th>
+                        <th>Display name</th>
+                        <th>Category</th>
+                        <th>Guard</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($permissions as $permission)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td><strong>{{ $permission->name }}</strong></td>
+                            <td>{{ $permission->alias }}</td>
+                            <td><span class="admin-page__badge">{{ $permission->category }}</span></td>
+                            <td>{{ $permission->guard_name }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @if ($permissions->isEmpty())
+            <p class="admin-page__empty">No permissions have been created yet.</p>
+        @endif
+    </section>
+</main>
 @endsection

@@ -42,7 +42,7 @@
                                             <div class="card card-bordered card-preview">
                                              @if($imp->workplancontainer->planning_type == 'Activity')   
                                              <div class="card-inner">
-                                                <table class="datatable-init table">
+                                                <table class="table">
                                                     <thead>
                                                         <tr>
                                                             <th rowspan="2">WorkPlan Containers</th>
@@ -267,7 +267,7 @@
 
 
 
-                        <table class="datatable-init table">
+                        <table class="table">
                          <thead> 
                           <tr>
                             <th>Indicator Name</th>

@@ -1,349 +1,208 @@
 @extends('layouts.apps')
 @section('content')
-
-
-
-<div class="nk-block nk-block-lg">
-	<div class="nk-block-head">
-		<div class="nk-block-head-content">
-			<h5 class="title nk-block-title">{{$projectshow->project_name}}</h5>
-			<p>{{$projectshow->start_date}} - {{$projectshow->end_date}}</p>
-			<p>Reports</p>
+<main class="container-fluid admin-page report-page">
+	<header class="admin-page__header">
+		<div>
+			<p class="admin-page__eyebrow">Project reporting</p>
+			<h1 class="admin-page__title">{{ $projectshow->project_name }}</h1>
+			<p class="admin-page__description">
+				@if ($projectshow->start_date || $projectshow->end_date)
+					{{ $projectshow->start_date ?: '—' }} <span class="report-page__date-separator">to</span> {{ $projectshow->end_date ?: '—' }}
+				@else
+					Reporting workspace
+				@endif
+				@if ($projectshow->program)
+					<span class="report-page__header-divider">·</span>{{ $projectshow->program->program_name }}
+				@endif
+			</p>
 		</div>
-	</div>
+		<a href="{{ route('reportsindex') }}" class="admin-page__button-secondary">
+			<em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+			All reports
+		</a>
+	</header>
 
-	<div class="card card-bordered card-preview">
-		<div class="card-inner">
-			<ul class="nav nav-tabs mt-n3">
-				<!-- <li class="nav-item">
-					<a class="nav-link active" data-bs-toggle="tab" href="#tabItem1">Overview</a>
-				</li> -->
+	@if (session('success'))
+		<div class="alert alert-success" role="status">{{ session('success') }}</div>
+	@endif
+	@if ($errors->any())
+		<div class="alert alert-danger" role="alert">
+			@foreach ($errors->all() as $error)
+				<div>{{ $error }}</div>
+			@endforeach
+		</div>
+	@endif
+
+	<section class="report-page__project-summary" aria-label="Project report summary">
+		<div><strong>{{ $templates->count() }}</strong><span>Report templates</span></div>
+		<div><strong>{{ $definitions->count() }}</strong><span>Report definitions</span></div>
+		<div><strong>{{ $projectshow->status ?: '—' }}</strong><span>Project status</span></div>
+	</section>
+
+	<section class="admin-page__card report-page__workspace">
+		<div class="admin-page__card-head">
+			<div>
+				<h2>Reporting workspace</h2>
+				<p>Manage this project’s templates and report definitions.</p>
+			</div>
+		</div>
+		<div class="admin-page__form">
+			<ul class="nav nav-tabs report-page__tabs">
 				<li class="nav-item">
-					<a class="nav-link" data-bs-toggle="tab" href="#tabItem2">Shared Snapshot</a>
+					<a class="nav-link active" data-bs-toggle="tab" href="#project-overview">Overview</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" data-bs-toggle="tab" href="#tabItem3">Defined</a>
+					<a class="nav-link" data-bs-toggle="tab" href="#project-definitions">Definitions <span class="report-page__tab-count">{{ $definitions->count() }}</span></a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" data-bs-toggle="tab" href="#tabItem4">Templates</a>
+					<a class="nav-link" data-bs-toggle="tab" href="#project-templates">Templates <span class="report-page__tab-count">{{ $templates->count() }}</span></a>
 				</li>
-				<!-- <li class="nav-item">
-					<a class="nav-link" data-bs-toggle="tab" href="#tabItem4">Sunmissions</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" data-bs-toggle="tab" href="#tabItem4">Received</a>
-				</li> -->
 			</ul>
-			<div class="tab-content">
-				<!-- <div class="tab-pane active" id="tabItem1">
-					<p>Cillum ad ut irure tempor velit nostrud occaecat ullamco aliqua anim Lorem sint. Veniam sint duis incididunt do esse magna mollit excepteur laborum qui. Id id reprehenderit sit est eu aliqua occaecat quis et velit excepteur laborum mollit dolore eiusmod. Ipsum dolor in occaecat commodo et voluptate minim reprehenderit mollit pariatur. Deserunt non laborum enim et cillum eu deserunt excepteur ea incid.</p>
-				</div> -->
-				<div class="tab-pane" id="tabItem2">
-					<p>Culpa dolor voluptate do laboris laboris irure reprehenderit id incididunt duis pariatur mollit aute magna pariatur consectetur. Eu veniam duis non ut dolor deserunt commodo et minim in quis laboris ipsum velit id veniam. Quis ut consectetur adipisicing officia excepteur non sit. Ut et elit aliquip labore Lorem enim eu. Ullamco mollit occaecat dolore ipsum id officia mollit qui esse anim eiusmod do sint minim consectetur qui.</p>
-				</div>
-				<div class="tab-pane" id="tabItem3">
-					<div class="card-inner">
-							<ul class="preview-list">
-								<li class="preview-item">
-									<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalZoom4">Add Defintion</button>
-								</li>
-							</ul>
-						</div>
-						<div class="card card-bordered card-preview">
-						<div class="card-inner">
-							<table class="datatable-init table">
-								<thead>
-									<tr>
-										<th>#</th>
-										<th>Template Name</th>
-										<th>Definition Title</th>
-										<th>Action</th>
-									</tr>
-								</thead>
-								<tbody>
-								
-
-								</tbody>
-							</table>
+			<div class="tab-content report-page__tab-content">
+				<div class="tab-pane active" id="project-overview">
+					<div class="report-page__overview-copy">
+						<span class="report-page__metric-icon report-page__metric-icon--teal" aria-hidden="true"><em class="icon ni ni-reports"></em></span>
+						<div>
+							<h3>Build a consistent reporting approach</h3>
+							<p>Create templates for routine reporting, then define the information each report should capture.</p>
 						</div>
 					</div>
-				</div>
-				<div class="tab-pane" id="tabItem4">
-						<div class="card-inner">
-							<ul class="preview-list">
-								<li class="preview-item">
-									<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalZoom3">Add Template</button>
-								</li>
-							</ul>
-						</div>
-					<div class="card card-bordered card-preview">
-						<div class="card-inner">
-							<table class="datatable-init table">
-								<thead>
-									<tr>
-										<th>#</th>
-										<th>Template Name</th>
-										<th>Report Type</th>
-										<th>Action</th>
-									</tr>
-								</thead>
-								<tbody>
-								<?php $i = 1; ?>
-                                @foreach ($templates as $key => $object)
-                                <tr>
-                                    <td>{{$i}}</td>
-                                    <td>{{ $object->template_name }}</td>
-                                    <td>{{ $object->report_type }}</td>
-                                    <!-- <td></td>
-                                    <td></td> -->
-                                    <td>
-                                    <li class="col-sm-6 col-lg-3">
-                                  
-                                    <div class="dropdown">
-                                        <a href="#" class="btn btn-primary" data-bs-toggle="dropdown"><span>Select Action</span><em class="icon ni ni-chevron-down"></em></a>
-                                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-auto mt-1">
-                                            <ul class="link-list-plain">
-                                                <li><a href="#">Edit</a></li>
-                                                <li><a href="#">Settings</a></li>
-                                                <li><a href="#">Delete</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </li>
-                                </td>
-                                </tr>
-                                <?php $i++; ?>
-                                    @endforeach
-
-								</tbody>
-							</table>
-						</div>
+					<div class="report-page__quick-actions">
+						<button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom3">Create report template</button>
+						<button type="button" class="admin-page__button-secondary" data-bs-toggle="modal" data-bs-target="#modalZoom4"{{ $templates->isEmpty() ? ' disabled' : '' }}>Add report definition</button>
 					</div>
 				</div>
-				<!-- <div class="tab-pane" id="tabItem5">
-					<p>Eu dolore ea ullamco dolore Lorem id cupidatat excepteur reprehenderit consectetur elit id dolor proident in cupidatat officia. Voluptate excepteur commodo labore nisi cillum duis aliqua do. Aliqua amet qui mollit consectetur nulla mollit velit aliqua veniam nisi id do Lorem deserunt amet. Culpa ullamco sit adipisicing labore officia magna elit nisi in aute tempor commodo eiusmod.</p>
+				<div class="tab-pane" id="project-definitions">
+					<div class="report-page__tab-toolbar">
+						<div><h3>Report definitions</h3><p>Fields associated with this project’s report templates.</p></div>
+						<button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom4"{{ $templates->isEmpty() ? ' disabled' : '' }}>Add definition</button>
+					</div>
+					<div class="table-responsive">
+						<table class="table admin-page__table report-page__table">
+							<thead><tr><th>Definition</th><th>Template</th><th>Standard</th></tr></thead>
+							<tbody>
+								@foreach ($definitions as $definition)
+									@php($definitionTemplate = $templates->firstWhere('id', $definition->template_id))
+									<tr>
+										<td><strong>{{ $definition->definition_title }}</strong></td>
+										<td>{{ $definitionTemplate ? $definitionTemplate->template_name : '—' }}</td>
+										<td>{{ $definition->standard ?: '—' }}</td>
+									</tr>
+								@endforeach
+								@if ($definitions->isEmpty())
+									<tr><td colspan="3" class="admin-page__empty">No definitions have been added to this project yet.</td></tr>
+								@endif
+							</tbody>
+						</table>
+					</div>
 				</div>
-				<div class="tab-pane" id="tabItem6">
-					<p>Eu dolore ea ullamco dolore Lorem id cupidatat excepteur reprehenderit consectetur elit id dolor proident in cupidatat officia. Voluptate excepteur commodo labore nisi cillum duis aliqua do. Aliqua amet qui mollit consectetur nulla mollit velit aliqua veniam nisi id do Lorem deserunt amet. Culpa ullamco sit adipisicing labore officia magna elit nisi in aute tempor commodo eiusmod.</p>
-				</div> -->
+				<div class="tab-pane" id="project-templates">
+					<div class="report-page__tab-toolbar">
+						<div><h3>Report templates</h3><p>Reusable report structures for this project.</p></div>
+						<button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom3">Create template</button>
+					</div>
+					<div class="table-responsive">
+						<table class="table admin-page__table report-page__table">
+							<thead><tr><th>Template</th><th>Type</th><th>Draft entries</th><th>Approved entries</th></tr></thead>
+							<tbody>
+								@foreach ($templates as $template)
+									<tr>
+										<td><strong>{{ $template->template_name }}</strong></td>
+										<td><span class="admin-page__badge">{{ $template->report_type ?: 'Generic Report' }}</span></td>
+										<td>{{ $template->draft_entry ?: $template->report_draft_entry ?: '—' }}</td>
+										<td>{{ $template->approved_entry ?: '—' }}</td>
+									</tr>
+								@endforeach
+								@if ($templates->isEmpty())
+									<tr><td colspan="4" class="admin-page__empty">No templates have been created for this project yet.</td></tr>
+								@endif
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
-	</div><!-- .card-preview -->
+	</section>
 
-
-
-	<div class="modal fade zoom" tabindex="-1" id="modalZoom3">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
+	<div class="modal fade" tabindex="-1" id="modalZoom3" aria-labelledby="create-template-title" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+			<div class="modal-content report-page__modal">
 				<div class="modal-header">
-					<h5 class="modal-title">Create Template</h5>
-					<a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-						<em class="icon ni ni-cross"></em>
-					</a>
+					<div><p class="admin-page__eyebrow">Project reporting</p><h2 class="modal-title" id="create-template-title">Create report template</h2></div>
+					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><em class="icon ni ni-cross"></em></button>
 				</div>
-
-				<div class="modal-body">
-					<div class="nk-block nk-block-lg">
-						<div class="card card-bordered card-preview">
-							<div class="card-inner">
-								<ul class="nav nav-tabs mt-n3">
-									<li class="nav-item">
-										<a class="nav-link active" data-bs-toggle="tab" href="#tabItem5"><em class="icon ni ni-user"></em><span>Template Entry Form</span></a>
-									</li>
-								</ul>
-								<div class="tab-content">
-									<div class="tab-pane active" id="tabItem5">
-										<form method="POST" action="{{ route('createmplate')}}">
-											@csrf
-											<div class="row gy-4">
-
-												<div class="form-group">
-													<label class="form-label" for="default-01">Template Name</label>
-													<div class="form-control-wrap">
-														<input type="text" name="template_name" class="form-control" id="default-01" placeholder="Input Template Name">
-													</div>
-												</div>
-
-												<input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" placeholder="Input Template Name">
-
-												<input type="hidden" name="status" class="form-control" value="01" placeholder="Input Template Name">
-
-												<input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" placeholder="Input Template Name">
-
-												<div class="card card-bordered card-preview">
-													<div class="card-inner">
-														<div class="row gy-4">
-															<div class="col-md-3 col-sm-6">
-																<div class="preview-block">
-																	<!-- <span class="preview-title overline-title">Checked</span> -->
-																	<div class="custom-control custom-radio">
-																		<input type="radio" id="customRadio2" name="report_type" checked class="custom-control-input" value="Generic Report">
-																		<label class="custom-control-label" for="customRadio2">Generic Report</label>
-																	</div>
-																</div>
-															</div>
-
-															<div class="col-md-3 col-sm-6">
-																<div class="preview-block">
-																	<!-- <span class="preview-title overline-title">Default</span> -->
-																	<div class="custom-control custom-radio">
-																		<input type="radio" id="customRadio1" name="report_type" class="custom-control-input" value="Specific Report">
-																		<label class="custom-control-label" for="customRadio1">Specific Report</label>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-
-												<div class="card card-bordered card-preview">
-													<div class="card-inner">
-														<div class="row gy-4">
-															<div class="col-md-3 col-sm-6">
-																<div class="preview-block">
-																	<!-- <span class="preview-title overline-title">Default</span> -->
-																	<div class="custom-control custom-checkbox">
-																		<input type="checkbox" name="report_draft_entry" class="custom-control-input" id="customCheck1" value="Report Draft Entries">
-																		<label class="custom-control-label" for="customCheck1">Report Draft Entries</label>
-																	</div>
-																</div>
-															</div>
-
-
-															<div class="col-md-3 col-sm-6">
-																<div class="preview-block">
-																	<!-- <span class="preview-title overline-title">Default</span> -->
-																	<div class="custom-control custom-checkbox">
-																		<input type="checkbox" name="closed_reported_entry" class="custom-control-input" id="customCheck2" value="Closed Reported Entries">
-																		<label class="custom-control-label" for="customCheck2">Closed/Reported Entries</label>
-																	</div>
-																</div>
-															</div>
-
-
-															<div class="col-md-3 col-sm-6">
-																<div class="preview-block">
-																	<!-- <span class="preview-title overline-title">Default</span> -->
-																	<div class="custom-control custom-checkbox">
-																		<input type="checkbox" name="draft_entry" class="custom-control-input" id="customCheck3" value="Draft Entries">
-																		<label class="custom-control-label" for="customCheck3">Draft Entries</label>
-																	</div>
-																</div>
-															</div>
-
-
-															<div class="col-md-3 col-sm-6">
-																<div class="preview-block">
-																	<!-- <span class="preview-title overline-title">Default</span> -->
-																	<div class="custom-control custom-checkbox">
-																		<input type="checkbox" name="approved_entry" class="custom-control-input" id="customCheck4" value="Approved Entries">
-																		<label class="custom-control-label" for="customCheck4">Approved Entries</label>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-
-
-												<button type="submit" class="btn btn-primary">Create Template</button>
-											</div>
-
-										</form>
-									</div>
-
-								</div>
+				<form method="POST" action="{{ route('createmplate') }}">
+					@csrf
+					<input type="hidden" name="created_by" value="{{ Auth::id() }}">
+					<input type="hidden" name="status" value="01">
+					<input type="hidden" name="project_id" value="{{ $projectshow->id }}">
+					<div class="modal-body report-page__modal-body">
+						<div class="admin-page__field">
+							<label for="template-name">Template name</label>
+							<input type="text" name="template_name" id="template-name" class="form-control" placeholder="e.g. Quarterly progress report" required>
+						</div>
+						<div class="report-page__choice-group">
+							<span class="admin-page__field-label">Report type</span>
+							<label class="report-page__choice"><input type="radio" name="report_type" value="Generic Report" checked><span>Generic report<small>Reusable across routine reporting.</small></span></label>
+							<label class="report-page__choice"><input type="radio" name="report_type" value="Specific Report"><span>Specific report<small>Tailored to this project’s reporting needs.</small></span></label>
+						</div>
+						<div class="report-page__choice-group">
+							<span class="admin-page__field-label">Include entries</span>
+							<div class="report-page__checkboxes">
+								<label class="report-page__choice"><input type="checkbox" name="report_draft_entry" value="Report Draft Entries"><span>Report draft entries</span></label>
+								<label class="report-page__choice"><input type="checkbox" name="closed_reported_entry" value="Closed Reported Entries"><span>Closed / reported entries</span></label>
+								<label class="report-page__choice"><input type="checkbox" name="draft_entry" value="Draft Entries"><span>Draft entries</span></label>
+								<label class="report-page__choice"><input type="checkbox" name="approved_entry" value="Approved Entries"><span>Approved entries</span></label>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="modal-footer bg-light">
-					<span class="sub-text"></span>
-				</div>
+					<div class="modal-footer">
+						<button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="admin-page__button">Create template</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
 
-
-
-
-
-<div class="modal fade zoom" tabindex="-1" id="modalZoom4">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
+	<div class="modal fade" tabindex="-1" id="modalZoom4" aria-labelledby="create-definition-title" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+			<div class="modal-content report-page__modal">
 				<div class="modal-header">
-					<h5 class="modal-title">Create Definition</h5>
-					<a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-						<em class="icon ni ni-cross"></em>
-					</a>
+					<div><p class="admin-page__eyebrow">Project reporting</p><h2 class="modal-title" id="create-definition-title">Add report definition</h2></div>
+					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><em class="icon ni ni-cross"></em></button>
 				</div>
-
-				<div class="modal-body">
-					<div class="nk-block nk-block-lg">
-						<div class="card card-bordered card-preview">
-							<div class="card-inner">
-								<ul class="nav nav-tabs mt-n3">
-									<li class="nav-item">
-										<a class="nav-link active" data-bs-toggle="tab" href="#tabItem5"><em class="icon ni ni-user"></em><span>Report Definition</span></a>
-									</li>
-								</ul>
-								<div class="tab-content">
-									<div class="tab-pane active" id="tabItem5">
-										<form method="POST" action="{{ route('createdefinition')}}">
-											@csrf
-											<div class="row gy-4">
-
-												<div class="form-group">
-													<label class="form-label" for="default-01">Definition Title</label>
-													<div class="form-control-wrap">
-														<input type="text" name="definition_title" class="form-control" id="default-01" placeholder="Input Definition Title">
-													</div>
-												</div>
-
-												<input type="hidden" name="created_by" class="form-control" value="{{Auth::user()->id}}" placeholder="Input Template Name">
-
-												<input type="hidden" name="status" class="form-control" value="01" placeholder="Input Template Name">
-
-												<input type="hidden" name="project_id" class="form-control" value="{{$projectshow->id}}" placeholder="Input Template Name">
-
-
-												<div class="form-group">
-                                                <label class="form-label" for="default-06">Select Template</label>
-                                                <div class="form-control-wrap ">
-                                                    <div class="form-control-select">
-                                                        <select class="form-control" id="default-06" name="logframe_id">
-                                                            <option value="#">-------Select Template-------</option>
-                                                            <option></option>
-                                                            @foreach($templates as $object)
-                                                            <option value="{{$object->id}}">{{$object->template_name}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-
-												<button type="submit" class="btn btn-primary">Create Defintion</button>
-											</div>
-
-										</form>
-									</div>
-
-								</div>
-							</div>
+				<form method="POST" action="{{ route('createdefinition') }}">
+					@csrf
+					<input type="hidden" name="created_by" value="{{ Auth::id() }}">
+					<input type="hidden" name="status" value="01">
+					<div class="modal-body report-page__modal-body">
+						<div class="admin-page__field">
+							<label for="definition-title">Definition title</label>
+							<input type="text" name="definition_title" id="definition-title" class="form-control" placeholder="e.g. Beneficiaries reached" required>
+						</div>
+						<div class="admin-page__field">
+							<label for="definition-template">Report template</label>
+							<select class="form-control" id="definition-template" name="template_id" required>
+								<option value="">Select a template</option>
+								@foreach ($templates as $template)
+									<option value="{{ $template->id }}">{{ $template->template_name }}</option>
+								@endforeach
+							</select>
+						</div>
+						<div class="admin-page__field">
+							<label for="definition-standard">Standard / guidance <span class="report-page__optional">(optional)</span></label>
+							<textarea name="standard" id="definition-standard" class="form-control" rows="3" placeholder="Describe the standard or guidance for this data point"></textarea>
 						</div>
 					</div>
-				</div>
-				<div class="modal-footer bg-light">
-					<span class="sub-text"></span>
-				</div>
+					<div class="modal-footer">
+						<button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="admin-page__button"{{ $templates->isEmpty() ? ' disabled' : '' }}>Save definition</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
-
-
-</div>
-
+</main>
 
 @endsection

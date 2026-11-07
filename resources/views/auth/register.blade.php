@@ -1,250 +1,157 @@
-<!DOCTYPE html>
-<html lang="zxx" class="js">
+@extends('layouts.auth')
 
-<head>
-    <base href="../../../">
-    <meta charset="utf-8">
-    <meta name="author" content="Softnio">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers.">
-    <!-- Fav Icon  -->
-    <link rel="shortcut icon" href="./images/favicon.png">
-    <!-- Page Title  -->
-    <title>Register | DevIndicator</title>
-    <!-- StyleSheets  -->
-    <link rel="stylesheet" href="{{ asset('public/main/assets/css/dashlite.css?ver=3.1.2') }}">
-    <link id="skin-default" rel="stylesheet" href="{{ asset('public/main/assets/css/theme.css?ver=3.1.2') }}">
-    <!-- {!! NoCaptcha::renderJs() !!} -->
-</head>
+@section('title', __('Create an account'))
+@section('content-class', 'auth-content--wide')
+@section('main-class', 'auth-main__inner--wide')
 
-<body class="nk-body bg-white npc-default pg-auth">
-    <div class="nk-app-root">
-        <!-- main @s -->
-        <div class="nk-main ">
-            <!-- wrap @s -->
-            <div class="nk-wrap nk-wrap-nosidebar">
-                <!-- content @s -->
-                <div class="nk-content ">
-                    <div class="nk-block nk-block-middle nk-auth-body wide-xs">
-                        <div class="brand-logo pb-4 text-center">
-                                    <a href="{{ url('/')}}" class="logo-link">
-                                        <img class="logo-light logo-img logo-img-lg" src="{{ asset('public/main/img/devlogo.png') }}" srcset="{{ asset('public/main/img/devlogo.png') }}" alt="logo">
-                                        <img class="logo-dark logo-img logo-img-lg" src="{{ asset('public/main/img/devlogo.png') }}" srcset="{{ asset('public/main/img/devlogo.png') }}" alt="logo-dark">
-                                    </a>
-                                </div>
-                        <div class="card">
-                            <div class="card-inner card-inner-lg">
-                                <div class="nk-block-head">
-                                    <div class="nk-block-head-content">
-                                        <h4 class="nk-block-title">Register</h4>
-                                        <div class="nk-block-des">
-                                            <p>Create New Dev Account</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <form action="{{ route('register') }}" method="POST">
-                                    @csrf
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label" for="default-06">Account Type</label>
-                                        <div class="form-control-wrap ">
-                                            <div class="form-control-select">
-                                                <select class="form-control" name="account_type" id="account_type">
-                                                    <option value="null">Nothing Selected</option>
-                                                    <option value="null"></option>
-                                                    <option value="Organization">Organization</option>
-                                                    <option value="Consultant">Consultant</option>
-                                                    <option value="Student">Student</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <input type="hidden" name="role" id="role" value="admin">
+@section('content')
+<h1 class="auth-heading">{{ __('Create your account') }}</h1>
+<p class="auth-description">Set up your DevIndicator workspace to start planning and measuring results.</p>
 
-                                    <div class="form-group" id="organization">
-                                        <label class="form-label" for="name">Organization Name</label>
-                                        <div class="form-control-wrap">
-                                            <input type="text" name="organization_name" id="name" class="form-control form-control-lg" placeholder="Organization Name">
-                                        </div>
-                                    </div>
+<form action="{{ route('register') }}" method="POST" class="auth-form auth-form--register" aria-label="{{ __('Register') }}">
+    @csrf
+    <input type="hidden" name="role" value="admin">
 
-                                    <div class="form-group" id="domainame">
-                                        <label class="form-label" id="domain-name" for="name">Domain Name()</label>
-                                        <div class="form-control-wrap">
-                                            <input type="text" name="domain_name" id="domain" class="form-control form-control-lg" placeholder="Domain Name">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="name">First Name</label>
-                                        <div class="form-control-wrap">
-                                            <input type="text" name="name" class="form-control form-control-lg{{ $errors->has('name') ? ' is-invalid' : '' }}" id="name" placeholder="Enter your name" value="{{ old('name') }}" required autofocus>
-                                            @if ($errors->has('name'))
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $errors->first('name') }}</strong>
-                                            </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="name">Last Name</label>
-                                        <div class="form-control-wrap">
-                                            <input type="text" name="last_name" class="form-control form-control-lg{{ $errors->has('last_name') ? ' is-invalid' : '' }}" value="{{ old('last_name') }}" id="last_name" placeholder="Enter your Last Name" required autofocus>
-                                            @if ($errors->has('last_name'))
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $errors->first('last_name') }}</strong>
-                                            </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="email">Email or Username</label>
-                                        <div class="form-control-wrap">
-                                            <input type="email" name="email" class="form-control form-control-lg{{ $errors->has('email') ? ' is-invalid' : '' }}" id="email" placeholder="Enter your email address" value="{{ old('email') }}" required autofocus>
-                                            @if ($errors->has('email'))
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $errors->first('email') }}</strong>
-                                            </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    
-                                    <div class="form-group">
-                                        <div class="custom-control custom-control-xs custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="checkbox">
-                                            <label class="custom-control-label" for="checkbox">I agree to DevIndicator <a href="#">Privacy Policy</a> &amp; <a href="#"> Terms.</a></label>
-                                        </div>
-                                    </div>
-
-                                    <!-- {!! NoCaptcha::display() !!} -->
-
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-lg btn-primary btn-block">Register</button>
-                                    </div>
-
-                                </form>
-
-                                <div class="form-note-s2 text-center pt-4"> Already have an account? <a href="{{ route('login')}}"><strong>Sign in instead</strong></a>
-                                </div>
-                                <div class="text-center pt-4 pb-3">
-                                    <h6 class="overline-title overline-title-sap"><span>OR</span></h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="nk-footer nk-auth-footer-full">
-                        <div class="container wide-lg">
-                            <div class="row g-3">
-                                <div class="col-lg-6 order-lg-last">
-                                    <ul class="nav nav-sm justify-content-center justify-content-lg-end">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#">Terms & Condition</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#">Privacy Policy</a>
-                                        </li>
-                                        
-                                        
-                                    </ul>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="nk-block-content text-center text-lg-left">
-                                        <p class="text-soft">&copy; 2023 Devindicator. All Rights Reserved.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- wrap @e -->
-            </div>
-            <!-- content @e -->
-        </div>
-        <!-- main @e -->
+    <div class="auth-field auth-field--full">
+        <label class="auth-label" for="account_type">{{ __('Account type') }}</label>
+        <select class="auth-select{{ $errors->has('account_type') ? ' is-invalid' : '' }}" name="account_type" id="account_type">
+            <option value="null" {{ old('account_type', 'null') == 'null' ? 'selected' : '' }}>{{ __('Select an account type') }}</option>
+            <option value="Organization" {{ old('account_type') == 'Organization' ? 'selected' : '' }}>{{ __('Organization') }}</option>
+            <option value="Consultant" {{ old('account_type') == 'Consultant' ? 'selected' : '' }}>{{ __('Consultant') }}</option>
+            <option value="Student" {{ old('account_type') == 'Student' ? 'selected' : '' }}>{{ __('Student') }}</option>
+        </select>
+        @if ($errors->has('account_type'))
+            <span class="auth-error" role="alert">{{ $errors->first('account_type') }}</span>
+        @endif
     </div>
-    <!-- app-root @e -->
-    <!-- JavaScript -->
-    <script src="{{ asset('public/main/assets/js/bundle.js?ver=3.1.2') }}"></script>
-    <script src="{{ asset('public/main/assets/js/scripts.js?ver=3.1.2') }}"></script>
-    <script>
-     $(document).ready(function(){
-        $('#organization').hide();
-        $('#domainame').hide();
 
-        $('#account_type').change(function(){
-          if($(this).val() == 'Organization'){
-            $('#organization').show();
-            $('#domainame').show();
-        }else if($(this).val() == 'Consultant' || $(this).val() == 'Student'){
-            $('#organization').hide();
-            $('#domainame').hide();
-        }else if($(this).val() == 'null'){
-            $('#organization').hide();
-            $('#domainame').hide();
+    <div class="auth-field auth-field--full" id="organization-field">
+        <label class="auth-label" for="organization_name">{{ __('Organization name') }}</label>
+        <input type="text" name="organization_name" id="organization_name"
+               class="auth-input{{ $errors->has('organization_name') ? ' is-invalid' : '' }}"
+               placeholder="{{ __('Enter your organization name') }}" value="{{ old('organization_name') }}" autocomplete="organization">
+        @if ($errors->has('organization_name'))
+            <span class="auth-error" role="alert">{{ $errors->first('organization_name') }}</span>
+        @endif
+    </div>
+
+    <div class="auth-field auth-field--full" id="domain-field">
+        <label class="auth-label" for="domain">{{ __('Workspace domain') }}</label>
+        <input type="text" name="domain_name" id="domain"
+               class="auth-input{{ $errors->has('domain_name') ? ' is-invalid' : '' }}"
+               placeholder="{{ __('Choose a workspace name') }}" value="{{ old('domain_name') }}" autocomplete="off">
+        <span class="auth-hint" id="domain-name">{{ __('Choose a short name for your organization workspace.') }}</span>
+        @if ($errors->has('domain_name'))
+            <span class="auth-error" role="alert">{{ $errors->first('domain_name') }}</span>
+        @endif
+    </div>
+
+    <div class="auth-field">
+        <label class="auth-label" for="name">{{ __('First name') }}</label>
+        <input type="text" name="name" id="name"
+               class="auth-input{{ $errors->has('name') ? ' is-invalid' : '' }}"
+               placeholder="{{ __('Your first name') }}" value="{{ old('name') }}" required autofocus autocomplete="given-name">
+        @if ($errors->has('name'))
+            <span class="auth-error" role="alert">{{ $errors->first('name') }}</span>
+        @endif
+    </div>
+
+    <div class="auth-field">
+        <label class="auth-label" for="last_name">{{ __('Last name') }}</label>
+        <input type="text" name="last_name" id="last_name"
+               class="auth-input{{ $errors->has('last_name') ? ' is-invalid' : '' }}"
+               placeholder="{{ __('Your last name') }}" value="{{ old('last_name') }}" required autocomplete="family-name">
+        @if ($errors->has('last_name'))
+            <span class="auth-error" role="alert">{{ $errors->first('last_name') }}</span>
+        @endif
+    </div>
+
+    <div class="auth-field auth-field--full">
+        <label class="auth-label" for="email">{{ __('Email address') }}</label>
+        <input type="email" name="email" id="email"
+               class="auth-input{{ $errors->has('email') ? ' is-invalid' : '' }}"
+               placeholder="you@organization.org" value="{{ old('email') }}" required autocomplete="email">
+        @if ($errors->has('email'))
+            <span class="auth-error" role="alert">{{ $errors->first('email') }}</span>
+        @endif
+    </div>
+
+    <div class="auth-field">
+        <label class="auth-label" for="password">{{ __('Password') }}</label>
+        <div class="auth-password">
+            <input type="password" name="password" id="password"
+                   class="auth-input{{ $errors->has('password') ? ' is-invalid' : '' }}"
+                   placeholder="{{ __('Create a password') }}" required autocomplete="new-password">
+            <button type="button" class="auth-password__toggle" data-password-toggle
+                    data-show-label="{{ __('Show') }}" data-hide-label="{{ __('Hide') }}"
+                    aria-label="{{ __('Show password') }}" aria-controls="password" aria-pressed="false">{{ __('Show') }}</button>
+        </div>
+        @if ($errors->has('password'))
+            <span class="auth-error" role="alert">{{ $errors->first('password') }}</span>
+        @endif
+    </div>
+
+    <div class="auth-field">
+        <label class="auth-label" for="password_confirmation">{{ __('Confirm password') }}</label>
+        <div class="auth-password">
+            <input type="password" name="password_confirmation" id="password_confirmation"
+                   class="auth-input" placeholder="{{ __('Re-enter your password') }}" required autocomplete="new-password">
+            <button type="button" class="auth-password__toggle" data-password-toggle
+                    data-show-label="{{ __('Show') }}" data-hide-label="{{ __('Hide') }}"
+                    aria-label="{{ __('Show password') }}" aria-controls="password_confirmation" aria-pressed="false">{{ __('Show') }}</button>
+        </div>
+    </div>
+
+    <div class="auth-field auth-field--full">
+        <button type="submit" class="auth-button">{{ __('Create account') }}</button>
+    </div>
+</form>
+
+<p class="auth-switch">
+    {{ __('Already have an account?') }}
+    <a class="auth-link" href="{{ route('login') }}">{{ __('Sign in') }}</a>
+</p>
+@endsection
+
+@push('scripts')
+<script>
+    (function () {
+        var accountType = document.getElementById('account_type');
+        var organizationField = document.getElementById('organization-field');
+        var domainField = document.getElementById('domain-field');
+        var organizationName = document.getElementById('organization_name');
+        var domain = document.getElementById('domain');
+        var domainHint = document.getElementById('domain-name');
+
+        function updateOrganizationFields() {
+            var isOrganization = accountType.value === 'Organization';
+            organizationField.hidden = !isOrganization;
+            domainField.hidden = !isOrganization;
         }
-        else{
-           $('#null').show('');
-       }
-   });
-    });
-</script>
 
-<script type="text/javascript">
-    $(document).ready(function(){
-                // organisation name
-        $('#name').keyup(function(){
-            var name = $('#name').val();
-            var domain = name.replace(' ', '-').toLowerCase();
+        function updateDomainHint() {
+            var domainName = domain.value.trim();
+            domainHint.textContent = domainName
+                ? domainName + '.app.devindicators.com'
+                : 'Choose a short name for your organization workspace.';
+        }
 
-            $('#domain').val(domain);
-            var domain_set = $('#domain').val().replace(' ', '-');
-            $('#domain').val(domain_set);
-
-            if(domain_set.length > 0)
-                $('#domain-name').html('(' + domain_set + '.app.devindicators.com)');
-            else
-                $('#domain-name').html('');
-        });
-
-                // domain name
-        $('#domain').keyup(function(){
-            var domain = $('#domain').val();
-
-            $('#domain').val(domain);
-            var domain_set = $('#domain').val().replace(' ', '-');
-            $('#domain').val(domain_set);
-
-            if(domain_set.length > 0)
-                $('#domain-name').html('(' + domain_set + '.app.devindicators.com)');
-            else
-                $('#domain-name').html('');
-        });
-
-        $("#company_name_div").hide();
-        $("#company_domain_div").hide();
-
-                // account type change listener
-        $('#account').on('change', function(){
-            let account_type = this.value;
-
-            if(account_type == 'Organisation'){
-                $("#company_name_div" ).show();
-                $("#company_domain_div" ).show();
-                $('#name_div').hide();
+        accountType.addEventListener('change', updateOrganizationFields);
+        organizationName.addEventListener('input', function () {
+            if (!domain.value || domain.dataset.autofilled === 'true') {
+                domain.value = organizationName.value.trim().replace(/\s+/g, '-').toLowerCase();
+                domain.dataset.autofilled = 'true';
             }
-            else{
-                $("#company_name_div" ).hide();
-                $("#company_domain_div" ).hide();
-                $('#name_div').show();
-            }
+            updateDomainHint();
         });
-    });
+        domain.addEventListener('input', function () {
+            domain.value = domain.value.replace(/\s+/g, '-').toLowerCase();
+            domain.dataset.autofilled = 'false';
+            updateDomainHint();
+        });
+
+        updateOrganizationFields();
+        updateDomainHint();
+    }());
 </script>
-<!-- select region modal -->
-
-
-</html>
+@endpush

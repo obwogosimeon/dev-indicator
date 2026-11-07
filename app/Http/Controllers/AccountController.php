@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use App\Account;
 use App\Funding;
+use App\BarNotification;
+use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
@@ -73,12 +75,15 @@ class AccountController extends Controller
     public function funding()
     {
         $fundings = Funding::all();
-        return view('accounts.fundingindex', compact('fundings'));
+        return view('accounts.fundingindex', array_merge(
+            compact('fundings'),
+            $this->navigationNotifications()
+        ));
     }
 
     public function fundingcreate()
     {
-        return view('accounts.fundingcreate');
+        return view('accounts.fundingcreate', $this->navigationNotifications());
     }
 
     public function fundingstore(Request $request)
@@ -105,8 +110,20 @@ class AccountController extends Controller
 
     public function fundingedit($id)
     {
-        $fundingedit = Funding::find($id);
-        return view('accounts.fundingedit', compact('fundingedit'));
+        $fundingedit = Funding::findOrFail($id);
+        return view('accounts.fundingedit', array_merge(
+            compact('fundingedit'),
+            $this->navigationNotifications()
+        ));
+    }
+
+    public function fundingshow($id)
+    {
+        $fundingshow = Funding::findOrFail($id);
+        return view('accounts.fundingshow', array_merge(
+            compact('fundingshow'),
+            $this->navigationNotifications()
+        ));
     }
 
 
@@ -121,8 +138,24 @@ class AccountController extends Controller
             'updated_by' => '',
         ]);
         $input = $request->all();
-        $funding = Funding::find($id);
+        $funding = Funding::findOrFail($id);
         $funding->update($input);
+        if ($funding->program_id) {
+            return redirect()->route('programs.show', $funding->program_id)
+                ->with('success', 'Funding Updated successfully');
+        }
         return redirect()->route('accounts.index')->with('success','Funding Updated successfully');
+    }
+
+    private function navigationNotifications()
+    {
+        $notifications = BarNotification::where('status', '01')
+            ->where('user_id', Auth::id())
+            ->get();
+
+        return [
+            'notifcations' => $notifications,
+            'notificationcount' => $notifications->count(),
+        ];
     }
 }

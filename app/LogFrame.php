@@ -32,7 +32,7 @@ class LogFrame extends Model
     ];
 
     public function project(){
-        return $this->hasMany('App\Project');
+        return $this->hasMany('App\Project', 'logframe_id');
     }
 
 

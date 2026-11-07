@@ -51,7 +51,7 @@ class ProjectController extends Controller
 
         $loggedInUserId = Auth::id();
         $projectIds = ProjectUser::where('user_id', $loggedInUserId)->pluck('project_id');
-        $projects = Project::whereIn('id', $projectIds)
+        $projects = Project::with(['program', 'logframe'])->whereIn('id', $projectIds)
         ->orWhere('created_by', $loggedInUserId)  
         ->get();
 
@@ -80,15 +80,28 @@ class ProjectController extends Controller
             'project_name' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
-            'program_id' => '',
-            'logframe_id' => '',
+            'program_id' => 'nullable|exists:programs,id',
             'exchange_period' => '',
             'description' => '',
             'reporting_frequency' => 'required'
         ]);
 
-        $input = $request->all();
-        $project = Project::create($input);
+        $program = $request->filled('program_id') ? Program::findOrFail($request->input('program_id')) : null;
+        if ($program && (int) $program->organization_id !== (int) Auth::user()->organization_id) {
+            abort(403);
+        }
+
+        $input = $request->except(['logframe_id', 'created_by', 'organization_id']);
+        $input['organization_id'] = Auth::user()->organization_id;
+        $input['created_by'] = Auth::id();
+        $project = DB::transaction(function () use ($input, $program) {
+            $project = Project::create($input);
+            if ($program) {
+                $project = $this->copyProgramLogframeToProject($project, $program);
+            }
+
+            return $project;
+        });
         toastr()
         ->positionClass('toast-top-center')
         ->addSuccess('Project Created Successfully.');
@@ -103,8 +116,15 @@ class ProjectController extends Controller
         $reportingf = $projectshow->reporting_frequency;
         // dd($reportingf);
         $program = Program::where('id', '=', $projectshow->program_id)->first();
-        $years = Year::where('program_id', $program->id)->get();
-        $logframes = LogFrame::where('id', '=', $program->log_frame_id)->first();
+        if ($program && (
+            !$projectshow->logframe_id
+            || (int) $projectshow->logframe_id === (int) $program->log_frame_id
+        )) {
+            $projectshow = $this->copyProgramLogframeToProject($projectshow, $program);
+        }
+
+        $years = $program ? Year::where('program_id', $program->id)->get() : collect();
+        $logframes = LogFrame::where('id', '=', $projectshow->logframe_id)->first();
         $goalframe = null;
         if($logframes != null){
             $goalframe = Goal::where('log_frame_id', '=', $logframes->id)->first();
@@ -115,39 +135,25 @@ class ProjectController extends Controller
             $loopgoals = Goal::where('log_frame_id', $logframes->id)->get();
         }
 
-        $outcomes2 = Outcome::all();
-        $outputs2 = Output::all();
-        $activity2 = Activity::all();
-        $indicators2 = Indicator::all();
-        $goaladctiv = Activity::all();
-        $goalindicators = Indicator::all();
-        $outoutindicator2 = Indicator::all();
-        $outputactivity2 = Activity::all();
+        $outcomes2 = Outcome::where('project_id', $id)->get();
+        $outputs2 = Output::where('project_id', $id)->get();
+        $activity2 = Activity::where('project_id', $id)->get();
+        $indicators2 = Indicator::where('project_id', $id)->get();
+        $goaladctiv = $activity2;
+        $goalindicators = $indicators2;
+        $outoutindicator2 = $indicators2;
+        $outputactivity2 = $activity2;
+        $goalIds = $loopgoals ? $loopgoals->pluck('id') : collect();
 
 
-
-        // dd($goalframe);
-        $activitygoal = null;
-        if($goalframe != null){
-            $activitygoal = Activity::where('goal_id', '=', $goalframe->id)
-            ->Where('project_id', $id)
-            ->get();
-        }
-        $goalindicator = null;
-        if($goalframe != null){
-            $goalindicator = Indicator::where('goal_id', '=', $goalframe->id)
-            ->Where('project_id', $id)
-            ->get();
-        }
-        $goaloutcomes = null;
-        if($goalframe != null){
-            $goaloutcomes = Outcome::where('program_id', '=', $program->id)
-            ->orWhere('project_id', $id)
-            ->get();
-        }
+        $activitygoal = $activity2->whereIn('goal_id', $goalIds);
+        $goalindicator = $indicators2->whereIn('goal_id', $goalIds);
+        $goaloutcomes = Outcome::whereIn('goal_id', $goalIds)
+            ->where('project_id', $id)->get();
         $outcome = null;
         if($goalframe != null){
-            $outcome = Outcome::where('program_id', '=', $program->id)->orWhere('project_id', $id)->first();
+            $outcome = Outcome::where('goal_id', $goalframe->id)
+                ->where('project_id', $id)->first();
         }
 
         $activityoutcome = null;
@@ -161,37 +167,29 @@ class ProjectController extends Controller
             $outcomeindicator = Indicator::where('outcome_id', '=', $outcome->id)->Where('project_id', $id)->get();
         }
 
-        $projectoutput = null;
-        if($outcome != null){
-            $projectoutput = Output::Where('program_id', $program->id)
-            ->Where('outcome_id', $outcome->id)
-            ->orWhere('project_id', $id)
-            ->get();
-        }
+        $projectoutput = Output::whereIn('outcome_id', $goaloutcomes->pluck('id'))
+            ->where('project_id', $id)->get();
 
 
 
         $outputone = null;
         if($outcome != null){
             $outputone = Output::where('outcome_id', '=', $outcome->id)
-            ->Where('project_id', $id)
-            ->orWhere('program_id', $program->id)
+            ->where('project_id', $id)
             ->first();
         }
 
         $outputactivity = null;
         if($outputone != null){
             $outputactivity = Activity::where('output_id', $outputone->id)
-            ->Where('project_id', $id)
-            ->orWhere('program_id', $program->id)
+            ->where('project_id', $id)
             ->get();
         }
 
         $outputindicator = null;
         if($outputone != null){
             $outputindicator = Indicator::where('output_id', $outputone->id)
-            ->Where('project_id', $id)
-            ->orWhere('program_id', $program->id)
+            ->where('project_id', $id)
             ->get();
         }
 
@@ -206,7 +204,11 @@ class ProjectController extends Controller
 
         $accounts =  DB::table('fundings')
         ->where('type', '=', 'Global')
-        ->where('program_id', $program->id)
+        ->when($program, function ($query) use ($program) {
+            $query->where('program_id', $program->id);
+        }, function ($query) {
+            $query->whereRaw('1 = 0');
+        })
         ->get();
 
         $users = User::all();    
@@ -247,14 +249,7 @@ class ProjectController extends Controller
         ->where('project_id', $id)
         ->sum('budgets.total');
 
-        $activities = null;
-        if($logframes != null){
-            $activities = Activity::orWhere('project_id', $id)
-            ->orWhere('program_id', $program->id)
-        // ->orWhere('log_frame_id', $logframes->id)
-                                // ->where('')
-            ->get();
-        }
+        $activities = Activity::where('project_id', $id)->get();
                                 // dd($activities);
 
         $reporting = DB::table('indicator_targets')
@@ -403,10 +398,9 @@ class ProjectController extends Controller
 
         // $budgetexpense = DB::table('budget_expenses')
 
-     $currencies =  DB::table('currencies')
-                    // ->where('type', '=', 'Global')
-     ->where('program_id', $program->id)
-     ->get();
+     $currencies = $program
+        ? DB::table('currencies')->where('program_id', $program->id)->get()
+        : collect();
 
 
      $roles = Role::where('category', '=', 'project')->get();
@@ -414,8 +408,8 @@ class ProjectController extends Controller
      $basecurrency = BaseCurrency::all();
 
      $projectusers = DB::table('project_users')
-     ->join('users', 'project_users.id', '=', 'users.id')
-     ->select('users.name as name', 'users.id as id', 'users.last_name as last_name')
+     ->join('users', 'project_users.user_id', '=', 'users.id')
+     ->select('users.name as name', 'users.id as id', 'users.last_name as last_name', 'users.email as email')
      ->where('project_users.project_id', $id)->get();
 
 
@@ -506,7 +500,7 @@ public function update(Request $request, $id)
         'reporting_frequency' => '',
     ]);
 
-    $input = $request->all();
+    $input = $request->except('logframe_id');
     $project = Project::find($id);
     $project->update($input);
     toastr()
@@ -589,7 +583,7 @@ public function createwp($id)
     ->where('interventions.project_id', '=', $workplancontainer->project_id)
     ->select('activity_title','activities.id', 'interventions.activity_id')->get();
     // dd($activities);                      
-    $indicators = Indicator::all();
+    $indicators = Indicator::where('project_id', $workplancontainer->project_id)->get();
     $notifcations = BarNotification::where('status', '=', '01')->where('user_id', Auth::user()->id)->get();
     $notificationcount = DB::table('bar_notifications')
     ->where('status', '=', '01')
@@ -642,14 +636,31 @@ public function createwpcontainer(Request $request)
 
 public function createimcontainer(Request $request)
 {
+    $this->validate($request, [
+        'container_name' => 'required|string|max:255',
+        'planning_type' => 'required|in:Activity,Indicator',
+        'project_id' => 'required|integer|exists:projects,id',
+        'workplancontainer_id' => 'required|integer',
+    ]);
+
+    $project = Project::findOrFail($request->project_id);
+    $workplanContainer = WorkPlanContainer::where('id', $request->workplancontainer_id)
+        ->where('project_id', $project->id)
+        ->where('planning_type', $request->planning_type)
+        ->first();
+
+    if (!$workplanContainer) {
+        return back()->withErrors([
+            'workplancontainer_id' => 'Select a work plan for this project and planning type.',
+        ])->withInput();
+    }
+
     $count = DB::table('implementation_containers')->where('project_id', '=', $request->project_id)->count();
     $nextcontainer = $count + 1; 
 
     $impcont = DB::table('implementation_containers')->where('workplancontainer_id', '=', $request->workplancontainer_id)->count();
 
     // $budgetex = BudgetExpense::where('workplancontainer_id', $request->workplancontainer_id)->get();
-
-    $project = Project::where('id', '=', $request->project_id)->first();
 
     if($project->reporting_frequency == 'Monthly' && $count == '12' && $impcont == '12' || $project->reporting_frequency == 'BiMonthly' && $count == '6' && $impcont == '6' || $project->reporting_frequency == 'Quaterly' && $count == '4' && $impcont == '4' || $project->reporting_frequency == 'SemiAnnual' && $count == '2' && $impcont == '2' || $project->reporting_frequency == 'Annaul' && $count == '1' && $impcont == '1'){
         toastr()
@@ -797,7 +808,13 @@ public function createactivitywp(Request $request)
     toastr()
     ->positionClass('toast-top-center')
     ->addSuccess('Activity Work Plan Added Successfully');
-    return back()->with('message', 'Activity Work Plan Added Successfully');
+    if ($request->input('after_save') === 'add_another') {
+        return redirect()->route('createwp', $request->input('work_plan_container_id'))
+            ->with('message', 'Activity Work Plan Added Successfully');
+    }
+
+    return redirect()->route('projects.show', $request->input('project_id'))
+        ->with('message', 'Activity Work Plan Added Successfully');
 }
 
 
@@ -808,8 +825,7 @@ public function createindicatorwp($id)
     $project = Project::where('id', $workplancontainer->project_id)->first();
     $fundings = Funding::where('program_id', $project->program_id)->get();
     $interventions = Intervention::where('project_id', $workplancontainer->project_id)->get();
-    $indicators = Indicator::where('project_id', $workplancontainer->project_id)
-    ->orWhere('program_id', $project->program_id)->get();
+    $indicators = Indicator::where('project_id', $workplancontainer->project_id)->get();
     $notifcations = BarNotification::where('status', '=', '01')->where('user_id', Auth::user()->id)->get();
     $notificationcount = DB::table('bar_notifications')
     ->where('status', '=', '01')
@@ -1427,6 +1443,148 @@ public function budgetexpense(Request $request)
     return response()->json(['success' => true]);
 }
 
+private function copyProgramLogframeToProject(Project $project, Program $program)
+{
+    return DB::transaction(function () use ($project, $program) {
+        $project = Project::where('id', $project->id)->lockForUpdate()->firstOrFail();
+        if ($project->logframe_id && (int) $project->logframe_id !== (int) $program->log_frame_id) {
+            return $project;
+        }
+
+        if (!$program->log_frame_id) {
+            return $project;
+        }
+
+        $sourceLogframe = LogFrame::findOrFail($program->log_frame_id);
+        $projectLogframe = $sourceLogframe->replicate();
+        $projectLogframe->save();
+        $project->logframe_id = $projectLogframe->id;
+        $project->save();
+
+        $scope = [
+            'log_frame_id' => $projectLogframe->id,
+            'organization_id' => $project->organization_id,
+            'created_by' => $project->created_by,
+        ];
+
+        $copyRecord = function ($record, array $attributes, array $relationships = []) {
+            foreach ($relationships as $field => $map) {
+                if ($record->{$field} !== null && $record->{$field} !== '') {
+                    if (!array_key_exists($record->{$field}, $map)) {
+                        return null;
+                    }
+                    $attributes[$field] = $map[$record->{$field}];
+                }
+            }
+
+            $copy = $record->replicate();
+            foreach ($attributes as $field => $value) {
+                $copy->{$field} = $value;
+            }
+            $copy->save();
+
+            return $copy;
+        };
+
+        $goalMap = [];
+        foreach (Goal::where('log_frame_id', $sourceLogframe->id)->get() as $goal) {
+            $copy = $copyRecord($goal, $scope);
+            $goalMap[$goal->id] = $copy->id;
+        }
+
+        $outcomeScope = $scope + ['program_id' => null, 'project_id' => $project->id];
+        $outcomeMap = [];
+        $sourceOutcomes = Outcome::where('program_id', $program->id)->get()
+            ->filter(function ($outcome) use ($goalMap, $project) {
+                return empty($outcome->project_id)
+                    && array_key_exists($outcome->goal_id, $goalMap);
+            });
+        foreach ($sourceOutcomes as $outcome) {
+            $copy = $copyRecord($outcome, $outcomeScope, ['goal_id' => $goalMap]);
+            if ($copy) {
+                $outcomeMap[$outcome->id] = $copy->id;
+            }
+        }
+
+        $outputScope = $scope + ['program_id' => null, 'project_id' => $project->id];
+        $outputMap = [];
+        $sourceOutputs = Output::where('program_id', $program->id)->get()
+            ->filter(function ($output) use ($outcomeMap) {
+                return empty($output->project_id)
+                    && array_key_exists($output->outcome_id, $outcomeMap);
+            });
+        foreach ($sourceOutputs as $output) {
+            $copy = $copyRecord($output, $outputScope, ['outcome_id' => $outcomeMap]);
+            if ($copy) {
+                $outputMap[$output->id] = $copy->id;
+            }
+        }
+
+        $activityScope = $scope + ['program_id' => null, 'project_id' => $project->id];
+        $activityMap = [];
+        $sourceActivities = Activity::where('program_id', $program->id)->get()
+            ->filter(function ($activity) {
+                return empty($activity->project_id);
+            });
+        foreach ($sourceActivities as $activity) {
+            $copy = $copyRecord($activity, $activityScope, [
+                'goal_id' => $goalMap,
+                'outcome_id' => $outcomeMap,
+                'output_id' => $outputMap,
+            ]);
+            if ($copy) {
+                $activityMap[$activity->id] = $copy->id;
+            }
+        }
+
+        $indicatorScope = $scope + ['program_id' => null, 'project_id' => $project->id];
+        $sourceIndicators = Indicator::where('program_id', $program->id)->get()
+            ->filter(function ($indicator) {
+                return empty($indicator->project_id);
+            });
+        foreach ($sourceIndicators as $indicator) {
+            $copyRecord($indicator, $indicatorScope, [
+                'goal_id' => $goalMap,
+                'outcome_id' => $outcomeMap,
+                'output_id' => $outputMap,
+                'activity_id' => $activityMap,
+            ]);
+        }
+
+        $relinkProjectRecords = function ($records, array $relationships) use ($projectLogframe) {
+            foreach ($records as $record) {
+                foreach ($relationships as $field => $map) {
+                    if ($record->{$field} !== null && $record->{$field} !== ''
+                        && array_key_exists($record->{$field}, $map)) {
+                        $record->{$field} = $map[$record->{$field}];
+                    }
+                }
+                $record->log_frame_id = $projectLogframe->id;
+                $record->save();
+            }
+        };
+
+        $relinkProjectRecords(Outcome::where('project_id', $project->id)->get(), [
+            'goal_id' => $goalMap,
+        ]);
+        $relinkProjectRecords(Output::where('project_id', $project->id)->get(), [
+            'outcome_id' => $outcomeMap,
+        ]);
+        $relinkProjectRecords(Activity::where('project_id', $project->id)->get(), [
+            'goal_id' => $goalMap,
+            'outcome_id' => $outcomeMap,
+            'output_id' => $outputMap,
+        ]);
+        $relinkProjectRecords(Indicator::where('project_id', $project->id)->get(), [
+            'goal_id' => $goalMap,
+            'outcome_id' => $outcomeMap,
+            'output_id' => $outputMap,
+            'activity_id' => $activityMap,
+        ]);
+
+        return $project;
+    });
+}
 
 
 

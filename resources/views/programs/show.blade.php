@@ -6,45 +6,99 @@
 <script>
     $(document).ready(function () {
         $('#tabMenu a[href="#{{ old('tab') }}"]').tab('show')
+        var logframeDialogs = [
+            '#goalcreate', '#editgoal_modal', '#practice_modal', '#activity_modal',
+            '#activity1', '#activity2', '#output_model', '#indicator_modal',
+            '#indicator1', '#indicator2'
+        ].join(', ')
+        $(logframeDialogs).find('.modal-content').addClass('logframe-form-modal')
     });
 </script>
 
 
-<div class="nk-block nk-block-lg">
-    <nav>
-        <ul class="breadcrumb breadcrumb-pipe">
-            <li class="breadcrumb-item"><a href="{{ url('/home')}}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('programs.index')}}">Programs</a></li>
-            <li class="breadcrumb-item active">View Program</li>
-        </ul>
-    </nav>
-    <!-- <button type="button" style="margin-left: 78%" class="btn btn-round btn-primary" data-bs-toggle="modal" data-bs-target="#addusers"><em class="icon ni ni-edit"></em>&nbsp Add User</button> -->
-    <br>
-    <hr>
-    <div class="nk-block-head">
-        <div class="nk-block-head-content">
-            <h5 class="title nk-block-title">{{$programshow->program_name}}</h5>
-            <!-- <p>{{$programshow->start_date}} - {{$programshow->end_date}}</p> -->
+<main class="container-fluid admin-page program-detail-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Portfolio management</p>
+            <h1 class="admin-page__title">{{ $programshow->program_name }}</h1>
+            <p class="admin-page__description">
+                {{ optional($programshow->basecurrency)->currency_name ?: 'Base currency not set' }}
+                @if ($programshow->start_date || $programshow->end_date)
+                    <span class="program-detail__divider">·</span>
+                    {{ $programshow->start_date ?: 'Start date not set' }} – {{ $programshow->end_date ?: 'End date not set' }}
+                @endif
+            </p>
         </div>
-    </div>
+        <div class="admin-page__actions program-detail__header-actions">
+            <a href="{{ route('programs.index') }}" class="admin-page__button-secondary">
+                <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+                All programmes
+            </a>
+            <a href="{{ route('programs.edit', $programshow->id) }}" class="admin-page__button">
+                <em class="icon ni ni-edit" aria-hidden="true"></em>
+                Edit programme
+            </a>
+        </div>
+    </header>
 
-    <div class="card card-bordered card-preview">
+    <section class="program-detail__summary" aria-label="Programme overview">
+        <div class="program-detail__metric">
+            <span class="program-detail__metric-icon"><em class="icon ni ni-view-col" aria-hidden="true"></em></span>
+            <div>
+                <span>Results framework</span>
+                <strong>{{ optional($programshow->logframe)->logframe_name ?: 'Not linked' }}</strong>
+            </div>
+        </div>
+        <div class="program-detail__metric">
+            <span class="program-detail__metric-icon program-detail__metric-icon--blue"><em class="icon ni ni-calendar-fill" aria-hidden="true"></em></span>
+            <div>
+                <span>Financial years</span>
+                <strong>{{ $years->count() }}</strong>
+            </div>
+        </div>
+        <div class="program-detail__metric">
+            <span class="program-detail__metric-icon program-detail__metric-icon--green"><em class="icon ni ni-wallet-out" aria-hidden="true"></em></span>
+            <div>
+                <span>Funding streams</span>
+                <strong>{{ $fundings->count() }}</strong>
+            </div>
+        </div>
+        <div class="program-detail__metric">
+            <span class="program-detail__metric-icon program-detail__metric-icon--violet"><em class="icon ni ni-file" aria-hidden="true"></em></span>
+            <div>
+                <span>Documents</span>
+                <strong>{{ $documents->count() }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <div class="card card-bordered card-preview program-detail__workspace">
         <div class="card-inner">
-            <ul class="nav nav-tabs mt-n3" id="tabMenu">
+            <ul class="nav nav-tabs mt-n3 program-detail__tabs" id="tabMenu" aria-label="Programme management sections" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#tabItem1">Reports</a>
+                    <a class="nav-link active" id="program-reports-tab" role="tab" aria-controls="tabItem1" aria-selected="true" data-bs-toggle="tab" href="#tabItem1">
+                        <em class="icon ni ni-chart-up" aria-hidden="true"></em><span>Reports</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tabItem6"><em class="icon ni ni-view-col"></em><span>Log Frame</span></a>
+                    <a class="nav-link" id="program-logframe-tab" role="tab" aria-controls="tabItem6" aria-selected="false" data-bs-toggle="tab" href="#tabItem6">
+                        <em class="icon ni ni-view-col" aria-hidden="true"></em><span>Results framework</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tabItem8"><em class="icon ni ni-wallet-out"></em><span>Funding</span></a>
+                    <a class="nav-link" id="program-funding-tab" role="tab" aria-controls="tabItem8" aria-selected="false" data-bs-toggle="tab" href="#tabItem8">
+                        <em class="icon ni ni-wallet-out" aria-hidden="true"></em><span>Funding</span><span class="program-detail__tab-count">{{ $fundings->count() }}</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tabItem9"><em class="icon ni ni-calendar-fill"></em><span>Financial Year</span></a>
+                    <a class="nav-link" id="program-years-tab" role="tab" aria-controls="tabItem9" aria-selected="false" data-bs-toggle="tab" href="#tabItem9">
+                        <em class="icon ni ni-calendar-fill" aria-hidden="true"></em><span>Financial years</span><span class="program-detail__tab-count">{{ $years->count() }}</span>
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tabItem11"><em class="icon ni ni-file"></em><span>Documents</span></a>
+                    <a class="nav-link" id="program-documents-tab" role="tab" aria-controls="tabItem11" aria-selected="false" data-bs-toggle="tab" href="#tabItem11">
+                        <em class="icon ni ni-file" aria-hidden="true"></em><span>Documents</span><span class="program-detail__tab-count">{{ $documents->count() }}</span>
+                    </a>
                 </li>
             </ul>
             <div class="tab-content">
@@ -299,7 +353,6 @@
             </div>
         </div>
     </div>
-</div>
 
 
 <!-- Create Program Goal Indicator---->
@@ -818,6 +871,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(function () {
+        $('#practice_modal, #activity_modal, #indicator_modal').on('show.bs.modal', function (event) {
+            var trigger = $(event.relatedTarget);
+            var form = $(this).find('form');
+            var labelField = this.id === 'practice_modal'
+                ? 'outcome_goal'
+                : (this.id === 'activity_modal' ? 'activity_name' : 'goal_name');
+
+            form.find('[name="goal_id"]').val(trigger.data('goal-id'));
+            form.find('[name="' + labelField + '"]').val(trigger.data('goal-label'));
+        });
+    });
+</script>
 
 
 <!-- Add Program Outcome Output -->
@@ -1407,6 +1475,7 @@
 </div>
 </div>
 </div>
+<div>
 
 
 
@@ -1687,267 +1756,206 @@
 </div>
 
 
-<div class="modal fade zoom" tabindex="-1" id="modal23456">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+<div class="modal fade zoom" tabindex="-1" id="modal23456" aria-labelledby="add-fiscal-year-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered project-detail__modal-dialog" role="document">
+        <div class="modal-content project-detail__modal">
             <div class="modal-header">
-                <h5 class="modal-title">Fiscal Year</h5>
-                <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <div class="project-detail__modal-heading">
+                    <span class="project-detail__modal-icon"><em class="icon ni ni-calendar-fill" aria-hidden="true"></em></span>
+                    <div>
+                        <h5 class="modal-title" id="add-fiscal-year-title">Add Fiscal Year</h5>
+                        <p>Set the name and date range for this programme’s reporting period.</p>
+                    </div>
+                </div>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <em class="icon ni ni-cross"></em>
-                </a>
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="nk-block nk-block-lg">
-                    <div class="card card-bordered card-preview">
-                        <div class="card-inner">
-                            <ul class="nav nav-tabs mt-n3">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#tabItem5"><em class="icon ni ni-user"></em><span>Add Fiscal Year</span></a>
-                                </li>
-                            </ul>
+            <form method="POST" action="{{ route('years.store') }}" class="project-detail__modal-form">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="status" value="01">
+                    <input type="hidden" name="created_by" value="{{ Auth::user()->id }}">
+                    <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+                    <input type="hidden" name="program_id" value="{{ $programshow->id }}">
 
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="tabItem5">
-                                    <form method="POST" action="{{ route('years.store')}}">
-                                        @csrf
-                                        <div class="row gy-4">
-
-                                         <input type="hidden" class="form-control" value="01" name="status" id="default-01">
-                                         <input type="hidden" class="form-control" value="{{Auth::user()->id}}" name="created_by" id="default-01">
-                                         <input type="hidden" class="form-control" value="{{Auth::user()->organization_id}}" name="organization_id" id="default-01">
-                                         <input type="hidden" class="form-control" value="{{$programshow->id}}" name="program_id" id="default-01">
-
-                                         <div class="form-group">
-                                            <label class="form-label" for="default-01">Fiscal Year Name</label>
-                                            <div class="form-control-wrap">
-                                                <input type="text" name="year_name" class="form-control" id="default-01" placeholder="Input Fiscal Year Name">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                        <label class="form-label" for="default-01">Start Date<span style="color:red">*</span></label>
-                                        <div class="form-control-wrap">
-                                            <input type="date" name="start_date" class="form-control" id="start_date" placeholder="Input Programme Name">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="default-01">End Date<span style="color:red">*</span></label>
-                                        <div class="form-control-wrap">
-                                            <input type="date" name="end_date" class="form-control" id="end_date" placeholder="Input Programme Name">
-                                        </div>
-                                    </div>
-
-                                        <!-- <div class="col-lg-4 col-sm-6">
-                                            <div class="form-group">
-                                                <div class="form-control-wrap">
-                                                    <div class="form-icon form-icon-right">
-                                                        <em class="icon ni ni-calendar-alt"></em>
-                                                    </div>
-                                                    <input type="text" name="start_date" class="form-control form-control-xl form-control-outlined date-picker" id="outlined-date-picker">
-                                                    <label class="form-label-outlined" for="outlined-date-picker">Start Date</label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-4 col-sm-6">
-                                            <div class="form-group">
-                                                <div class="form-control-wrap">
-                                                    <div class="form-icon form-icon-right">
-                                                        <em class="icon ni ni-calendar-alt"></em>
-                                                    </div>
-                                                    <input type="text" name="end_date" class="form-control form-control-xl form-control-outlined date-picker" id="outlined-date-picker">
-                                                    <label class="form-label-outlined" for="outlined-date-picker">End Date</label>
-                                                </div>
-                                            </div>
-                                        </div> -->
-
-                                    </div>
-
-                                    <!-- <button type="submit" class="btn btn-primary"></button> -->
-                                </div>
-                                <br>
-                                <button style="margin-left: 40%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Save Year</button>
-                            </form>
+                    <div class="project-detail__form-grid">
+                        <div class="project-detail__form-field project-detail__form-field--full">
+                            <label class="form-label" for="fiscal-year-name">Fiscal year name <span aria-hidden="true">*</span></label>
+                            <input type="text" name="year_name" class="form-control" id="fiscal-year-name" placeholder="e.g. FY 2026" required>
+                            <small>Choose a clear name that your team will recognize.</small>
+                        </div>
+                        <div class="project-detail__form-field">
+                            <label class="form-label" for="fiscal-year-start-date">Start date <span aria-hidden="true">*</span></label>
+                            <input type="date" name="start_date" class="form-control" id="fiscal-year-start-date" required>
+                        </div>
+                        <div class="project-detail__form-field">
+                            <label class="form-label" for="fiscal-year-end-date">End date <span aria-hidden="true">*</span></label>
+                            <input type="date" name="end_date" class="form-control" id="fiscal-year-end-date" required>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="admin-page__button">
+                        <em class="icon ni ni-check" aria-hidden="true"></em>
+                        Save fiscal year
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-    <div class="modal-footer bg-light">
-        <span class="sub-text"></span>
-    </div>
-</div>
-</div>
 </div>
 
 
 
 
 <div class="modal fade zoom" tabindex="-1" id="modal234567">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Funding</h5>
-                <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <em class="icon ni ni-cross"></em>
-                </a>
+                <div>
+                    <p class="admin-page__eyebrow mb-1">Programme resources</p>
+                    <h5 class="modal-title">Add funding stream</h5>
+                </div>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <em class="icon ni ni-cross" aria-hidden="true"></em>
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="nk-block nk-block-lg">
-                    <div class="card card-bordered card-preview">
-                        <div class="card-inner">
-                            <ul class="nav nav-tabs mt-n3">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#tabItem5"><em class="icon ni ni-user"></em><span>Add Funding</span></a>
-                                </li>
-                            </ul>
+            <form method="POST" action="{{ route('fundingstore') }}" class="program-funding-form">
+                @csrf
+                <input type="hidden" name="tab" value="tabItem8">
+                <input type="hidden" name="status" value="01">
+                <input type="hidden" name="created_by" value="{{ Auth::id() }}">
+                <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+                <input type="hidden" name="program_id" value="{{ $programshow->id }}">
+                <input type="hidden" name="type" value="Global">
 
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="tabItem5">
-                                    <form method="POST" action="{{ route('fundingstore')}}">
-                                        @csrf
-                                        <div class="row gy-4">
-
-                                         <input type="hidden" class="form-control" value="01" name="status" id="default-01">
-                                         <input type="hidden" class="form-control" value="{{Auth::user()->id}}" name="created_by" id="default-01">
-                                         <input type="hidden" class="form-control" value="{{Auth::user()->organization_id}}" name="organization_id" id="default-01">
-                                         <input type="hidden" class="form-control" value="{{$programshow->id}}" name="program_id" id="default-01">
-                                         <input type="hidden" class="form-control" value="Global" name="type" id="default-01">
-
-                                         <div class="form-group">
-                                            <label class="form-label" for="default-01">Funding Name</label>
-                                            <div class="form-control-wrap">
-                                                <input type="text" name="funding_name" class="form-control" id="default-01" placeholder="Input Funding Name">
-                                            </div>
-                                        </div>
-
-
-                                        <div class="form-group">
-                                            <label class="form-label" for="default-06">Funding Type</label>
-                                            <div class="form-control-wrap ">
-                                                <div class="form-control-select">
-                                                    <select class="form-control" name="funding_type" id="default-06">
-                                                        <option value="#">-------Select Funding Type-------</option>
-                                                        <option></option>
-                                                        <option value="Budgeting">Budgeting</option>
-                                                        <option value="Expenditure">Expenditure</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="form-label" for="default-06">Expenditure?</label>
-                                            <div class="form-control-wrap ">
-                                                <div class="form-control-select">
-                                                    <select class="form-control" name="expenditure" id="default-06">
-                                                        <option value="#">-------Used for Expenditure-------</option>
-                                                        <option></option>
-                                                        <option value="Yes">Yes</option>
-                                                        <option value="No">No</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="form-label" for="default-01">Variable Name</label>
-                                            <div class="form-control-wrap">
-                                                <input type="text" name="variable_name" class="form-control" id="default-01" placeholder="Input Variable Name">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-textarea">Funding Description</label>
-                                                <div class="form-control-wrap">
-                                                    <textarea class="form-control no-resize" name="description" id="default-textarea"></textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                    </div>
-
-                                    <!-- <button type="submit" class="btn btn-primary"></button> -->
-                                </div>
-                                <br>
-                                <button style="margin-left: 40%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Save Funding</button>
-                            </form>
+                <div class="modal-body">
+                    <p class="program-funding-form__intro">Add a funding source and choose how it should be categorized for this programme.</p>
+                    @if ($errors->any() && old('tab') === 'tabItem8')
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Please review the funding details.</strong>
+                            @foreach ($errors->all() as $error)
+                                <div>{{ $error }}</div>
+                            @endforeach
+                        </div>
+                    @endif
+                    <div class="admin-page__form-grid">
+                        <div class="admin-page__field admin-page__field--full">
+                            <label for="program-funding-name">Funding name <span class="text-danger">*</span></label>
+                            <input type="text" name="funding_name" class="form-control" id="program-funding-name" value="{{ old('funding_name') }}" placeholder="e.g. Ministry of Health" required>
+                        </div>
+                        <div class="admin-page__field">
+                            <label for="program-funding-type">Funding type <span class="text-danger">*</span></label>
+                            <select class="form-control" name="funding_type" id="program-funding-type" required>
+                                <option value="">Select a funding type</option>
+                                @foreach (['Budgeting', 'Expenditure'] as $type)
+                                    <option value="{{ $type }}"{{ old('funding_type') === $type ? ' selected' : '' }}>{{ $type }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="admin-page__field">
+                            <label for="program-funding-expenditure">Used for expenditure? <span class="text-danger">*</span></label>
+                            <select class="form-control" name="expenditure" id="program-funding-expenditure" required>
+                                <option value="">Select an option</option>
+                                @foreach (['Yes', 'No'] as $option)
+                                    <option value="{{ $option }}"{{ old('expenditure') === $option ? ' selected' : '' }}>{{ $option }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="admin-page__field admin-page__field--full">
+                            <label for="program-funding-variable">Variable name <span class="text-danger">*</span></label>
+                            <input type="text" name="variable_name" class="form-control" id="program-funding-variable" value="{{ old('variable_name') }}" placeholder="e.g. donor_contribution" required>
+                            <span class="admin-page__field-hint">Use a short identifier for this value in reports and data exports.</span>
+                        </div>
+                        <div class="admin-page__field admin-page__field--full">
+                            <label for="program-funding-description">Description <span class="program-form-page__optional">(Optional)</span></label>
+                            <textarea class="form-control" name="description" id="program-funding-description" rows="3" placeholder="Add any useful context about this funding stream.">{{ old('description') }}</textarea>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="admin-page__button-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="admin-page__button">
+                        <em class="icon ni ni-save" aria-hidden="true"></em>
+                        Save funding
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-    <div class="modal-footer bg-light">
-        <span class="sub-text"></span>
-    </div>
 </div>
-</div>
-</div>
+@if ($errors->any() && old('tab') === 'tabItem8')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var fundingModal = document.getElementById('modal234567');
+            if (fundingModal && window.bootstrap) {
+                bootstrap.Modal.getOrCreateInstance(fundingModal).show();
+            }
+        });
+    </script>
+@endif
 
 
 <!-- Add Program Goal Outcome -->
 
-<div class="modal fade zoom" tabindex="-1" id="logframecreate">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+<div class="modal fade zoom" tabindex="-1" id="logframecreate" aria-labelledby="add-program-logframe-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered logframe-create__dialog" role="document">
+        <div class="modal-content logframe-form-modal logframe-create__modal">
             <div class="modal-header">
-                <h5 class="modal-title">Add Logframe</h5>
-                <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <em class="icon ni ni-cross"></em>
-                </a>
-            </div>
-            <div class="modal-body">
-
-                <form method="POST" action="{{ route('logframes.store')}}" id="addLogrameProgram">
-                    @csrf
-
-                    <div class="row gy-4">
-
-                        <div class="form-group">
-                            <label class="form-label" for="default-01">LogFrame Name<span style="color:red">*</span></label>
-                            <div class="form-control-wrap">
-                                <input type="text" name="logframe_name" class="form-control" id="logframe_name" placeholder="Input Logframe Name">
-                            </div>
-                        </div>
-
-                        <input type="hidden" name="organization_id" class="form-control" id="default-01" readonly="" value="{{ Auth::user()->organization_id }}">
-
-                        <input type="hidden" name="created_by" class="form-control" id="default-01" readonly="" value="{{ Auth::user()->id }}"> 
-
-                        <input type="hidden" name="logid" class="form-control" id="default-01" readonly="" value="{{$programshow->id}}">
-
-                        <!-- <button type="submit" class="btn btn-primary">Create Log Frame</button> -->
+                <div class="logframe-create__heading">
+                    <span class="logframe-create__icon"><em class="icon ni ni-view-col" aria-hidden="true"></em></span>
+                    <div>
+                        <h5 class="modal-title" id="add-program-logframe-title">Add Logframe</h5>
+                        <p>Create a programme results framework for this programme.</p>
                     </div>
-                    <br>
-                    <button style="margin-left: 40%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Create LogFrame</button>
-                </form>
-                <script>
-                    $(document).ready(function() {
-                        $("#addLogrameProgram").validate({
-                            rules: {
-                                logframe_name: {
-                                    required: true,
-                                    minlength: 5
-                                }
-                            },
-                            messages: {
-                                logframe_name: {
-                                    required: "Please enter Logframe name",
-                                    minlength: "Your Logframe name must consist of at least 5 characters and above"
-                                }
-
-                            },
-                            submitHandler: function(form) {
-                                form.submit();
-                            }
-                        });
-                    });
-                </script>
+                </div>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <em class="icon ni ni-cross"></em>
+                </button>
             </div>
+            <form method="POST" action="{{ route('logframes.store')}}" id="addLogrameProgram" class="logframe-create__form">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="logframe_name">Logframe name <span aria-hidden="true">*</span></label>
+                        <input type="text" name="logframe_name" class="form-control" id="logframe_name" placeholder="e.g. Programme results framework" required minlength="5" aria-describedby="logframe-name-help">
+                        <small class="logframe-create__help" id="logframe-name-help">Use a clear name that helps your team identify this results framework.</small>
+                    </div>
+
+                    <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+                    <input type="hidden" name="created_by" value="{{ Auth::user()->id }}">
+                    <input type="hidden" name="logid" value="{{ $programshow->id }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <em class="icon ni ni-check" aria-hidden="true"></em>
+                        Create Logframe
+                    </button>
+                </div>
+            </form>
+            <script>
+                $(document).ready(function() {
+                    $("#addLogrameProgram").validate({
+                        rules: {
+                            logframe_name: {
+                                required: true,
+                                minlength: 5
+                            }
+                        },
+                        messages: {
+                            logframe_name: {
+                                required: "Please enter a logframe name",
+                                minlength: "Your logframe name must consist of at least 5 characters"
+                            }
+                        },
+                        submitHandler: function(form) {
+                            form.submit();
+                        }
+                    });
+                });
+            </script>
         </div>
     </div>
 </div>
@@ -2610,5 +2618,5 @@
 
 </script>
 
-
+</main>
 @endsection

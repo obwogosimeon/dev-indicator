@@ -1,77 +1,118 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<div class="tab-pane active" id="tabItem1">
-    <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
-        <div class="subheader py-2 py-lg-4 subheader-solid" id="kt_subheader">
+<div class="tab-pane active project-detail__tab-pane" id="tabItem1" role="tabpanel" aria-labelledby="project-implementation-tab">
+    <div class="content d-flex flex-column flex-column-fluid">
+        <div class="subheader py-2 py-lg-4 project-workspace__header">
             <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
-                <!--begin::Info-->
-                <div class="d-flex align-items-center flex-wrap mr-2">
-                    <!--begin::Page Title-->
-                    <h6 class="text-dark font-weight-bolder mt-2 mb-2 mr-10">
-                        Implementations - <h5 class="title nk-block-title"><span class="badge bg-success">{{$projectshow->project_name}}</span></h5>
-                    </h6>
+                <div class="project-workspace__heading">
+                    <p class="admin-page__eyebrow">Delivery tracking</p>
+                    <h2>Implementation</h2>
+                    <p>Review and manage implementation periods, reports, and approvals.</p>
                 </div>
-                <!--end::Info-->
-                <div class="d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalZoom877">Add Implementation Container</button>
-                    </div>
+                <div class="project-workspace__header-actions">
+                    <span class="project-workspace__count">{{ $impcontainers->count() }} {{ \Illuminate\Support\Str::plural('container', $impcontainers->count()) }}</span>
+                    <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom877">
+                        <em class="icon ni ni-plus" aria-hidden="true"></em>
+                        Add implementation container
+                    </button>
                 </div>
             </div>
         </div>
     </div>
     <div class="nk-block nk-block-lg">
-        <div class="card card-bordered card-preview">
-            <div class="card-inner">
-                @foreach($impcontainers as $key1 => $imp)
-                <div class="dropdown">
-                    <a class="text-soft dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-plus"></em></a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                        <ul class="link-list-plain">
-                            @if($imp->status == '01')
-                            <li class="preview-item">
-                                <button type="button" class="btn btn-success icon ni ni-send" id="submitcontainer" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#submitcontainer">Submit</button>
-                            </li> 
-                            <li class="preview-item">
-                                <button type="button" class="btn btn-danger icon ni ni-cross" id="impCancel" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#impCancel">Delete</button>
-                            </li> 
-                            @elseif($imp->status == '02') 
-                            <li class="preview-item">
-                                <button type="button" class="btn btn-warning icon ni ni-forward-arrow" id="impTimeline" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#impTimeline">Timeline</button>
-                            </li> 
-                            <li class="preview-item">
-                                <button type="button" class="btn btn-danger icon ni ni-cross" id="impCancel" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#impCancel">Cancel</button>
-                            </li> 
-
-                            @can('forward-imp')
-                            <li class="preview-item">
-                                <button type="button" class="btn btn-success icon ni ni-forward-arrow" id="forwardcontainer" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#forwardcontainer">Forward</button>
-                            </li> 
-                            @endcan
-                            @can('approve-imp')
-                            <li class="preview-item">
-                                <button type="button" class="btn btn-success icon ni ni-done" id="approvecontainer" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#approvecontainer">Approve</button>
-                            </li> 
-                            @endcan
-                            @can('reject-imp')
-                            <li class="preview-item">
-                                <button type="button" class="btn btn-danger icon ni ni-cross" id="rejectcontainer" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#rejectcontainer">Reject</button>
-                            </li> 
-                            @endcan
-                            @endif
-                        </ul>
+        <div class="card card-bordered card-preview project-workspace__content">
+            <div class="card-inner project-implementation__list" id="implementation-accordion">
+                @if($impcontainers->isEmpty())
+                    <div class="project-detail__empty-state">
+                        <span class="project-detail__record-icon program-detail__record-icon--green"><em class="icon ni ni-check-circle" aria-hidden="true"></em></span>
+                        <h3>No implementation containers yet</h3>
+                        <p>Create an implementation container to begin tracking delivery and reporting periods.</p>
+                        <button type="button" class="admin-page__button" data-bs-toggle="modal" data-bs-target="#modalZoom877">
+                            <em class="icon ni ni-plus" aria-hidden="true"></em>
+                            Add implementation container
+                        </button>
                     </div>
-                </div>
-                <a href="#" class="accordion-head collapsed" data-bs-toggle="collapse" data-bs-target="#accordion-item-1">
-                    <h6 class="title"><span class="badge bg-success">Container Name:</span> {{$imp->container_name}} - ( {{$imp->workplancontainer->container_name}} )
-                        @include('projects.frequency.frequency')
-                    </h6>
-                    <span class="accordion-icon"></span>
-                </a>
-                <div class="accordion-body collapse" id="accordion-item-1" data-bs-parent="#accordion">
-                    <div class="accordion-inner">
-                        <div class="card card-bordered card-preview">
-                            @if($imp->workplancontainer->planning_type == 'Activity') 
+                @endif
+                @foreach($impcontainers as $key1 => $imp)
+                <article id="implementation-accordion-{{ $imp->id }}" class="accordion project-workspace__accordion project-intervention__container project-implementation__container">
+                    <div class="accordion-item">
+                        <div class="project-intervention__container-head">
+                            <a href="#implementation-content-{{ $imp->id }}" class="accordion-head collapsed project-intervention__toggle" data-bs-toggle="collapse" data-bs-target="#implementation-content-{{ $imp->id }}" aria-expanded="false" aria-controls="implementation-content-{{ $imp->id }}">
+                                <span class="project-intervention__container-icon"><em class="icon ni ni-check-circle" aria-hidden="true"></em></span>
+                                <span class="project-intervention__container-heading">
+                                    <span>Implementation period</span>
+                                    <strong>{{ $imp->container_name }}</strong>
+                                    <span class="project-implementation__workplan">{{ optional($imp->workplancontainer)->container_name ?: 'No linked work plan' }}</span>
+                                </span>
+                                @if($imp->status == '01')
+                                    <span class="project-intervention__status project-intervention__status--draft">Draft</span>
+                                @elseif($imp->status == '02')
+                                    <span class="project-intervention__status project-intervention__status--submitted">Submitted</span>
+                                @elseif($imp->status == '03')
+                                    <span class="project-intervention__status project-intervention__status--forwarded">Forwarded</span>
+                                @elseif($imp->status == '04')
+                                    <span class="project-intervention__status project-intervention__status--approved">Approved</span>
+                                @elseif($imp->status == '05')
+                                    <span class="project-intervention__status project-intervention__status--reported">Reported</span>
+                                @elseif($imp->status == '06')
+                                    <span class="project-intervention__status project-intervention__status--forwarded">Report forwarded</span>
+                                @elseif($imp->status == '07')
+                                    <span class="project-intervention__status project-intervention__status--approved">Report approved</span>
+                                @else
+                                    <span class="admin-page__badge admin-page__badge--neutral">Status {{ $imp->status }}</span>
+                                @endif
+                                <span class="project-implementation__frequency">@include('projects.frequency.frequency')</span>
+                                <span class="accordion-icon"></span>
+                            </a>
+                            <div class="dropdown project-intervention__actions">
+                                <button type="button" class="project-intervention__actions-trigger" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions for {{ $imp->container_name }}">
+                                    <span>Actions</span><em class="icon ni ni-chevron-down" aria-hidden="true"></em>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <ul class="link-list-plain">
+                                    @if($imp->status == '01')
+                                        <li class="preview-item">
+                                            <button type="button" id="submitcontainer" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#submitcontainer"><em class="icon ni ni-send" aria-hidden="true"></em>Submit</button>
+                                        </li>
+                                        <li class="preview-item">
+                                            <button type="button" id="impCancel" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#impCancel"><em class="icon ni ni-cross" aria-hidden="true"></em>Delete</button>
+                                        </li>
+                                    @elseif($imp->status == '02')
+                                        <li class="preview-item">
+                                            <button type="button" id="impTimeline" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#impTimeline"><em class="icon ni ni-setting" aria-hidden="true"></em>Timeline</button>
+                                        </li>
+                                        <li class="preview-item">
+                                            <button type="button" id="impCancel" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#impCancel"><em class="icon ni ni-cross" aria-hidden="true"></em>Cancel</button>
+                                        </li>
+                                        @can('forward-imp')
+                                            <li class="preview-item">
+                                                <button type="button" id="forwardcontainer" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#forwardcontainer"><em class="icon ni ni-forward-arrow" aria-hidden="true"></em>Forward</button>
+                                            </li>
+                                        @endcan
+                                        @can('approve-imp')
+                                            <li class="preview-item">
+                                                <button type="button" id="approvecontainer" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#approvecontainer"><em class="icon ni ni-done" aria-hidden="true"></em>Approve</button>
+                                            </li>
+                                        @endcan
+                                        @can('reject-imp')
+                                            <li class="preview-item">
+                                                <button type="button" id="rejectcontainer" data-id="{{ $imp->id }}" data-bs-toggle="modal" data-bs-target="#rejectcontainer"><em class="icon ni ni-cross" aria-hidden="true"></em>Reject</button>
+                                            </li>
+                                        @endcan
+                                    @endif
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-body collapse" id="implementation-content-{{ $imp->id }}" data-bs-parent="#implementation-accordion">
+                            <div class="accordion-inner">
+                                <div class="card card-bordered card-preview">
+                            @if(!$imp->workplancontainer)
+                                <div class="alert alert-warning project-implementation__unlinked" role="alert">
+                                    <em class="icon ni ni-alert-circle" aria-hidden="true"></em>
+                                    <span>This implementation period is not linked to an available work plan. Link a work plan before recording results.</span>
+                                </div>
+                            @elseif($imp->workplancontainer->planning_type == 'Activity')
                             <div class="card card-bordered card-preview">
                                 <div class="card-inner">
                                     <ul class="nav nav-tabs mt-n3">
@@ -81,7 +122,7 @@
                                     </ul>
                                     <div class="tab-content">
                                         <div class="tab-pane active" id="tabItem1000">
-                                            <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                            <table class="table">
                                                 <thead>
                                                     <tr>
                                                         <td><B><I>WorkPlan</I></B></td>
@@ -120,7 +161,7 @@
                                                                 <li class="nav-item">
                                                                     <a class="nav-link active" data-bs-toggle="tab" href="#"><B>{{ $funding->funding_name }}</B></a>
                                                                 </li>
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                                                <table class="table">
                                                                     <thead>
                                                                         <tr>
                                                                             <td><B><I>WorkPlan</I></B></td>
@@ -152,7 +193,7 @@
                                                                 <li class="nav-item">
                                                                     <a class="nav-link active" data-bs-toggle="tab" href="#"><B>{{ $funding->funding_name }}</B></a>
                                                                 </li>
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                                                <table class="table">
                                                                     <thead>
                                                                         <tr>
                                                                             <td><B><I>WorkPlan</I></B></td>
@@ -186,7 +227,7 @@
                                                                 <li class="nav-item">
                                                                     <a class="nav-link active" data-bs-toggle="tab" href="#"><B>{{ $funding->funding_name }}</B></a>
                                                                 </li>
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                                                <table class="table">
                                                                     <thead>
                                                                         <tr>
                                                                             <td><B><I>WorkPlan</I></B></td>
@@ -218,7 +259,7 @@
                                                                 <li class="nav-item">
                                                                     <a class="nav-link active" data-bs-toggle="tab" href="#"><B>{{ $funding->funding_name }}</B></a>
                                                                 </li>
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                                                <table class="table">
                                                                     <thead>
                                                                         <tr>
                                                                             <td><B><I>WorkPlan</I></B></td>
@@ -252,7 +293,7 @@
                                                                 <li class="nav-item">
                                                                     <a class="nav-link active" data-bs-toggle="tab" href="#"><B>{{ $funding->funding_name }}</B></a>
                                                                 </li>
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                                                <table class="table">
                                                                     <thead>
                                                                         <tr>
                                                                             <td><B><I>WorkPlan</I></B></td>
@@ -284,7 +325,7 @@
                                                                 <li class="nav-item">
                                                                     <a class="nav-link active" data-bs-toggle="tab" href="#"><B>{{ $funding->funding_name }}</B></a>
                                                                 </li>
-                                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                                                <table class="table">
                                                                     <thead>
                                                                         <tr>
                                                                             <td><B><I>WorkPlan</I></B></td>
@@ -370,7 +411,7 @@
                                                     });
                                                 </script>
                                                 @elseif($imp->workplancontainer->planning_type == 'Indicator')
-                                                <table class="datatable-init-export nowrap table" data-export-title="Export">
+                                                <table class="table">
                                                     <thead> 
                                                         <tr>
                                                             <th>Indicator Name</th>
@@ -514,9 +555,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <br>
-                                    <hr>
-                                    @endforeach
+                            </div>
+                        </article>
+                @endforeach
                                 </div>
                             </div>
                         </div>

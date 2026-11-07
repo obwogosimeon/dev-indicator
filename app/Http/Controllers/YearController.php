@@ -3,30 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\URL;
 
 use App\Year;
 use App\BarNotification;
 use Auth;
-use DB;
 
 class YearController extends Controller
 {
     public function index()
     {
         $years = Year::all();
-        $notifcations = BarNotification::where('status', '=', '01')->where('user_id', Auth::user()->id)->get();
-        $notificationcount = DB::table('bar_notifications')
-        ->where('status', '=', '01')
-        ->where('user_id', Auth::user()->id)
-        ->count();
-        return view('years.index', compact('years','notifcations','notificationcount'));
+        return view('years.index', array_merge(
+            compact('years'),
+            $this->navigationNotifications()
+        ));
     }
 
     public function create()
     {
-        return view('years.create');
+        return view('years.create', $this->navigationNotifications());
     }
 
     public function store(Request $request)
@@ -49,27 +44,49 @@ class YearController extends Controller
 
      public function show($id)
     {
-        $yearshow = Year::find($id);
-        return view('years.show',compact('yearshow'));
+        $yearshow = Year::findOrFail($id);
+        return view('years.show', array_merge(
+            compact('yearshow'),
+            $this->navigationNotifications()
+        ));
     }
 
     public function edit($id)
     {
-        $yearedit = Year::find($id);
-        return view('years.edit', compact('yearedit'));
+        $yearedit = Year::findOrFail($id);
+        return view('years.edit', array_merge(
+            compact('yearedit'),
+            $this->navigationNotifications()
+        ));
     }
 
 
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'year_name' => '',
-            'start_date' => '',
-            'end_date' => '',
+            'year_name' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
         ]);
         $input = $request->all();
-        $year = Year::find($id);
+        $year = Year::findOrFail($id);
         $year->update($input);
+        if ($year->program_id) {
+            return redirect()->route('programs.show', $year->program_id)
+                ->with('success', 'Year Updated successfully');
+        }
         return redirect()->route('years.index')->with('success','Year Updated successfully');
+    }
+
+    private function navigationNotifications()
+    {
+        $notifications = BarNotification::where('status', '01')
+            ->where('user_id', Auth::id())
+            ->get();
+
+        return [
+            'notifcations' => $notifications,
+            'notificationcount' => $notifications->count(),
+        ];
     }
 }

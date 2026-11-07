@@ -1,76 +1,56 @@
 @extends('layouts.apps')
 @section('content')
-
-<div class="nk-content ">
-<div class="container-fluid">
-<div class="nk-content-inner">
-<div class="nk-content-body">
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
-        <div class="nk-block-head-content">
-            <div class="nk-block-head-sub"><a class="back-to" href="{{ url('/home')}}"><em class="icon ni ni-arrow-left"></em><span>Dashboard</span></a></div>
-            <h2 class="nk-block-title fw-normal">Notifications</h2>
+<main class="container-fluid admin-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">System configuration</p>
+            <h1 class="admin-page__title">Email notifications</h1>
+            <p class="admin-page__description">Manage the email delivery settings configured for your organization.</p>
         </div>
-    </div><!-- .nk-block-head -->
+        <a href="{{ route('notificationcreate') }}" class="admin-page__button">
+            <em class="icon ni ni-plus" aria-hidden="true"></em>
+            Add email configuration
+        </a>
+    </header>
 
-     @if ($message = Session::get('success'))
-  <div class="alert alert-success">
-    <p>{{ $message }}</p>
-  </div>
-  @endif
+    @if (session('success'))
+        <div class="alert alert-success" role="status">{{ session('success') }}</div>
+    @endif
 
-    <a href="{{ route('notificationcreate')}}" style="align: left;" class="btn btn-round btn-lg btn-primary">New Notification</a>
-
-    <br>
-    <br>
-
-    <div class="card card-bordered card-preview">
-            <div class="card-inner">
-                <table class="datatable-init table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Organization Name</th>
-                            <th>Email Address</th>
-                            <th>Email host</th>
-                            <th>Email Driver</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php $i = 1; ?>
-                    @foreach ($notifications as $key => $object)
-                    <tr>
-                        <td>{{$i}}</td>
-                        <td>{{ $object->organization->name }}</td>
-                        <td>{{ $object->username }}</td>
-                        <td>{{ $object->host }}</td>
-                        <td>{{ $object->driver }}</td>
-                        <td>
-                        <li class="col-sm-6 col-lg-3">
-                      
-                        <div class="dropdown">
-                            <a href="#" class="btn btn-primary" data-bs-toggle="dropdown"><span>Select Action</span><em class="icon ni ni-chevron-down"></em></a>
-                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-auto mt-1">
-                                <ul class="link-list-plain">
-                                    
-                                </ul>
-                            </div>
-                        </div>
-                    </li>
-                    </td>
-                    </tr>
-                    <?php $i++; ?>
-                        @endforeach
-                    </tbody>
-                </table>
+    <section class="admin-page__card" aria-label="Email configurations">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Configured mail servers</h2>
+                <p>{{ $notifications->count() }} {{ \Illuminate\Support\Str::plural('configuration', $notifications->count()) }}</p>
             </div>
         </div>
-
-</div>
-</div>
-</div>
-</div>
-</div>
-
+        <div class="table-responsive">
+            <table class="table admin-page__table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Organization</th>
+                        <th>Email address</th>
+                        <th>Mail host</th>
+                        <th>Driver</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($notifications as $notification)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ optional($notification->organization)->organization_name ?: 'Organization not assigned' }}</td>
+                            <td>{{ $notification->username }}</td>
+                            <td>{{ $notification->host }}</td>
+                            <td><span class="admin-page__badge">{{ $notification->driver }}</span></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @if ($notifications->isEmpty())
+            <p class="admin-page__empty">No email configurations have been added yet.</p>
+        @endif
+    </section>
+</main>
 @endsection

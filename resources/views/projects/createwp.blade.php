@@ -259,30 +259,42 @@
 	});
 </script>
 
-<div class="nk-content ">
-	<div class="container-fluid">
-		<div class="nk-content-inner">
-			<div class="nk-content-body">
-				<div class="components-preview wide-md mx-auto">
-					<nav>
-						<ul class="breadcrumb breadcrumb-pipe">
-							<li class="breadcrumb-item"><a href="{{ url('/home')}}">Home</a></li>
-							<li class="breadcrumb-item"><a href="{{ route('projects.index')}}">Projects</a></li>
-							<li class="breadcrumb-item"><a href="{{ route('projects.show', $workplancontainer->project_id) }}">Activity Workplans</a></li>
-							<li class="breadcrumb-item active">Add Work Plan</li>
-						</ul>
-					</nav>
-					<br>
-					<div class="nk-block nk-block-lg">
+<main class="container-fluid admin-page project-workplan-form-page">
+					<header class="admin-page__header">
+						<div>
+							<p class="admin-page__eyebrow">Project planning · {{ $workplancontainer->financial_year }}</p>
+							<h1 class="admin-page__title">Add activity plan</h1>
+							<p class="admin-page__description">Build an activity schedule and assign its annual funding for this work plan.</p>
+						</div>
+						<a href="{{ route('projects.show', $workplancontainer->project_id) }}" class="admin-page__button-secondary">
+							<em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+							Back to project
+						</a>
+					</header>
+
+					@if ($errors->any())
+						<div class="alert alert-danger" role="alert">
+							<strong>Please review the activity plan details.</strong>
+							@foreach ($errors->all() as $error)
+								<div>{{ $error }}</div>
+							@endforeach
+						</div>
+					@endif
+
+			<div class="nk-block nk-block-lg">
 
 
-						<div class="card card-bordered card-preview">
-							<div class="card-inner">
-								<div class="preview-block">
-									<span class="preview-title-lg overline-title">Add Work Plan</span>
-									<form method="POST" action="{{ route('createactivitywp')}}" id="createActivityWP">
+				<section class="admin-page__card admin-page__form-card admin-page__form-card--wide">
+							<div class="admin-page__card-head">
+								<div>
+									<h2>Activity plan details</h2>
+									<p>Choose an activity, set its funding and schedule, then save it to this work plan.</p>
+								</div>
+								<span class="admin-page__badge admin-page__badge--amber">{{ $workplancontainer->financial_year }}</span>
+							</div>
+							<form method="POST" action="{{ route('createactivitywp')}}" id="createActivityWP" class="admin-page__form">
 										@csrf
-										<div class="row gy-4">
+										<div class="admin-page__form-grid">
 
 											<input type="hidden" class="form-control" value="01" name="status" id="default-01">
 											<input type="hidden" class="form-control" value="1" name="exchange_rate" id="default-01">
@@ -294,94 +306,66 @@
 											<input type="hidden" class="form-control" value="{{$workplancontainer->financial_year}}" name="financial_year" id="default-01">
 
 											
-											<div class="form-group" id="program">
-												<label class="form-label" for="default-06">Activity Plan</label>
-												<div class="form-control-wrap ">
-													<div class="form-control-select">
-														<select class="form-control" id="activity" name="activity" >
-															<option value="">-------Nothing Selected-------</option>
-															<option></option>
-															@foreach($activities as $obj)
-															<option value="{{$obj->id}}">{{$obj->activity_title}}</option>
-															@endforeach
-														</select>
-													</div>
-												</div>
+											<div class="admin-page__field admin-page__field--full" id="program">
+												<label for="activity">Activity <span class="text-danger">*</span></label>
+												<select class="form-control" id="activity" name="activity" required>
+													<option value="">Select an activity</option>
+													@foreach($activities as $obj)
+														<option value="{{$obj->id}}"{{ (string) old('activity') === (string) $obj->id ? ' selected' : '' }}>{{$obj->activity_title}}</option>
+													@endforeach
+												</select>
+												@if($activities->isEmpty())
+													<span class="admin-page__field-hint">No activities are available for this project yet. Add an activity to a project intervention before creating its work plan.</span>
+												@else
+													<span class="admin-page__field-hint">Select an activity linked to this project.</span>
+												@endif
 											</div>
 
-											<div class="form-group">
-												<label class="form-label" for="default-01">Work Plan Details</label>
-												<div class="form-control-wrap">
-													<input type="text" class="form-control" name="workplan_name" id="workplan_name" placeholder="Input Work Plan Name" required>
-												</div>
+											<div class="admin-page__field admin-page__field--full">
+												<label for="workplan_name">Activity plan name <span class="text-danger">*</span></label>
+												<input type="text" class="form-control" name="workplan_name" id="workplan_name" value="{{ old('workplan_name') }}" placeholder="e.g. Community health outreach" required>
 											</div>
 
 											@foreach($fundings as $obj)
 											@if($loop->first)
-											<div class="col-lg-6 col-sm-12">
-												<div class="form-group">
-													<label class="form-label" for="default-01">{{$obj->funding_name}}</label>
-													<div class="form-control-wrap">
-														<input type="text" class="form-control" name="funding1" readonly="" id="funding1" value="">
-													</div>
-												</div>
+											<div class="admin-page__field">
+												<label for="funding1">{{$obj->funding_name}}</label>
+												<input type="text" class="form-control" name="funding1" readonly id="funding1" value="" aria-describedby="funding-help">
 											</div>
 
-											<div class="col-lg-6 col-sm-12">
-												<div class="form-group">
-													<label class="form-label" for="default-01">{{$obj->funding_name}} Annual Budget</label>
-													<div class="form-control-wrap">
-														<input type="text" class="form-control" name="annual_amounta" required="" id="annual_amounta" value="">
-													</div>
-												</div>
+											<div class="admin-page__field">
+												<label for="annual_amounta">{{$obj->funding_name}} annual budget <span class="text-danger">*</span></label>
+												<input type="text" class="form-control" name="annual_amounta" required id="annual_amounta" value="{{ old('annual_amounta') }}" inputmode="numeric">
 											</div>
 											@endif
 											@if($loop->last)
-											<div class="col-lg-6 col-sm-12">
-												<div class="form-group">
-													<label class="form-label" for="default-01">{{$obj->funding_name}}</label>
-													<div class="form-control-wrap">
-														<input type="text" class="form-control" name="funding2" readonly="" id="funding2" value="">
-													</div>
-												</div>
+											<div class="admin-page__field">
+												<label for="funding2">{{$obj->funding_name}}</label>
+												<input type="text" class="form-control" name="funding2" readonly id="funding2" value="" aria-describedby="funding-help">
 											</div>
 
-											<div class="col-lg-6 col-sm-12">
-												<div class="form-group">
-													<label class="form-label" for="default-01">{{$obj->funding_name}} Annual Budget</label>
-													<div class="form-control-wrap">
-														<input type="text" class="form-control" name="annual_amountb" required="" id="annual_amountb" value="">
-													</div>
-												</div>
+											<div class="admin-page__field">
+												<label for="annual_amountb">{{$obj->funding_name}} annual budget <span class="text-danger">*</span></label>
+												<input type="text" class="form-control" name="annual_amountb" required id="annual_amountb" value="{{ old('annual_amountb') }}" inputmode="numeric">
 											</div>
 											@endif
 											@endforeach
 
-											<input type="hidden" class="form-control" value="1" name="total" id="total">
+											<span id="funding-help" class="admin-page__field-hint admin-page__field--full">Choose an activity to load the available funding sources, then enter the amount assigned to each source.</span>
 
-
-											<div class="col-lg-6 col-sm-9">
-												<div class="form-group">
-													<div class="form-control-wrap">
-														<div class="form-icon form-icon-right">
-															<em class="icon ni ni-calendar-alt"></em>
-														</div>
-														<input type="text" name="start_date" class="form-control form-control-xl form-control-outlined date-picker" id="outlined-date-picker">
-														<label class="form-label-outlined" for="outlined-date-picker">Start Date</label>
-													</div>
-												</div>
+											<div class="admin-page__field">
+												<label for="total">Total activity budget</label>
+												<input type="text" class="form-control" value="0" name="total" id="total" readonly>
 											</div>
 
-											<div class="col-lg-6 col-sm-9">
-												<div class="form-group">
-													<div class="form-control-wrap">
-														<div class="form-icon form-icon-right">
-															<em class="icon ni ni-calendar-alt"></em>
-														</div>
-														<input type="text" name="end_date" class="form-control form-control-xl form-control-outlined date-picker" id="outlined-date-picker">
-														<label class="form-label-outlined" for="outlined-date-picker">End Date</label>
-													</div>
-												</div>
+											<div class="admin-page__field">
+												<label for="workplan-start-date">Start date <span class="text-danger">*</span></label>
+												<input type="text" name="start_date" class="form-control date-picker" id="workplan-start-date" value="{{ old('start_date') }}" required>
+											</div>
+
+											<div class="admin-page__field">
+												<label for="workplan-end-date">End date <span class="text-danger">*</span></label>
+												<input type="text" name="end_date" class="form-control date-picker" id="workplan-end-date" value="{{ old('end_date') }}" required>
 											</div>
 											
 											
@@ -389,17 +373,20 @@
 
 											
 
-											<div class="col-sm-12">
-												<div class="form-group">
-													<label class="form-label" for="default-textarea">Description:</label>
-													<div class="form-control-wrap">
-														<textarea class="form-control no-resize" name="workplan_description" id="default-textarea"></textarea>
-													</div>
-												</div>
+											<div class="admin-page__field admin-page__field--full">
+												<label for="workplan-description">Description</label>
+												<textarea class="form-control no-resize" name="workplan_description" id="workplan-description" rows="4" placeholder="Add context or notes for this activity plan.">{{ old('workplan_description') }}</textarea>
 											</div>
-											<button type="submit" class="btn btn-primary">Save</button>
-											<br>
-											<button type="submit" class="btn btn-primary">Save & Add New</button>
+										</div>
+										<div class="admin-page__form-footer">
+											<button type="submit" name="after_save" value="project" class="admin-page__button">
+												<em class="icon ni ni-save" aria-hidden="true"></em>
+												Save activity plan
+											</button>
+											<button type="submit" name="after_save" value="add_another" class="admin-page__button-secondary">
+												Save &amp; add another
+											</button>
+											<a href="{{ route('projects.show', $workplancontainer->project_id) }}" class="admin-page__button-secondary">Cancel</a>
 										</div>
 									</form>
 
@@ -447,15 +434,9 @@
 											});
 										});
 									</script>
-								</div>
-							</div>
-						</div>
+				</section>
 
-					</div>
-				</div>
 			</div>
-		</div>
-	</div>
-</div>
+		</main>
 
 @endsection

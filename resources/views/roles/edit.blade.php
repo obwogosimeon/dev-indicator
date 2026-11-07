@@ -1,52 +1,63 @@
 @extends('layouts.apps')
+
 @section('content')
-
-<div class="row">
-    <div class="col-lg-12 margin-tb">
-        <div class="pull-left">
-            <h2>Edit Role</h2>
+<main class="container-fluid admin-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Access control</p>
+            <h1 class="admin-page__title">Edit role</h1>
+            <p class="admin-page__description">Update the role name and its assigned permissions.</p>
         </div>
-        <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('roles.index') }}"> Back</a>
-        </div>
-    </div>
-</div>
+        <a href="{{ route('roles.index') }}" class="admin-page__button-secondary">
+            <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+            Back to roles
+        </a>
+    </header>
 
-
-@if (count($errors) > 0)
-    <div class="alert alert-danger">
-        <strong>Whoops!</strong> There were some problems with your input.<br><br>
-        <ul>
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-        </ul>
-    </div>
-@endif
-
-
-{!! Form::model($role, ['method' => 'PATCH','route' => ['roles.update', $role->id]]) !!}
-<div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12">
-        <div class="form-group">
-            <strong>Name:</strong>
-            {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12">
-        <div class="form-group">
-            <strong>Permission:</strong>
-            <br/>
-            @foreach($permission as $value)
-                <label>{{ Form::checkbox('permission[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, array('class' => 'name')) }}
-                {{ $value->name }}</label>
-            <br/>
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
             @endforeach
         </div>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
-</div>
+    @endif
 
+    <section class="admin-page__card admin-page__form-card admin-page__form-card--wide">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Role details</h2>
+                <p>Changes take effect for members assigned to this role.</p>
+            </div>
+        </div>
+        <form method="POST" action="{{ route('roles.update', $role->id) }}" class="admin-page__form">
+            @csrf
+            @method('PATCH')
+            <div class="admin-page__form-grid">
+                <div class="admin-page__field admin-page__field--full">
+                    <label for="role-name">Role name</label>
+                    <input id="role-name" type="text" name="name" value="{{ old('name', $role->name) }}" class="form-control" required>
+                </div>
+                <div class="admin-page__field admin-page__field--full">
+                    <label>Permissions</label>
+                    @if (count($permission))
+                        <div class="admin-page__permission-list">
+                            @foreach ($permission as $value)
+                                <label class="admin-page__permission">
+                                    <input type="checkbox" name="permission[]" value="{{ $value->id }}"{{ in_array($value->id, old('permission', $rolePermissions)) ? ' checked' : '' }}>
+                                    <span>{{ $value->alias ?: $value->name }}<small>{{ $value->name }}</small></span>
+                                </label>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="admin-page__field-hint">No permissions have been created yet.</p>
+                    @endif
+                </div>
+            </div>
+            <div class="admin-page__form-footer">
+                <button type="submit" class="admin-page__button">Save changes</button>
+                <a href="{{ route('roles.index') }}" class="admin-page__button-secondary">Cancel</a>
+            </div>
+        </form>
+    </section>
+</main>
 @endsection

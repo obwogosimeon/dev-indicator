@@ -1,128 +1,72 @@
 @extends('layouts.apps')
+
 @section('content')
+<main class="container-fluid admin-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Workspace access</p>
+            <h1 class="admin-page__title">Add a member</h1>
+            <p class="admin-page__description">Invite a colleague and assign their initial workspace role.</p>
+        </div>
+        <a href="{{ route('users.index') }}" class="admin-page__button-secondary">
+            <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+            Back to members
+        </a>
+    </header>
 
-<div class="nk-block nk-block-lg">
-    <div class="nk-block-head">
-        <div class="nk-block-head-content">
-            <nav>
-                <ul class="breadcrumb breadcrumb-pipe">
-                    <li class="breadcrumb-item"><a href="{{ url('/home')}}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('users.index')}}">Members</a></li>
-                    <li class="breadcrumb-item active">Add New Member</li>
-                </ul>
-            </nav>
-            <br>
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
-            @if ( count( $errors ) > 0 )
-            <div class="alert alert-danger">
-                @foreach ($errors->all() as $error)
-                {{ $error }}<br>
-                @endforeach
-            </div>
-            @endif
-            <div class="nk-block nk-block-lg">
-
-                <div class="card card-bordered card-preview">
-                    <div class="card-inner">
-                        <div class="preview-block">
-                            <span class="preview-title-lg overline-title">Create Member</span>
-
-                            {!! Form::open(array('route' => 'users.store','method'=>'POST')) !!}
-                            @csrf
-                            <div class="row gy-4">
-
-                                <div class="form-group">
-                                    <label class="form-label" for="default-01">First Name:</label>
-                                    <div class="form-control-wrap">
-                                        {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="default-01">Last Name:</label>
-                                    <div class="form-control-wrap">
-                                        {!! Form::text('last_name', null, array('placeholder' => 'Last Name','class' => 'form-control')) !!}
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="default-01">Email:</label>
-                                    <div class="form-control-wrap">
-                                        {!! Form::text('email', null, array('placeholder' => 'Email','class' => 'form-control')) !!}
-                                    </div>
-                                </div>
-
-                                <!-- <div class="form-group">
-                                    <label class="form-label" for="default-01">Password:</label>
-                                    <div class="form-control-wrap">
-                                        {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control')) !!}
-                                    </div>
-                                </div>
-
-                                
-
-                                <div class="form-group">
-                                    <label class="form-label" for="default-01">Confirm Password:</label>
-                                    <div class="form-control-wrap">
-                                        {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
-                                    </div>
-                                </div> -->
-
-                               <!--  <div class="form-group" id="program">
-                                    <label class="form-label" for="default-06">Organization</label>
-                                    <div class="form-control-wrap ">
-                                        <div class="form-control-select">
-                                            <select class="form-control" id="roles" name="roles" >
-                                                <option value="#">-------Select Organization-------</option>
-                                                <option></option>                                                   
-                                                @foreach($orgs as $object)
-                                                <option value="{{$object->id}}">{{$object->organization_name}}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div> -->
-
-                                <div class="form-group" id="program">
-                                    <label class="form-label" for="default-06">Roles:</label>
-                                    <div class="form-control-wrap ">
-                                        <div class="form-control-select">
-                                            <select class="form-control" id="roles" name="roles" >
-                                                <option value="#">-------Select Role-------</option>
-                                                <option></option>                                                   
-                                                @foreach($roles as $object)
-                                                <option value="{{$object->name}}">{{$object->name}}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <input type="hidden" name="organization_id" class="form-control" id="default-01" readonly="" value="{{ Auth::user()->organization_id }}">
-
-                                <input type="hidden" name="organization_name" class="form-control" id="default-01" readonly="" value="{{ Auth::user()->organization_name }}">
-
-                                <input type="hidden" name="created_by" class="form-control" id="default-01" readonly="" value="{{ Auth::user()->id }}"> 
-
-
-
-                                <!-- <button type="submit" class="btn btn-primary">Create User</button> -->
-
-
-                            </div>
-
-                            <br>
-                            <button style="margin-left: 40%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Add Member</button>
-
-                            {!! Form::close() !!}
-                        </div>
-                    </div>
-                </div>
-
+    <section class="admin-page__card admin-page__form-card admin-page__form-card--wide">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Member details</h2>
+                <p>An invitation will be sent to the email address provided.</p>
             </div>
         </div>
-    </div>
-</div>
+        {!! Form::open(['route' => 'users.store', 'method' => 'POST', 'class' => 'admin-page__form']) !!}
+            @csrf
+            <div class="admin-page__form-grid">
+                <div class="admin-page__field">
+                    <label for="member-name">First name</label>
+                    <input id="member-name" type="text" name="name" value="{{ old('name') }}" class="form-control" placeholder="First name" required>
+                </div>
+                <div class="admin-page__field">
+                    <label for="member-last-name">Last name</label>
+                    <input id="member-last-name" type="text" name="last_name" value="{{ old('last_name') }}" class="form-control" placeholder="Last name" required>
+                </div>
+                <div class="admin-page__field">
+                    <label for="member-email">Email address</label>
+                    <input id="member-email" type="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="name@organization.org" required autocomplete="email">
+                </div>
+                <div class="admin-page__field">
+                    <label for="member-role">Role</label>
+                    <select id="member-role" name="roles" class="form-control" required>
+                        <option value="">Select a role</option>
+                        @foreach ($roles as $role)
+                            <option value="{{ $role->name }}"{{ old('roles') === $role->name ? ' selected' : '' }}>{{ $role->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
 
+            <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+            <input type="hidden" name="organization_name" value="{{ Auth::user()->organization_name }}">
+            <input type="hidden" name="created_by" value="{{ Auth::id() }}">
 
+            <div class="admin-page__form-footer">
+                <button type="submit" class="admin-page__button">
+                    <em class="icon ni ni-send" aria-hidden="true"></em>
+                    Send invitation
+                </button>
+                <a href="{{ route('users.index') }}" class="admin-page__button-secondary">Cancel</a>
+            </div>
+        {!! Form::close() !!}
+    </section>
+</main>
 @endsection

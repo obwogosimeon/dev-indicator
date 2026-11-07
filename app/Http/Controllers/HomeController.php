@@ -80,18 +80,24 @@ public function showChangePasswordForm()
 
 public function changePassword(Request $request)
 {
+    $request->validate([
+        'current-password' => 'required',
+        'new-password' => 'required|max:255|min:8',
+        'new-password-confirm' => 'required|same:new-password',
+    ], [
+        'current-password.required' => 'Enter your current password.',
+        'new-password.required' => 'Enter a new password.',
+        'new-password.min' => 'Your new password must be at least 8 characters.',
+        'new-password.max' => 'Your new password may not be longer than 255 characters.',
+        'new-password-confirm.required' => 'Confirm your new password.',
+        'new-password-confirm.same' => 'The password confirmation does not match.',
+    ]);
+
     if (!(Hash::check($request->get('current-password'), Auth::user()->password))) {
         return redirect()->back()->with("error","Your current password does not match with the password you provided. Please try again.");
     }elseif(strcmp($request->get('current-password'), $request->get('new-password')) == 0){
         return redirect()->back()->with("error","New Password cannot be same as your current password. Please choose a different password.");
     }else{
-
-        $request->validate([
-            'current-password' => 'required',
-            'new-password' => 'required|max:255|min:8',
-            'new-password-confirm' => 'same:new-password',
-        ]);
-
         $user = User::find(auth()->user()->id);
         $user->password = Hash::make($request->get('new-password'));
         $user->password_change_at = \Carbon\Carbon::now();

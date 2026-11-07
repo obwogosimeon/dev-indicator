@@ -110,6 +110,7 @@ Route::group(['middleware' => ['auth']], function() {
     //System Settings
     Route::get('notification/settings', 'SettingController@notification')->name('notificationget');
     Route::get('notification/create', 'SettingController@createnotification')->name('notificationcreate');
+    Route::post('notification/test', 'SettingController@testnotification')->name('notificationtest')->middleware(['can:security.index', 'throttle:5,1']);
     Route::post('notification/store', 'SettingController@storenotification')->name('notificationstore');
 
     //Reports

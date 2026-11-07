@@ -1,69 +1,58 @@
 @extends('layouts.apps')
+
 @section('content')
+<main class="container-fluid admin-page report-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Reports &amp; insights</p>
+            <h1 class="admin-page__title">Results framework reports</h1>
+            <p class="admin-page__description">Browse the logframes that define expected outcomes and connect to project reporting.</p>
+        </div>
+        <a href="{{ route('reportsindex') }}" class="admin-page__button-secondary">
+            <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+            All reports
+        </a>
+    </header>
 
-<div class="nk-content ">
-    <div class="container-fluid">
-        <div class="nk-content-inner">
-            <div class="nk-content-body">
-                <div class="components-preview wide-md mx-auto">
-                    <div class="nk-block-head nk-block-head-lg wide-sm">
-                        <div class="nk-block-head-content">
-                            <div class="nk-block-head-sub"><a class="back-to" href="{{ url('/home')}}"><em class="icon ni ni-arrow-left"></em><span>Dashboard</span></a></div>
-                            <h2 class="nk-block-title fw-normal">Log Frame Reports</h2>
-                        </div>
-                    </div><!-- .nk-block-head -->
-
-                     @if ($message = Session::get('success'))
-                  <div class="alert alert-success">
-                    <p>{{ $message }}</p>
-                  </div>
-                  @endif
-
-                    
-
-                    <br>
-                    <br>
-
-                    <div class="card card-bordered card-preview">
-                            <div class="card-inner">
-                                <table class="datatable-init table">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Log Frame Name</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                     <?php $i = 1; ?>
-                                    @foreach ($logrames as $key => $object)
-                                    <tr>
-                                        <td>{{$i}}</td>
-                                        <td>{{ $object->logframe_name }}</td>                                        <td>
-                                        <li class="col-sm-6 col-lg-3">
-                                      
-                                        <div class="dropdown">
-                                            <a href="#" class="btn btn-primary" data-bs-toggle="dropdown"><span>Select Action</span><em class="icon ni ni-chevron-down"></em></a>
-                                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-auto mt-1">
-                                                <ul class="link-list-plain">
-                                                    <li><a href="#">Manage</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    </td>
-                                    </tr>
-                                    <?php $i++; ?>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                </div>
+    <section class="admin-page__card">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Results frameworks</h2>
+                <p>{{ $logrames->count() }} {{ \Illuminate\Support\Str::plural('framework', $logrames->count()) }}</p>
             </div>
         </div>
-    </div>
-</div>
-
+        <div class="table-responsive">
+            <table class="table admin-page__table report-page__table">
+                <thead>
+                    <tr>
+                        <th>Framework</th>
+                        <th>Linked projects</th>
+                        <th>Project reports</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($logrames as $logframe)
+                        <tr>
+                            <td>
+                                <strong>{{ $logframe->logframe_name }}</strong>
+                                <small class="report-page__secondary">Framework #{{ $logframe->id }}</small>
+                            </td>
+                            <td><span class="admin-page__badge">{{ $logframe->project->count() }} {{ \Illuminate\Support\Str::plural('project', $logframe->project->count()) }}</span></td>
+                            <td>
+                                @forelse ($logframe->project as $project)
+                                    <a class="report-page__open-link" href="{{ route('projectreportshow', $project->id) }}">{{ $project->project_name }} <em class="icon ni ni-arrow-up-right" aria-hidden="true"></em></a>
+                                @empty
+                                    <span class="report-page__secondary">No linked projects</span>
+                                @endforelse
+                            </td>
+                        </tr>
+                    @endforeach
+                    @if ($logrames->isEmpty())
+                        <tr><td colspan="3" class="admin-page__empty">No results frameworks are available yet.</td></tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
 @endsection

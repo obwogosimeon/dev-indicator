@@ -1,78 +1,80 @@
 @extends('layouts.apps')
+
 @section('content')
+<main class="container-fluid admin-page program-form-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Planning schedule</p>
+            <h1 class="admin-page__title">Edit financial year</h1>
+            <p class="admin-page__description">Update the fiscal period for {{ $yearedit->year_name }}.</p>
+        </div>
+        <div class="admin-page__actions">
+            @if ($yearedit->program_id)
+                <a href="{{ route('programs.show', $yearedit->program_id) }}" class="admin-page__button-secondary">
+                    <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+                    Back to programme
+                </a>
+            @else
+                <a href="{{ route('years.index') }}" class="admin-page__button-secondary">All financial years</a>
+            @endif
+        </div>
+    </header>
 
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <strong>Please review the financial year details.</strong>
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
-<div class="nk-content ">
-	<div class="container-fluid">
-		<div class="nk-content-inner">
-			<div class="nk-content-body">
-				<div class="components-preview wide-md mx-auto">
-					<nav>
-                        <ul class="breadcrumb breadcrumb-pipe">
-                            <li class="breadcrumb-item"><a href="{{ url('/home')}}">Home</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('years.index')}}">Fiscal Years</a></li>
-                            <li class="breadcrumb-item active">Add Fiscal Year</li>
-                        </ul>
-                    </nav>
-                    <br>
-					<div class="nk-block nk-block-lg">
-
-						<div class="card card-bordered card-preview">
-							<div class="card-inner">
-								<div class="preview-block">
-									<span class="preview-title-lg overline-title">Create Fiscal Year</span>
-
-									<!-- <p style="color: red">*For FX we do an API call in the background*</p> -->
-
-									{!! Form::model($yearedit, ['method' => 'PATCH','route' => ['years.update', $yearedit->id]]) !!}
-										@csrf
-										<div class="row gy-4">
-
-											<div class="form-group">
-												<label class="form-label" for="default-01">Fiscal Year Name</label>
-												<div class="form-control-wrap">
-													<input type="text" name="year_name" class="form-control" id="default-01" value="{{$yearedit->year_name}}">
-												</div>
-											</div>
-
-											<div class="col-lg-4 col-sm-6">
-												<div class="form-group">
-													<div class="form-control-wrap">
-														<div class="form-icon form-icon-right">
-															<em class="icon ni ni-calendar-alt"></em>
-														</div>
-														<input type="text" value="{{$yearedit->start_date}}" name="start_date" class="form-control form-control-xl form-control-outlined date-picker" id="outlined-date-picker">
-														<label class="form-label-outlined" for="outlined-date-picker">Start Date</label>
-													</div>
-												</div>
-											</div>
-
-											<div class="col-lg-4 col-sm-6">
-												<div class="form-group">
-													<div class="form-control-wrap">
-														<div class="form-icon form-icon-right">
-															<em class="icon ni ni-calendar-alt"></em>
-														</div>
-														<input type="text" value="{{$yearedit->end_date}}" name="end_date" class="form-control form-control-xl form-control-outlined date-picker" id="outlined-date-picker">
-														<label class="form-label-outlined" for="outlined-date-picker">End Date</label>
-													</div>
-												</div>
-											</div>
-
-											<button type="submit" class="btn btn-primary">Create Year</button>
-
-										</div>
-
-									{!! Form::close() !!}
-								</div>
-							</div>
-						</div>
-
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
+    <section class="admin-page__card admin-page__form-card admin-page__form-card--wide">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Financial year information</h2>
+                <p>Set a clear name and date range for this fiscal period.</p>
+            </div>
+            <span class="program-form-page__required-note"><span class="text-danger">*</span> Required</span>
+        </div>
+        <form method="POST" action="{{ route('years.update', $yearedit->id) }}" class="admin-page__form">
+            @csrf
+            @method('PATCH')
+            <div class="admin-page__form-grid">
+                <div class="admin-page__field admin-page__field--full">
+                    <label for="year-name">Financial year name <span class="text-danger">*</span></label>
+                    <input id="year-name" type="text" name="year_name" value="{{ old('year_name', $yearedit->year_name) }}" class="form-control{{ $errors->has('year_name') ? ' is-invalid' : '' }}" required>
+                    @if ($errors->has('year_name'))
+                        <span class="admin-page__field-error">{{ $errors->first('year_name') }}</span>
+                    @endif
+                </div>
+                <div class="admin-page__field">
+                    <label for="year-start-date">Start date <span class="text-danger">*</span></label>
+                    <input id="year-start-date" type="date" name="start_date" value="{{ old('start_date', $yearedit->start_date) }}" class="form-control{{ $errors->has('start_date') ? ' is-invalid' : '' }}" required>
+                    @if ($errors->has('start_date'))
+                        <span class="admin-page__field-error">{{ $errors->first('start_date') }}</span>
+                    @endif
+                </div>
+                <div class="admin-page__field">
+                    <label for="year-end-date">End date <span class="text-danger">*</span></label>
+                    <input id="year-end-date" type="date" name="end_date" value="{{ old('end_date', $yearedit->end_date) }}" class="form-control{{ $errors->has('end_date') ? ' is-invalid' : '' }}" required>
+                    @if ($errors->has('end_date'))
+                        <span class="admin-page__field-error">{{ $errors->first('end_date') }}</span>
+                    @endif
+                </div>
+            </div>
+            <div class="admin-page__form-footer">
+                <button type="submit" class="admin-page__button">
+                    <em class="icon ni ni-save" aria-hidden="true"></em>
+                    Save changes
+                </button>
+                @if ($yearedit->program_id)
+                    <a href="{{ route('programs.show', $yearedit->program_id) }}" class="admin-page__button-secondary">Cancel</a>
+                @else
+                    <a href="{{ route('years.index') }}" class="admin-page__button-secondary">Cancel</a>
+                @endif
+            </div>
+        </form>
+    </section>
+</main>
 @endsection

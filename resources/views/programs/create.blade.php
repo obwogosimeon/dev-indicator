@@ -1,178 +1,102 @@
 @extends('layouts.apps')
+
 @section('content')
+<main class="container-fluid admin-page program-form-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Portfolio management</p>
+            <h1 class="admin-page__title">Create programme</h1>
+            <p class="admin-page__description">Set up the programme scope, schedule, and base currency.</p>
+        </div>
+        <a href="{{ route('programs.index') }}" class="admin-page__button-secondary">
+            <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+            Back to programmes
+        </a>
+    </header>
 
-<div class="nk-block nk-block-lg">
-    <div class="nk-block-head">
-        <div class="nk-block-head-content">
-            <nav>
-                <ul class="breadcrumb breadcrumb-pipe">
-                    <li class="breadcrumb-item"><a href="{{ url('/home')}}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('programs.index')}}">Programs</a></li>
-                    <li class="breadcrumb-item active">Add Program</li>
-                </ul>
-            </nav>
-            <br>
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <strong>Please review the programme details.</strong>
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
-            @if ( count( $errors ) > 0 )
-            <div class="alert alert-danger">
-                @foreach ($errors->all() as $error)
-                {{ $error }}<br>
-                @endforeach
+    <section class="admin-page__card admin-page__form-card admin-page__form-card--wide">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Programme information</h2>
+                <p>Complete the required fields to create your programme.</p>
             </div>
-            @endif
-            <div class="nk-block nk-block-lg">
+            <span class="program-form-page__required-note"><span class="text-danger">*</span> Required</span>
+        </div>
+        <form method="POST" action="{{ route('programs.store') }}" class="admin-page__form" id="createProgram">
+            @csrf
+            <input type="hidden" name="organization_id" value="{{ Auth::user()->organization_id }}">
+            <input type="hidden" name="created_by" value="{{ Auth::user()->id }}">
+            <input type="hidden" name="status" value="01">
 
-                <div class="card card-bordered card-preview">
-                    <div class="card-inner">
-                        <div class="preview-block">
-                            <span class="preview-title-lg overline-title">Create Programme</span>
-                            <i><h6>All fields marks with <span style="color:red">*</span> are mandatory</h6></i>
+            <div class="admin-page__form-grid">
+                <div class="admin-page__field admin-page__field--full">
+                    <label for="program-name">Programme name <span class="text-danger">*</span></label>
+                    <input id="program-name" type="text" name="program_name" value="{{ old('program_name') }}" class="form-control{{ $errors->has('program_name') ? ' is-invalid' : '' }}" placeholder="e.g. Community resilience and livelihoods" minlength="5" required>
+                    @if ($errors->has('program_name'))
+                        <span class="admin-page__field-error">{{ $errors->first('program_name') }}</span>
+                    @else
+                        <span class="admin-page__field-hint">Use at least five characters to make the programme easy to identify.</span>
+                    @endif
+                </div>
 
-                            <form method="POST" action="{{ route('programs.store')}}" id="createProgram">
-                                @csrf
-                                <div class="row gy-4">
+                <div class="admin-page__field">
+                    <label for="program-start-date">Start date <span class="text-danger">*</span></label>
+                    <input id="program-start-date" type="date" name="start_date" value="{{ old('start_date') }}" class="form-control{{ $errors->has('start_date') ? ' is-invalid' : '' }}" required>
+                    @if ($errors->has('start_date'))
+                        <span class="admin-page__field-error">{{ $errors->first('start_date') }}</span>
+                    @endif
+                </div>
 
-                                    <div class="form-group">
-                                        <label class="form-label" for="default-01">Programme Name<span style="color:red">*</span></label>
-                                        <div class="form-control-wrap">
-                                            <input type="text" name="program_name" class="form-control" id="program_name" placeholder="Input Programme Name">
-                                        </div>
-                                    </div>
+                <div class="admin-page__field">
+                    <label for="program-end-date">End date <span class="text-danger">*</span></label>
+                    <input id="program-end-date" type="date" name="end_date" value="{{ old('end_date') }}" class="form-control{{ $errors->has('end_date') ? ' is-invalid' : '' }}" required>
+                    @if ($errors->has('end_date'))
+                        <span class="admin-page__field-error">{{ $errors->first('end_date') }}</span>
+                    @else
+                        <span class="admin-page__field-hint">Choose a date after the start date.</span>
+                    @endif
+                </div>
 
-                                    <input type="hidden" name="organization_id" class="form-control" id="default-01" readonly="" value="{{ Auth::user()->organization_id }}">
+                <div class="admin-page__field admin-page__field--full">
+                    <label for="program-base-currency">Base currency <span class="text-danger">*</span></label>
+                    <select id="program-base-currency" name="basecurrency_id" class="form-control{{ $errors->has('basecurrency_id') ? ' is-invalid' : '' }}" required>
+                        <option value="">Select a base currency</option>
+                        @foreach ($basecurrency as $currency)
+                            <option value="{{ $currency->id }}"{{ (string) old('basecurrency_id') === (string) $currency->id ? ' selected' : '' }}>
+                                {{ $currency->currency_name }} ({{ $currency->currency_code }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @if ($errors->has('basecurrency_id'))
+                        <span class="admin-page__field-error">{{ $errors->first('basecurrency_id') }}</span>
+                    @else
+                        <span class="admin-page__field-hint">This currency will be used as the programme’s reporting base.</span>
+                    @endif
+                </div>
 
-                                    <input type="hidden" name="created_by" class="form-control" id="default-01" readonly="" value="{{ Auth::user()->id }}"> 
-
-                                    <input type="hidden" name="status" class="form-control" id="default-01" readonly="" value="01">
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="default-01">Start Date<span style="color:red">*</span></label>
-                                        <div class="form-control-wrap">
-                                            <input type="date" name="start_date" class="form-control" id="start_date" placeholder="Input Programme Name">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="default-01">End Date<span style="color:red">*</span></label>
-                                        <div class="form-control-wrap">
-                                            <input type="date" name="end_date" class="form-control" id="end_date" placeholder="Input Programme Name">
-                                        </div>
-                                    </div>
-<!-- 
-
-                                    <div class="col-lg-4 col-sm-6">
-                                        <div class="form-group">
-                                            <div class="form-control-wrap">
-                                                <div class="form-icon form-icon-right">
-                                                    <em class="icon ni ni-calendar-alt"></em>
-                                                </div>
-                                                <input type="text" name="start_date" class="form-control form-control-xl form-control-outlined date-picker" id="start_date">
-                                                <label class="form-label-outlined" for="outlined-date-picker">Start Date<span style="color:red">*</span></label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-4 col-sm-6">
-                                        <div class="form-group">
-                                            <div class="form-control-wrap">
-                                                <div class="form-icon form-icon-right">
-                                                    <em class="icon ni ni-calendar-alt"></em>
-                                                </div>
-                                                <input type="text" name="end_date" class="form-control form-control-xl form-control-outlined date-picker" id="end_date">
-                                                <label class="form-label-outlined" for="outlined-date-picker">End Date<span style="color:red">*</span></label>
-                                            </div>
-                                        </div>
-                                    </div> -->
-
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="default-06">Select Base Currency<span style="color:red">*</span></label>
-                                        <div class="form-control-wrap ">
-                                            <div class="form-control-select">
-                                                <select class="form-control" id="basecurrency_id" name="basecurrency_id">
-                                                    <option value="">-------Select Base Currency-------</option>
-                                                    <option></option>
-                                                    @foreach($basecurrency as $obj)
-                                                    <option value="{{$obj->id}}">{{$obj->currency_name}}-<I>({{$obj->currency_code}})</I></option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                            <div class="col-sm-12">
-                                                <div class="form-group">
-                                                    <label class="form-label" for="default-textarea">Programme Description<i><span style="color:grey">(Optional)</span></i></label>
-                                                    <div class="form-control-wrap">
-                                                        <textarea class="form-control no-resize" name="description" id="default-textarea"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- <button type="submit" class="btn btn-primary">Create Program</button> -->
-
-                                            
-
-
-                                        </div>
-                                        <br>
-                                        <button style="margin-left: 40%;" type="submit" class="btn btn-round btn-primary"><em class="icon ni ni-navigate-fill"></em>&nbsp Add New Program</button>
-                                    </form>
-
-
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                <div class="admin-page__field admin-page__field--full">
+                    <label for="program-description">Programme description <span class="program-form-page__optional">(Optional)</span></label>
+                    <textarea id="program-description" name="description" rows="5" class="form-control" placeholder="Summarize the programme’s purpose and expected outcomes.">{{ old('description') }}</textarea>
                 </div>
             </div>
-        </div>
 
-
-
-        <script>
-            $(document).ready(function() {
-                $("#createProgram").validate({
-                    rules: {
-                        program_name: {
-                            required: true,
-                            minlength: 5
-                        },
-                        end_date: {
-                            required: true,
-                        },
-                        start_date: {
-                            required: true,
-                        },
-                        basecurrency_id: {
-                            required: true,
-                        }
-                    },
-                    messages: {
-                        program_name: {
-                            required: "Please enter program name",
-                            minlength: "Your program name must consist of at least 5 characters and above"
-                        },
-                        end_date: {
-                            required: "Please select end date",
-                            
-                        },
-                        start_date: {
-                            required: "Please select start date",
-                            
-                        },
-                        basecurrency_id: {
-                            required: "Please Select Base Currency",
-                        }
-
-                    },
-                    submitHandler: function(form) {
-                        form.submit();
-                    }
-                });
-            });
-        </script>
-
-
-        @endsection
+            <div class="admin-page__form-footer">
+                <button type="submit" class="admin-page__button">
+                    <em class="icon ni ni-plus" aria-hidden="true"></em>
+                    Create programme
+                </button>
+                <a href="{{ route('programs.index') }}" class="admin-page__button-secondary">Cancel</a>
+            </div>
+        </form>
+    </section>
+</main>
+@endsection

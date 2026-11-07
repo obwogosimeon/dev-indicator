@@ -37,7 +37,7 @@ class Project extends Model
 
   public function logframe()
   {
-    return $this->belongsTo('App\LogFrame');
+    return $this->belongsTo('App\LogFrame', 'logframe_id');
   }
 
 

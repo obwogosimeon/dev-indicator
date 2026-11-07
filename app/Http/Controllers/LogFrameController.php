@@ -43,24 +43,26 @@ class LogFrameController extends Controller
     public function store(Request $request)
     {
     	$this->validate($request, [
-            'logframe_name' => 'required',
+            'logframe_name' => 'required|string',
             'created_by' => 'required',
-            'organization_id' => '',
-            'logid' => '',
+            'organization_id' => 'nullable',
+            'logid' => 'nullable|exists:programs,id',
         ]);
 
-        if(DB::table('log_frames')->count() == 0){
-            $logframeid = 1;
-        } else {
-            $logframeid = LogFrame::orderBy('id', 'desc')->first()->id + 1;
-        }
+        DB::transaction(function () use ($request) {
+            $logframe = LogFrame::create($request->only([
+                'logframe_name',
+                'created_by',
+                'organization_id',
+            ]));
 
-        $program = Program::find($request->logid);
-        $program->log_frame_id = $logframeid;
-        $program->save();
+            if ($request->filled('logid')) {
+                $program = Program::findOrFail($request->logid);
+                $program->log_frame_id = $logframe->id;
+                $program->save();
+            }
+        });
 
-        $input = $request->all();
-        $logframe = LogFrame::create($input);
         toastr()->addSuccess('Logframe Created successfully');
         return back()->withInput(['tab'=>'tabItem6']);
     }

@@ -1,103 +1,105 @@
 @extends('layouts.apps')
+
 @section('content')
+<main class="container-fluid admin-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Portfolio management</p>
+            <h1 class="admin-page__title">Projects</h1>
+            <p class="admin-page__description">Track project delivery, reporting schedules, and results.</p>
+        </div>
+        @can('project.create')
+            <a href="{{ route('projects.create') }}" class="admin-page__button">
+                <em class="icon ni ni-plus" aria-hidden="true"></em>
+                Add project
+            </a>
+        @endcan
+    </header>
 
+    @if (session('success'))
+        <div class="alert alert-success" role="status">{{ session('success') }}</div>
+    @endif
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
+    <section class="admin-page__stats" aria-label="Project summary">
+        <div class="admin-page__stat">
+            <span class="admin-page__stat-icon admin-page__stat-icon--teal"><em class="icon ni ni-folder" aria-hidden="true"></em></span>
+            <div><strong>{{ $projects->count() }}</strong><span>Total projects</span></div>
+        </div>
+        <div class="admin-page__stat">
+            <span class="admin-page__stat-icon admin-page__stat-icon--green"><em class="icon ni ni-check-circle" aria-hidden="true"></em></span>
+            <div><strong>{{ $projects->where('status', '00')->count() }}</strong><span>Active</span></div>
+        </div>
+        <div class="admin-page__stat">
+            <span class="admin-page__stat-icon admin-page__stat-icon--amber"><em class="icon ni ni-clock" aria-hidden="true"></em></span>
+            <div><strong>{{ $projects->where('status', '01')->count() }}</strong><span>Unverified</span></div>
+        </div>
+    </section>
 
-<div class="nk-block nk-block-lg">
-    <div class="nk-block-head">
-        <div class="nk-block-head-content">
-            <nav>
-                <ul class="breadcrumb breadcrumb-pipe">
-                    <li class="breadcrumb-item"><a href="{{ url('/home')}}">Home</a></li>
-                    <li class="breadcrumb-item active">Projects</li>
-                </ul>
-            </nav>
-            <br>
-
-            @if ($message = Session::get('success'))
-            <div class="alert alert-success">
-                <p>{{ $message }}</p>
-            </div>
-            @endif
-
-            @can('project.create')
-
-            <!-- <a href="{{ route('projects.create')}}" style="margin-left: 90%" class="btn btn-round btn-primary"><em class="icon ni ni-plus"></em><span>New Project</span></a> -->
-
-            <a href="{{ route('projects.create')}}" style="align: left;" class="btn btn-round btn-primary"><em class="icon ni ni-plus"></em><span>New Project</span></a>
-
-            @endcan
-            <br>
-            <br>
-
-            <div class="card card-bordered card-preview">
-                <div class="card-inner">
-                    <table class="datatable-init-export nowrap table" data-export-title="Projects">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Project Name</th>
-                                <th>Program/Log Frame Name</th>
-                                <th>Reporting Frequency</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                           <?php $i = 1; ?>
-                           @foreach ($projects as $object)
-                           <tr>
-                            <td>{{$i}}</td>
-                            <td>{{ $object->project_name }}</td>
-                            @if($object->logframe_id == '#' || $object->logframe_id == '')
-                            <td>{{ $object->program->program_name }} - <i>(PROGRAM)</i></td>
-                            @else
-                            <td>{{ $object->logframe->logframe_name }}  - <i>(LOGFRAME)</i></td>
-                            @endif
-                            <td>{{ $object->reporting_frequency }}</td>
-                            @if($object->status == '01')
-                            <td><span class="badge bg-warning">Unverified</td>
-                                @elseif($object->status == '00')  
-                                <td><span class="badge bg-success">Active</td>  
-                                    @endif
-                                    <!-- <td>
-                                        <li class="col-sm-6 col-lg-3">
-                                            <div class="dropdown">
-                                                <a href="#" class="btn btn-primary" data-bs-toggle="dropdown"><span>Select Action</span><em class="icon ni ni-chevron-down"></em></a>
-                                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-auto mt-1">
-                                                    <ul class="link-list-plain">
-                                                        <li><a href="{{ route('projects.edit', $object->id) }}">Update Project</a></li>
-                                                        @if($object->status == '01')
-                                                        <li><a href="#">Verify Project</a></li>
-                                                        @endif
-                                                        @if($object->status == '00')
-                                                        <li><a href="{{ route('projects.show', $object->id) }}">Manage Project</a></li>
-                                                        @endif
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </td> -->
-
-                                    <td>
-                                            <div class="tb-odr-btns d-none d-sm-inline">
-                                                <a href="{{ route('projects.edit', $object->id) }}" class="btn btn-dim btn-sm btn-primary"><em class="icon ni ni-edit"></em></a>
-                                                <a href="{{ route('projects.show', $object->id) }}" class="btn btn-dim btn-sm btn-primary"><em class="icon ni ni-eye"></em></a>
-                                            </div>
-                                            <a href="#" class="btn btn-pd-auto d-sm-none"><em class="icon ni ni-chevron-right"></em></a>
-                                        </td>
-                                </tr>
-                                <?php $i++; ?>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-
+    <section class="admin-page__card" aria-label="Projects">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Project directory</h2>
+                <p>{{ $projects->count() }} {{ \Illuminate\Support\Str::plural('project', $projects->count()) }} assigned to you</p>
             </div>
         </div>
-    </div>
-
-
-    @endsection
+        <div class="table-responsive">
+            <table class="table admin-page__table">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Programme / results framework</th>
+                        <th>Reporting frequency</th>
+                        <th>Status</th>
+                        <th><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($projects as $project)
+                        <tr>
+                            <td>
+                                <a href="{{ route('projects.show', $project->id) }}">{{ $project->project_name }}</a>
+                                <span class="admin-page__table-secondary">Project #{{ $project->id }}</span>
+                            </td>
+                            <td>
+                                @if ($project->logframe_id && $project->logframe_id !== '#')
+                                    {{ optional($project->logframe)->logframe_name ?: 'Results framework unavailable' }}
+                                    <span class="admin-page__table-secondary">Results framework</span>
+                                @else
+                                    {{ optional($project->program)->program_name ?: 'Programme unavailable' }}
+                                    <span class="admin-page__table-secondary">Programme</span>
+                                @endif
+                            </td>
+                            <td>{{ $project->reporting_frequency ?: 'Not set' }}</td>
+                            <td>
+                                @if ($project->status === '00')
+                                    <span class="admin-page__badge admin-page__badge--green">Active</span>
+                                @elseif ($project->status === '01')
+                                    <span class="admin-page__badge admin-page__badge--amber">Unverified</span>
+                                @else
+                                    <span class="admin-page__badge admin-page__badge--neutral">Pending</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="admin-page__actions">
+                                    <a class="admin-page__action" href="{{ route('projects.show', $project->id) }}">View</a>
+                                    <a class="admin-page__action" href="{{ route('projects.edit', $project->id) }}">Edit</a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @if ($projects->isEmpty())
+            <p class="admin-page__empty">No projects are assigned to you yet.</p>
+        @endif
+    </section>
+</main>
+@endsection

@@ -1,83 +1,65 @@
 @extends('layouts.apps')
+
 @section('content')
+<main class="container-fluid admin-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Access control</p>
+            <h1 class="admin-page__title">Add permission</h1>
+            <p class="admin-page__description">Define an action that can be assigned to workspace roles.</p>
+        </div>
+        <a href="{{ route('permissions.index') }}" class="admin-page__button-secondary">
+            <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+            Back to permissions
+        </a>
+    </header>
 
-<div class="nk-content ">
-    <div class="container-fluid">
-        <div class="nk-content-inner">
-            <div class="nk-content-body">
-                <div class="components-preview wide-md mx-auto">
-                    <div class="nk-block-head nk-block-head-lg wide-sm">
-                        <div class="nk-block-head-content">
-                            <div class="nk-block-head-sub"><a class="back-to" href="{{ route('permissions.index')}}"><em class="icon ni ni-arrow-left"></em><span>Permissions</span></a></div>
-                        </div>
-                    </div><!-- .nk-block-head -->
-                    <div class="nk-block nk-block-lg">
+    @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
-                        <div class="card card-bordered card-preview">
-                            <div class="card-inner">
-                                <div class="preview-block">
-                                    <span class="preview-title-lg overline-title">Create Permission</span>
-                                    <form method="POST" action="{{ route('permissions.store')}}">
-                                        @csrf
-
-                                        <div class="row gy-4">
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-01">Permission Name</label>
-                                                <div class="form-control-wrap">
-                                                    <input type="text" name="name" class="form-control" id="name" placeholder="Input Permission Name">
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-01">Permission Alias</label>
-                                                <div class="form-control-wrap">
-                                                    <input type="text" name="alias" class="form-control" id="alias" placeholder="Input Alias Name">
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-06">Permission Category</label>
-                                                <div class="form-control-wrap ">
-                                                    <div class="form-control-select">
-                                                        <select class="form-control" name="category" id="category">
-                                                            <option value="null">-------Select Category-------</option>
-                                                            <option value="null"></option>
-                                                            <option value="Project">Project</option>
-                                                            <option value="Program">Program</option>
-                                                            <option value="Logframe">Logframe</option>
-                                                            <option value="Account">Account</option>
-                                                            <option value="Currency">Currency</option>
-                                                            <option value="Year">Year</option>
-                                                            <option value="MNE">MNE</option>
-                                                            <option value="Security">Security</option>
-                                                            <option value="Structure">Structure</option>
-                                                            <option value="Staff">Staff</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label class="form-label" for="default-01">Gurd Name</label>
-                                                <div class="form-control-wrap">
-                                                    <input type="text" name="guard_name" class="form-control" id="guard_name" placeholder="Input Gurd Name">
-                                                </div>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-primary">Create Permission</button>
-                                        </div>
-
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+    <section class="admin-page__card admin-page__form-card admin-page__form-card--wide">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Permission details</h2>
+                <p>Use a unique action name and a clear display label.</p>
             </div>
         </div>
-    </div>
-</div>
-
+        <form method="POST" action="{{ route('permissions.store') }}" class="admin-page__form">
+            @csrf
+            <div class="admin-page__form-grid">
+                <div class="admin-page__field">
+                    <label for="permission-name">Permission name</label>
+                    <input id="permission-name" type="text" name="name" value="{{ old('name') }}" class="form-control" placeholder="e.g. projects.index" required>
+                </div>
+                <div class="admin-page__field">
+                    <label for="permission-alias">Display name</label>
+                    <input id="permission-alias" type="text" name="alias" value="{{ old('alias') }}" class="form-control" placeholder="e.g. View projects" required>
+                </div>
+                <div class="admin-page__field">
+                    <label for="permission-category">Category</label>
+                    <select id="permission-category" name="category" class="form-control" required>
+                        <option value="">Select a category</option>
+                        @foreach (['Project', 'Program', 'Logframe', 'Account', 'Currency', 'Year', 'MNE', 'Security', 'Structure', 'Staff'] as $category)
+                            <option value="{{ $category }}"{{ old('category') === $category ? ' selected' : '' }}>{{ $category }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="admin-page__field">
+                    <label for="permission-guard">Guard</label>
+                    <input id="permission-guard" type="text" name="guard_name" value="{{ old('guard_name', 'web') }}" class="form-control" required>
+                    <span class="admin-page__field-hint">Most workspace permissions use the web guard.</span>
+                </div>
+            </div>
+            <div class="admin-page__form-footer">
+                <button type="submit" class="admin-page__button">Create permission</button>
+                <a href="{{ route('permissions.index') }}" class="admin-page__button-secondary">Cancel</a>
+            </div>
+        </form>
+    </section>
+</main>
 @endsection

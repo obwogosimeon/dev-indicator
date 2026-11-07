@@ -9,7 +9,7 @@ use App\Project;
 use App\Template;
 use App\Definition;
 use App\Program;
-use App\Logframe;
+use App\LogFrame;
 use App\BarNotification;
 use DB;
 use Auth;
@@ -18,35 +18,48 @@ class ReportsController extends Controller
 {
     public function index() 
     {   
-        $notifcations = BarNotification::where('status', '=', '01')->where('user_id', Auth::user()->id)->get();
-        $notificationcount = DB::table('bar_notifications')
-        ->where('status', '=', '01')
-        ->where('user_id', Auth::user()->id)
-        ->count();
-    	$projects = Project::all();
-    	return view('reports.index', compact('projects','notifcations','notificationcount'));
+        $projects = Project::with('program')->orderBy('project_name')->get();
+        $programCount = Program::count();
+        $logframeCount = LogFrame::count();
+
+        return view('reports.index', array_merge(
+            compact('projects', 'programCount', 'logframeCount'),
+            $this->headerNotifications()
+        ));
     }
 
 
     public function programreports()
     {
-        $programs = Program::all();
-        return view('reports.programs', compact('programs'));
+        $programs = Program::with('project')->orderBy('program_name')->get();
+
+        return view('reports.programs', array_merge(
+            compact('programs'),
+            $this->headerNotifications()
+        ));
     }
 
      public function logframereports()
     {
-        $logrames = Logframe::all();
-        return view('reports.logframes', compact('logrames'));
+        $logrames = LogFrame::with('project')->orderBy('logframe_name')->get();
+
+        return view('reports.logframes', array_merge(
+            compact('logrames'),
+            $this->headerNotifications()
+        ));
     }
 
 
     public function projectreportshow($id)
     {
-    	$projectshow = Project::find($id);
-    	$templates = Template::where('project_id', '=', $id)->get();
-        $definitions = Definition::where('project_id', '=', $id)->get();
-    	return view('reports.projectreport', compact('projectshow', 'templates', 'definitions'));
+        $projectshow = Project::with('program')->findOrFail($id);
+        $templates = Template::where('project_id', '=', $id)->orderBy('template_name')->get();
+        $definitions = Definition::whereIn('template_id', $templates->pluck('id'))->get();
+
+        return view('reports.projectreport', array_merge(
+            compact('projectshow', 'templates', 'definitions'),
+            $this->headerNotifications()
+        ));
     }
 
 
@@ -67,7 +80,7 @@ class ReportsController extends Controller
 
         $input = $request->all();
         $template = Template::create($input);
-        return redirect()->route('reportsindex')
+        return redirect()->route('projectreportshow', $request->input('project_id'))
                         ->with('success','Template Created successfully');
     }
 
@@ -75,7 +88,7 @@ class ReportsController extends Controller
     public function createdefinition(Request $request)
     {
          $this->validate($request, [
-            'template_id' => 'required',
+            'template_id' => 'required|exists:templates,id',
             'definition_title' => '',
             'standard' => '',
             'status' => 'required',
@@ -84,7 +97,23 @@ class ReportsController extends Controller
 
         $input = $request->all();
         $definition = Definition::create($input);
-        return redirect()->route('reportsindex')
+        $projectId = Template::findOrFail($request->input('template_id'))->project_id;
+        return redirect()->route('projectreportshow', $projectId)
                         ->with('success','Definition Created Successfully');
+    }
+
+    private function headerNotifications()
+    {
+        $userId = Auth::id();
+
+        return [
+            'notifcations' => BarNotification::where('status', '=', '01')
+                ->where('user_id', $userId)
+                ->get(),
+            'notificationcount' => DB::table('bar_notifications')
+                ->where('status', '=', '01')
+                ->where('user_id', $userId)
+                ->count(),
+        ];
     }
 }

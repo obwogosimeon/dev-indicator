@@ -1,77 +1,67 @@
 @extends('layouts.apps')
+
 @section('content')
-
-<div class="nk-content ">
-<div class="container-fluid">
-    <div class="nk-content-inner">
-        <div class="nk-content-body">
-            <div class="components-preview wide-md mx-auto">
-                <div class="nk-block-head nk-block-head-lg wide-sm">
-                    <div class="nk-block-head-content">
-                        <div class="nk-block-head-sub"><a class="back-to" href="{{ url('/home')}}"><em class="icon ni ni-arrow-left"></em><span>Dashboard</span></a></div>
-                        <h2 class="nk-block-title fw-normal">Programmes Report</h2>
-                    </div>
-                </div>
-
-                @if ($message = Session::get('success'))
-                  <div class="alert alert-success">
-                    <p>{{ $message }}</p>
-                  </div>
-                  @endif
-
-                <a href="{{ route('programs.create')}}" style="align: left;" class="btn btn-round btn-lg btn-primary">New Programme</a>
-
-                <br>
-                <br>
-
-                <div class="card card-bordered card-preview">
-                        <div class="card-inner">
-                            <table class="datatable-init table">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Programme Name</th>
-                                        <th>Date Range</th>
-                                        <!-- <th>Created By</th>
-                                        <th>Status</th> -->
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $i = 1; ?>
-                                    @foreach ($programs as $key => $object)
-                                    <tr>
-                                        <td>{{ $i }}</td>
-                                        <td>{{ $object->program_name }}</td>
-                                        <td>{{ $object->start_date }} - {{ $object->end_date }}</td>
-                                        <!-- <td></td>
-                                        <td></td> -->
-                                        <td>
-                                           
-                                           <li class="col-sm-6 col-lg-3">
-                                  
-                                    <div class="dropdown">
-                                        <a href="#" class="btn btn-primary" data-bs-toggle="dropdown"><span>Select Action</span><em class="icon ni ni-chevron-down"></em></a>
-                                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-auto mt-1">
-                                            <ul class="link-list-plain">
-                                                
-                                                <li><a href="#">Manage</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </li>
-                                         </td>
-                                    </tr>
-                                    <?php $i++; ?>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-            </div>
+<main class="container-fluid admin-page report-page">
+    <header class="admin-page__header">
+        <div>
+            <p class="admin-page__eyebrow">Reports &amp; insights</p>
+            <h1 class="admin-page__title">Programme reports</h1>
+            <p class="admin-page__description">Review programme timelines and open reports for their associated projects.</p>
         </div>
-    </div>
-</div>
-</div>
+        <a href="{{ route('reportsindex') }}" class="admin-page__button-secondary">
+            <em class="icon ni ni-arrow-left" aria-hidden="true"></em>
+            All reports
+        </a>
+    </header>
 
+    <section class="admin-page__card">
+        <div class="admin-page__card-head">
+            <div>
+                <h2>Programme portfolio</h2>
+                <p>{{ $programs->count() }} {{ \Illuminate\Support\Str::plural('programme', $programs->count()) }}</p>
+            </div>
+            <a href="{{ route('programs.create') }}" class="admin-page__button-secondary">Create programme</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-page__table report-page__table">
+                <thead>
+                    <tr>
+                        <th>Programme</th>
+                        <th>Reporting period</th>
+                        <th>Projects</th>
+                        <th>Project reports</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($programs as $program)
+                        <tr>
+                            <td>
+                                <a href="{{ route('programs.show', $program->id) }}">{{ $program->program_name }}</a>
+                                <small class="report-page__secondary">Programme #{{ $program->id }}</small>
+                            </td>
+                            <td>
+                                @if ($program->start_date || $program->end_date)
+                                    {{ $program->start_date ?: '—' }} <span class="report-page__date-separator">to</span> {{ $program->end_date ?: '—' }}
+                                @else
+                                    —
+                                @endif
+                            </td>
+                            <td><span class="admin-page__badge">{{ $program->project->count() }} {{ \Illuminate\Support\Str::plural('project', $program->project->count()) }}</span></td>
+                            <td>
+                                @forelse ($program->project as $project)
+                                    <a class="report-page__open-link" href="{{ route('projectreportshow', $project->id) }}">{{ $project->project_name }} <em class="icon ni ni-arrow-up-right" aria-hidden="true"></em></a>
+                                @empty
+                                    <span class="report-page__secondary">No linked projects</span>
+                                @endforelse
+                            </td>
+                        </tr>
+                    @endforeach
+                    @if ($programs->isEmpty())
+                        <tr><td colspan="4" class="admin-page__empty">No programmes are available yet.</td></tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
 @endsection

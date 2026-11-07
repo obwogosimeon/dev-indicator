@@ -7,9 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Devindicator Platform template">
     <!-- Fav Icon  -->
-    <link rel="shortcut icon" href="{{ asset('public/main/img/favicon_io/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('main/img/favicon_io/favicon.ico') }}">
     <title>Devindicator - Managing for Development Results</title>
     @include('includes.master')
+    @stack('styles')
 </head>
 
 <body class="nk-body bg-lighter npc-default has-sidebar ">

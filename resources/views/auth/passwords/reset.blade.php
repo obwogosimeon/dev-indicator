@@ -1,253 +1,53 @@
- <!DOCTYPE html>
-<html lang="zxx" class="js">
+@extends('layouts.auth')
 
-<head>
-    <base href="../../../">
-    <meta charset="utf-8">
-    <meta name="author" content="Softnio">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers.">
-    <!-- Fav Icon  -->
-    <link rel="shortcut icon" href="./images/favicon.png">
-    <!-- Page Title  -->
-    <title>DevIndicator || Change Password</title>
-    <!-- StyleSheets  -->
-    <link rel="stylesheet" href="{{ asset('public/main/assets/css/dashlite.css?ver=3.1.2') }}">
-    <link id="skin-default" rel="stylesheet" href="{{ asset('public/main/assets/css/theme.css?ver=3.1.2') }}">
-</head>
+@section('title', __('Choose a new password'))
 
-<body class="nk-body bg-white npc-default pg-auth">
-    <div class="nk-app-root">
-        <!-- main @s -->
-        <div class="nk-main ">
-            <!-- wrap @s -->
-            <div class="nk-wrap nk-wrap-nosidebar">
-                <!-- content @s -->
-                <div class="nk-content ">
-                    <div class="nk-block nk-block-middle nk-auth-body  wide-xs">
-                        <div class="brand-logo pb-4 text-center">
-                            <a href="{{ url('/')}}" class="logo-link">
-                                <img class="logo-light logo-img logo-img-lg" src="{{ asset('public/main/img/devlogo.png') }}" srcset="{{ asset('public/main/img/devlogo.png') }}" alt="logo">
-                                <img class="logo-dark logo-img logo-img-lg" src="{{ asset('public/main/img/devlogo.png') }}" srcset="{{ asset('public/main/img/devlogo.png') }}" alt="logo-dark">
-                            </a>
-                        </div>
-                        <div class="card-body">
-                         @if (session('error'))
-                         <div class="alert alert-danger">
-                            {{ session('error') }}
-                        </div>
-                        @endif
-                        @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                        @endif
-                        <div class="card">
-                            <div class="card-inner card-inner-lg">
-                                <div class="nk-block-head">
-                                    <div class="nk-block-head-content">
-                                        <h4 class="nk-block-title">Reset Password</h4>
-                                       <!--  <div class="nk-block-des">
-                                            <p>First time login password Reset</p>
-                                        </div> -->
-                                    </div>
-                                </div>
-                                <form action="{{ route('password.request') }}"  method="POST">
-                                    @csrf
+@section('content')
+<h1 class="auth-heading">{{ __('Choose a new password') }}</h1>
+<p class="auth-description">{{ __('Enter your email address and choose a new password for your account.') }}</p>
 
-                                    <input type="hidden" name="token" value="{{ $token }}">
-                                    
-                                    <div class="form-group">
-                                        <div class="form-label-group">
-                                            <label class="form-label" for="default-01">Email Address</label>
-                                        </div>
-                                        <div class="form-control-wrap">
-                                            <input type="email" class="form-control form-control-lg{{ $errors->has('email') ? ' is-invalid' : '' }}" id="current-password" placeholder="Enter your email" name="email" value="{{ old('email') }}" required autofocus>
-                                            @if ($errors->has('email'))
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $errors->first('email') }}</strong>
-                                            </span>
-                                            @endif
-                                        </div>
-                                    </div>
+<form method="POST" action="{{ route('password.request') }}" class="auth-form" aria-label="{{ __('Reset Password') }}">
+    @csrf
+    <input type="hidden" name="token" value="{{ $token }}">
 
-                                    <div class="form-group">
-                                        <div class="form-label-group">
-                                            <label class="form-label" for="default-01">New Password</label>
-                                        </div>
-                                        <div class="form-control-wrap">
-                                            <input type="password" class="form-control form-control-lg{{ $errors->has('password') ? ' is-invalid' : '' }}" id="current-password" placeholder="Enter your password" name="password" value="{{ old('password') }}" required autofocus>
-                                            @if ($errors->has('password'))
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $errors->first('password') }}</strong>
-                                            </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-
-                                    <div class="form-group">
-                                        <div class="form-label-group">
-                                            <label class="form-label" for="default-01">Confirm Password</label>
-                                        </div>
-                                        <div class="form-control-wrap">
-                                            <input type="password" class="form-control form-control-lg{{ $errors->has('password') ? ' is-invalid' : '' }}" id="password-confirm" placeholder="Enter your Password Confirmation" name="password_confirmation"required>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-lg btn-primary btn-block">Reset Password</button>
-                                    </div>
-
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="nk-footer nk-auth-footer-full">
-                        <div class="container wide-lg">
-                            <div class="row g-3">
-                             
-                                <div class="col-lg-6">
-                                    <div class="nk-block-content text-center text-lg-left">
-                                        <p class="text-soft">&copy; 2023 DevIndicator. All Rights Reserved.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- wrap @e -->
-            </div>
-            <!-- content @e -->
-        </div>
-        <!-- main @e -->
+    <div class="auth-field">
+        <label class="auth-label" for="email">{{ __('Email address') }}</label>
+        <input id="email" type="email" name="email" value="{{ $email ?? old('email') }}"
+               class="auth-input{{ $errors->has('email') ? ' is-invalid' : '' }}"
+               placeholder="you@organization.org" required autofocus autocomplete="email">
+        @if ($errors->has('email'))
+            <span class="auth-error" role="alert">{{ $errors->first('email') }}</span>
+        @endif
     </div>
-    <!-- app-root @e -->
-    <!-- JavaScript -->
-    <script src="{{ asset('public/main/assets/js/bundle.js?ver=3.1.2') }}"></script>
-    <script src="{{ asset('public/main/assets/js/scripts.js?ver=3.1.2') }}"></script>
-    <!-- select region modal -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="region">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <a href="#" class="close" data-bs-dismiss="modal"><em class="icon ni ni-cross-sm"></em></a>
-                <div class="modal-body modal-body-md">
-                    <h5 class="title mb-4">Select Your Country</h5>
-                    <div class="nk-country-region">
-                        <ul class="country-list text-center gy-2">
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/arg.png" alt="" class="country-flag">
-                                    <span class="country-name">Argentina</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/aus.png" alt="" class="country-flag">
-                                    <span class="country-name">Australia</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/bangladesh.png" alt="" class="country-flag">
-                                    <span class="country-name">Bangladesh</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/canada.png" alt="" class="country-flag">
-                                    <span class="country-name">Canada <small>(English)</small></span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/china.png" alt="" class="country-flag">
-                                    <span class="country-name">Centrafricaine</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/china.png" alt="" class="country-flag">
-                                    <span class="country-name">China</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/french.png" alt="" class="country-flag">
-                                    <span class="country-name">France</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/germany.png" alt="" class="country-flag">
-                                    <span class="country-name">Germany</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/iran.png" alt="" class="country-flag">
-                                    <span class="country-name">Iran</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/italy.png" alt="" class="country-flag">
-                                    <span class="country-name">Italy</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/mexico.png" alt="" class="country-flag">
-                                    <span class="country-name">México</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/philipine.png" alt="" class="country-flag">
-                                    <span class="country-name">Philippines</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/portugal.png" alt="" class="country-flag">
-                                    <span class="country-name">Portugal</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/s-africa.png" alt="" class="country-flag">
-                                    <span class="country-name">South Africa</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/spanish.png" alt="" class="country-flag">
-                                    <span class="country-name">Spain</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/switzerland.png" alt="" class="country-flag">
-                                    <span class="country-name">Switzerland</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/uk.png" alt="" class="country-flag">
-                                    <span class="country-name">United Kingdom</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="country-item">
-                                    <img src="./images/flags/english.png" alt="" class="country-flag">
-                                    <span class="country-name">United State</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div><!-- .modal-content -->
-        </div><!-- .modla-dialog -->
-    </div><!-- .modal -->
 
-    </html>
+    <div class="auth-field">
+        <label class="auth-label" for="password">{{ __('New password') }}</label>
+        <div class="auth-password">
+            <input id="password" type="password" name="password"
+                   class="auth-input{{ $errors->has('password') ? ' is-invalid' : '' }}"
+                   placeholder="{{ __('Create a new password') }}" required autocomplete="new-password">
+            <button type="button" class="auth-password__toggle" data-password-toggle
+                    data-show-label="{{ __('Show') }}" data-hide-label="{{ __('Hide') }}"
+                    aria-label="{{ __('Show password') }}" aria-controls="password" aria-pressed="false">{{ __('Show') }}</button>
+        </div>
+        @if ($errors->has('password'))
+            <span class="auth-error" role="alert">{{ $errors->first('password') }}</span>
+        @endif
+    </div>
+
+    <div class="auth-field">
+        <label class="auth-label" for="password_confirmation">{{ __('Confirm new password') }}</label>
+        <div class="auth-password">
+            <input id="password_confirmation" type="password" name="password_confirmation"
+                   class="auth-input" placeholder="{{ __('Re-enter your new password') }}" required autocomplete="new-password">
+            <button type="button" class="auth-password__toggle" data-password-toggle
+                    data-show-label="{{ __('Show') }}" data-hide-label="{{ __('Hide') }}"
+                    aria-label="{{ __('Show password') }}" aria-controls="password_confirmation" aria-pressed="false">{{ __('Show') }}</button>
+        </div>
+    </div>
+
+    <button type="submit" class="auth-button">{{ __('Reset password') }}</button>
+</form>
+
+<a class="auth-back" href="{{ route('login') }}">&larr; {{ __('Back to sign in') }}</a>
+@endsection

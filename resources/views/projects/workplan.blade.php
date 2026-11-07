@@ -52,7 +52,7 @@
                             <div class="card card-bordered card-preview">
                                 @if($containers->planning_type == 'Activity')
                                 <div class="card-inner">
-                                    <table class="datatable-init table">
+                                    <table class="table">
                                         <thead>
                                             <tr>
                                                 <th>#</th>
@@ -194,7 +194,7 @@
                                                                     <div class="tab-content">
                                                                         <div class="tab-pane active" id="tabItem88">
                                                                          <div class="card-inner">
-                                                                            <table class="datatable-init table">
+                                                                            <table class="table">
                                                                                 <thead>
                                                                                     <tr>
                                                                                         <th>#</th>
@@ -230,7 +230,7 @@
                                                                     <div class="tab-pane" id="tabItem89">
 
                                                                         <div class="card-inner">
-                                                                            <table class="datatable-init table">
+                                                                            <table class="table">
                                                                                 <thead>
                                                                                     <tr>
                                                                                         <th>#</th>
@@ -288,7 +288,7 @@
 
                                                                     <div class="tab-pane" id="tabItem90">
                                                                         <div class="card-inner">
-                                                                            <table class="datatable-init table">
+                                                                            <table class="table">
                                                                                 <thead>
                                                                                     <tr>
                                                                                         <th>#</th>
@@ -333,7 +333,7 @@
                                                                     </div>
                                                                     <div class="tab-pane" id="tabItem91">
                                                                         <div class="card-inner">
-                                                                            <table class="datatable-init table">
+                                                                            <table class="table">
                                                                                 <thead>
                                                                                     <tr>
                                                                                         <th>#</th>
@@ -374,7 +374,7 @@
                                                                     </div>
                                                                     <div class="tab-pane" id="tabItem92">
                                                                      <div class="card-inner">
-                                                                        <table class="datatable-init table">
+                                                                        <table class="table">
                                                                             <thead>
                                                                                 <tr>
                                                                                     <th>#</th>
@@ -415,7 +415,7 @@
                                                                             </div>
                                                                             <div class="tab-pane" id="tabItem93">
                                                                                 <div class="card-inner">
-                                                                                    <table class="datatable-init table">
+                                                                                    <table class="table">
                                                                                         <thead>
                                                                                             <tr>
                                                                                                 <th>#</th>
