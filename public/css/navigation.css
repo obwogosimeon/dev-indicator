@@ -84,6 +84,7 @@
     color: #526871;
     text-decoration: none;
     transition: background-color .18s ease, color .18s ease;
+    flex-wrap: wrap;
 }
 
 .data-tools-menu__link:hover,
@@ -133,6 +134,96 @@
 .data-tools-menu__copy small {
     color: #85959b;
     font-size: 10px;
+}
+
+.integration-status {
+    display: inline-flex;
+    min-height: 20px;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.integration-status__dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.integration-status--checking {
+    background: #f0f3f4;
+    color: #718087;
+}
+
+.integration-status--available {
+    background: #e8f7ef;
+    color: #17834d;
+}
+
+.integration-status--unavailable {
+    background: #fff0ef;
+    color: #c43d3d;
+}
+
+.integration-status--available .integration-status__dot,
+.integration-status--unavailable .integration-status__dot {
+    animation: integration-status-pulse 1.8s ease-out infinite;
+}
+
+.data-tools-menu__link.is-available {
+    background: #f2fbf5;
+    box-shadow: inset 3px 0 #48a66f;
+}
+
+.data-tools-menu__link.is-unavailable {
+    background: #fff7f6;
+    box-shadow: inset 3px 0 #d56560;
+}
+
+.me-home__integration .integration-status {
+    grid-column: 2;
+    justify-self: start;
+}
+
+.me-home__integrations .me-home__integration.is-available {
+    border-color: #bde8cf;
+    background: #fbfffc;
+    box-shadow: 0 3px 14px rgba(23, 131, 77, .08);
+}
+
+.me-home__integrations .me-home__integration.is-unavailable {
+    border-color: #f1c5c2;
+    background: #fffdfd;
+    box-shadow: 0 3px 14px rgba(196, 61, 61, .07);
+}
+
+@keyframes integration-status-pulse {
+    0% {
+        box-shadow: 0 0 0 0 currentColor;
+    }
+
+    70% {
+        box-shadow: 0 0 0 5px transparent;
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 transparent;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .integration-status--available .integration-status__dot,
+    .integration-status--unavailable .integration-status__dot {
+        animation: none;
+    }
 }
 
 .nk-main {

@@ -28,6 +28,7 @@ Route::post('2fa', [App\Http\Controllers\TwoFAController::class, 'store'])->name
 Route::get('2fa/reset', [App\Http\Controllers\TwoFAController::class, 'resend'])->name('2fa.resend');
 
 Route::group(['middleware' => ['auth']], function() {
+    Route::get('integrations/status/{service}', 'IntegrationStatusController@show')->name('integrations.status');
     //Projects Management
     Route::resource('projects', 'ProjectController');
     Route::get('project-reports', 'ProjectController@projectreports')->name('project-reports');

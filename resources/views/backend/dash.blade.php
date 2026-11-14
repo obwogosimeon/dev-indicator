@@ -74,6 +74,7 @@
                     <span>Open your field data collection workspace.</span>
                 </span>
                 <span class="me-home__integration-link">Open tool <em class="icon ni ni-arrow-up-right" aria-hidden="true"></em></span>
+                <span class="integration-status integration-status--checking" data-integration-status data-status-url="{{ route('integrations.status', 'kobo') }}"><span class="integration-status__dot" aria-hidden="true"></span><span class="integration-status__text">Checking</span></span>
             </a>
             <a class="me-home__integration" href="http://rstudio.visystem.net/" target="_blank" rel="noopener noreferrer">
                 <span class="me-home__integration-icon me-home__integration-icon--blue" aria-hidden="true"><em class="icon ni ni-bar-chart"></em></span>
@@ -82,6 +83,7 @@
                     <span>Launch the statistical analysis environment.</span>
                 </span>
                 <span class="me-home__integration-link">Open tool <em class="icon ni ni-arrow-up-right" aria-hidden="true"></em></span>
+                <span class="integration-status integration-status--checking" data-integration-status data-status-url="{{ route('integrations.status', 'rstudio') }}"><span class="integration-status__dot" aria-hidden="true"></span><span class="integration-status__text">Checking</span></span>
             </a>
             <a class="me-home__integration" href="http://jupyter.visystem.net/" target="_blank" rel="noopener noreferrer">
                 <span class="me-home__integration-icon me-home__integration-icon--violet" aria-hidden="true"><em class="icon ni ni-code"></em></span>
@@ -90,6 +92,7 @@
                     <span>Explore data in an interactive notebook.</span>
                 </span>
                 <span class="me-home__integration-link">Open tool <em class="icon ni ni-arrow-up-right" aria-hidden="true"></em></span>
+                <span class="integration-status integration-status--checking" data-integration-status data-status-url="{{ route('integrations.status', 'jupyter') }}"><span class="integration-status__dot" aria-hidden="true"></span><span class="integration-status__text">Checking</span></span>
             </a>
         </div>
     </section>

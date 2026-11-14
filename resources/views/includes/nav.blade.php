@@ -27,14 +27,17 @@
                                                 <a class="data-tools-menu__link" href="http://kf.kobo.visystem.net/" target="_blank" rel="noopener noreferrer">
                                                     <span class="data-tools-menu__icon data-tools-menu__icon--teal"><em class="icon ni ni-file-code" aria-hidden="true"></em></span>
                                                     <span class="data-tools-menu__copy"><strong>KoboToolbox</strong><small>Data collection</small></span>
+                                                    <span class="integration-status integration-status--checking" data-integration-status data-status-url="{{ route('integrations.status', 'kobo') }}"><span class="integration-status__dot" aria-hidden="true"></span><span class="integration-status__text">Checking</span></span>
                                                 </a>
                                                 <a class="data-tools-menu__link" href="http://rstudio.visystem.net/" target="_blank" rel="noopener noreferrer">
                                                     <span class="data-tools-menu__icon data-tools-menu__icon--blue"><em class="icon ni ni-bar-chart" aria-hidden="true"></em></span>
                                                     <span class="data-tools-menu__copy"><strong>RStudio</strong><small>Statistical analysis</small></span>
+                                                    <span class="integration-status integration-status--checking" data-integration-status data-status-url="{{ route('integrations.status', 'rstudio') }}"><span class="integration-status__dot" aria-hidden="true"></span><span class="integration-status__text">Checking</span></span>
                                                 </a>
                                                 <a class="data-tools-menu__link" href="http://jupyter.visystem.net/" target="_blank" rel="noopener noreferrer">
                                                     <span class="data-tools-menu__icon data-tools-menu__icon--violet"><em class="icon ni ni-code" aria-hidden="true"></em></span>
                                                     <span class="data-tools-menu__copy"><strong>Jupyter</strong><small>Notebooks and code</small></span>
+                                                    <span class="integration-status integration-status--checking" data-integration-status data-status-url="{{ route('integrations.status', 'jupyter') }}"><span class="integration-status__dot" aria-hidden="true"></span><span class="integration-status__text">Checking</span></span>
                                                 </a>
                                             </div>
                                         </div>
@@ -124,3 +127,4 @@
                         </div><!-- .nk-header-wrap -->
                     </div><!-- .container-fliud -->
                 </div>
+                <script src="{{ asset('js/integration-status.js?ver=1.0') }}" defer></script>

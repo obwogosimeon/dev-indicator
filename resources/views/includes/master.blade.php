@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="{{ asset('main/assets/css/dashlite.css?ver=3.1.2') }}">
 <link id="skin-default" rel="stylesheet" href="{{ asset('main/assets/css/theme.css?ver=3.1.2') }}">
-<link rel="stylesheet" href="{{ asset('css/navigation.css?ver=1.7') }}">
+<link rel="stylesheet" href="{{ asset('css/navigation.css?ver=1.8') }}">
 <link rel="stylesheet" href="{{ asset('css/admin-pages.css?ver=1.26') }}">
 <script src='https://www.google.com/recaptcha/api.js'></script>
 
