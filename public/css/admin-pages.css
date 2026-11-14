@@ -1721,7 +1721,6 @@
 
 .project-logframe__accordion .accordion-head .badge.bg-success {
     background: #317f8a !important;
-    border-radius: 999px;
 }
 
 .project-logframe__accordion .accordion-head .badge.bg-warning {
@@ -2011,14 +2010,24 @@
     white-space: nowrap;
 }
 
-.project-logframe__accordion .dropdown-menu button.ni-plus {
+.project-logframe__accordion .dropdown-menu .project-logframe__menu-item {
     background: transparent !important;
     color: #405a61 !important;
+    font-family: inherit;
+    font-size: .75rem;
+    font-weight: 500;
     box-shadow: none;
 }
 
-.project-logframe__accordion .dropdown-menu button.ni-plus:before {
+.project-logframe__menu-item .icon {
+    flex: 0 0 auto;
     color: #16847f;
+    font-family: "Nioicon", sans-serif;
+    font-size: .9rem;
+}
+
+.project-logframe__menu-item span {
+    font-family: inherit;
 }
 
 .project-logframe__accordion .dropdown-menu button:hover,
@@ -2027,8 +2036,8 @@
     color: #167f78;
 }
 
-.project-logframe__accordion .dropdown-menu button.ni-plus:hover,
-.project-logframe__accordion .dropdown-menu button.ni-plus:focus {
+.project-logframe__accordion .dropdown-menu .project-logframe__menu-item:hover,
+.project-logframe__accordion .dropdown-menu .project-logframe__menu-item:focus {
     background: #f1f7f6 !important;
     color: #167f78 !important;
 }

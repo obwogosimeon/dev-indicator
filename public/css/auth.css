@@ -259,27 +259,42 @@ body.auth-page {
 }
 
 .auth-password .auth-input {
-    padding-right: 68px;
+    padding-right: 48px;
 }
 
 .auth-password__toggle {
+    display: grid;
     position: absolute;
     top: 50%;
     right: 12px;
+    width: 28px;
+    height: 28px;
+    place-items: center;
     transform: translateY(-50%);
-    padding: 5px 3px;
+    padding: 0;
     border: 0;
     background: transparent;
-    color: var(--auth-teal-dark);
+    color: #71838a;
     cursor: pointer;
-    font: inherit;
-    font-size: .78rem;
-    font-weight: 700;
+    transition: color .16s ease;
 }
 
 .auth-password__toggle:hover {
-    color: #0c554f;
-    text-decoration: underline;
+    color: var(--auth-teal-dark);
+}
+
+.auth-password__icon {
+    width: 19px;
+    height: 19px;
+}
+
+.auth-password__icon--hide,
+.auth-password__toggle[aria-pressed="true"] .auth-password__icon--show {
+    display: none;
+}
+
+.auth-password__toggle[aria-pressed="true"] .auth-password__icon--hide {
+    display: block;
 }
 
 .auth-password__toggle:focus-visible {
@@ -372,6 +387,15 @@ body.auth-page {
     transform: translateY(-1px);
     background: var(--auth-teal-dark);
     box-shadow: 0 8px 18px rgba(17, 104, 97, .18);
+}
+
+.auth-button:disabled,
+.auth-button:disabled:hover {
+    transform: none;
+    background: #aab8ba;
+    box-shadow: none;
+    color: #f7f9f9;
+    cursor: not-allowed;
 }
 
 .auth-button--secondary {

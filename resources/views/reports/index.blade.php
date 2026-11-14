@@ -62,7 +62,7 @@
                             <td>{{ optional($project->program)->program_name ?: '—' }}</td>
                             <td>
                                 @if ($project->start_date || $project->end_date)
-                                    {{ $project->start_date ?: '—' }} <span class="report-page__date-separator">to</span> {{ $project->end_date ?: '—' }}
+                                    {{ $project->start_date ? \Carbon\Carbon::parse($project->start_date)->format('M j, Y') : '—' }} <span class="report-page__date-separator">to</span> {{ $project->end_date ? \Carbon\Carbon::parse($project->end_date)->format('M j, Y') : '—' }}
                                 @else
                                     —
                                 @endif

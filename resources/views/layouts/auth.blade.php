@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#123f4a">
     <title>@yield('title') | {{ config('app.name', 'DevIndicator') }}</title>
     <link rel="icon" href="{{ asset('main/img/favicon_io/favicon.ico') }}">
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css?ver=1.1') }}">
 </head>
 <body class="auth-page">
     <main class="auth-layout">
@@ -60,8 +60,44 @@
                 input.type = visible ? 'text' : 'password';
                 toggle.setAttribute('aria-pressed', visible ? 'true' : 'false');
                 toggle.setAttribute('aria-label', visible ? toggle.dataset.hideLabel : toggle.dataset.showLabel);
-                toggle.textContent = visible ? toggle.dataset.hideLabel : toggle.dataset.showLabel;
             });
+        });
+
+        document.querySelectorAll('form[data-enable-when-complete]').forEach(function (form) {
+            var submitButton = form.querySelector('[data-submit-button]');
+            var matchFieldNames = (form.dataset.matchFields || '')
+                .split(',')
+                .map(function (name) { return name.trim(); })
+                .filter(Boolean);
+
+            if (!submitButton) {
+                return;
+            }
+
+            function updateSubmitState() {
+                var requiredFields = Array.prototype.slice.call(form.querySelectorAll('[required]'));
+                var fieldsAreValid = requiredFields.length > 0 && requiredFields.every(function (field) {
+                    var hasValue = field.type === 'password'
+                        ? field.value.length > 0
+                        : field.value.trim().length > 0;
+
+                    return hasValue && field.checkValidity();
+                });
+                var matchingFieldsAreValid = matchFieldNames.every(function (name) {
+                    var field = form.elements[name];
+                    var firstField = form.elements[matchFieldNames[0]];
+
+                    return field && firstField && field.value === firstField.value;
+                });
+
+                submitButton.disabled = !fieldsAreValid || !matchingFieldsAreValid;
+            }
+
+            form.addEventListener('input', updateSubmitState);
+            form.addEventListener('change', updateSubmitState);
+            window.addEventListener('pageshow', updateSubmitState);
+            updateSubmitState();
+            window.setTimeout(updateSubmitState, 100);
         });
     </script>
     @stack('scripts')

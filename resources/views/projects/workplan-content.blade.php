@@ -100,7 +100,7 @@
                                             <span class="project-workplan__activity-icon" aria-hidden="true"><em class="icon ni ni-activity-round-fill"></em></span>
                                             <div>
                                                 <h5>{{ $object->workplan_name }}</h5>
-                                                <span><em class="icon ni ni-calendar-alt" aria-hidden="true"></em> {{ $object->start_date }} – {{ $object->end_date }}</span>
+                                                <span><em class="icon ni ni-calendar-alt" aria-hidden="true"></em> {{ $object->start_date ? \Carbon\Carbon::parse($object->start_date)->format('M j, Y') : '—' }} – {{ $object->end_date ? \Carbon\Carbon::parse($object->end_date)->format('M j, Y') : '—' }}</span>
                                             </div>
                                             <a class="admin-page__action" href="{{ url('budgetupdate', $object->id) }}">
                                                 <em class="icon ni ni-edit" aria-hidden="true"></em>
@@ -342,12 +342,12 @@
                         </div>
                         <div class="modal-body">
                             <ol class="project-workplan__timeline">
-                                <li><span>Created</span><strong>{{ $containers->created_at }}</strong></li>
+                                <li><span>Created</span><strong>{{ \Carbon\Carbon::parse($containers->created_at)->format('M j, Y, g:i A') }}</strong></li>
                                 @if ($containers->submitted_on)
-                                    <li><span>Submitted</span><strong>{{ $containers->submitted_on }}</strong></li>
+                                    <li><span>Submitted</span><strong>{{ \Carbon\Carbon::createFromFormat('l dS \of F Y h:i:s A', $containers->submitted_on)->format('M j, Y, g:i A') }}</strong></li>
                                 @endif
                                 @if ($containers->cancel_date)
-                                    <li><span>Cancelled</span><strong>{{ $containers->cancel_date }}</strong></li>
+                                    <li><span>Cancelled</span><strong>{{ \Carbon\Carbon::createFromFormat('l dS \of F Y h:i:s A', $containers->cancel_date)->format('M j, Y, g:i A') }}</strong></li>
                                 @endif
                             </ol>
                         </div>

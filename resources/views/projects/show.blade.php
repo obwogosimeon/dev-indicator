@@ -37,7 +37,7 @@
                 {{ optional($projectshow->program)->program_name ?: 'Programme not assigned' }}
                 @if ($projectshow->start_date || $projectshow->end_date)
                     <span class="project-detail__description-divider">·</span>
-                    {{ $projectshow->start_date ?: 'Start date not set' }} – {{ $projectshow->end_date ?: 'End date not set' }}
+                    {{ $projectshow->start_date ? \Carbon\Carbon::parse($projectshow->start_date)->format('M j, Y') : 'Start date not set' }} – {{ $projectshow->end_date ? \Carbon\Carbon::parse($projectshow->end_date)->format('M j, Y') : 'End date not set' }}
                 @endif
             </p>
         </div>
@@ -69,7 +69,7 @@
             <span class="project-detail__summary-icon project-detail__summary-icon--blue"><em class="icon ni ni-clock" aria-hidden="true"></em></span>
             <div>
                 <span>Project period</span>
-                <strong>{{ $projectshow->start_date ?: '—' }} <span class="project-detail__date-divider">to</span> {{ $projectshow->end_date ?: '—' }}</strong>
+                <strong>{{ $projectshow->start_date ? \Carbon\Carbon::parse($projectshow->start_date)->format('M j, Y') : '—' }} <span class="project-detail__date-divider">to</span> {{ $projectshow->end_date ? \Carbon\Carbon::parse($projectshow->end_date)->format('M j, Y') : '—' }}</strong>
             </div>
         </div>
         <div class="project-detail__summary-item">
@@ -342,7 +342,7 @@
                                                                                 <div class="example-alert">
                                                                                     <div class="alert alert-success alert-icon">
                                                                                         <em class="icon ni ni-check-circle"></em> <strong>{{$incontainer->container_name}} Created on</strong>
-                                                                                        <i>{{$incontainer->created_at}}</i> <strong>created
+                                                                                        <i>{{ \Carbon\Carbon::parse($incontainer->created_at)->format('M j, Y, g:i A') }}</i> <strong>created
                                                                                         by </strong>{{Auth::user()->name}}
                                                                                     </div>
                                                                                 </div>
@@ -350,7 +350,7 @@
                                                                                 <div class="example-alert">
                                                                                     <div class="alert alert-secondary alert-icon">
                                                                                         <em class="icon ni ni-alert-circle"></em> <strong>{{$incontainer->container_name}} Submitted on</strong>
-                                                                                        <i>{{$incontainer->submitted_on}}</i></strong>
+                                                                                        <i>{{ \Carbon\Carbon::createFromFormat('l dS \of F Y h:i:s A', $incontainer->submitted_on)->format('M j, Y, g:i A') }}</i></strong>
                                                                                         Submitted to <strong>{{$incontainer->submitted_to}} - <i>{{$incontainer->submitted_to_email}}</i></strong>
                                                                                     </div>
                                                                                 </div>
@@ -359,7 +359,7 @@
                                                                                 <div class="example-alert">
                                                                                     <div class="alert alert-primary alert-icon">
                                                                                         <em class="icon ni ni-alert-circle"></em> <strong>{{$incontainer->container_name}} Forwarded on</strong>
-                                                                                        <i>{{$incontainer->forwarded_on}}</i></strong>
+                                                                                        <i>{{ \Carbon\Carbon::createFromFormat('l dS \of F Y h:i:s A', $incontainer->forwarded_on)->format('M j, Y, g:i A') }}</i></strong>
                                                                                         Forwarded to <strong>{{$incontainer->forward_to_name}} - <i>{{$incontainer->forward_to_email}}</i></strong>
                                                                                     </div>
                                                                                 </div>
@@ -368,7 +368,7 @@
                                                                                 <div class="example-alert">
                                                                                     <div class="alert alert-success alert-icon">
                                                                                         <em class="icon ni ni-check-circle"></em> <strong>{{$incontainer->container_name}} Approved on</strong>
-                                                                                        <i>{{$incontainer->approved_on}}</i></strong>
+                                                                                        <i>{{ \Carbon\Carbon::createFromFormat('l dS \of F Y h:i:s A', $incontainer->approved_on)->format('M j, Y, g:i A') }}</i></strong>
                                                                                         Approved By <strong>{{$incontainer->approved_by}} - <i>{{$incontainer->approved_by_email}}</i></strong>
                                                                                     </div>
                                                                                 </div>
@@ -734,13 +734,13 @@
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                     <ul class="link-list-plain">
                                         <li class="preview-item">
-                                            <button type="button" class="btn btn-success icon ni ni-plus" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#practice_modal">Add Outcome</button>
+                                            <button type="button" class="project-logframe__menu-item" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#practice_modal"><em class="icon ni ni-plus" aria-hidden="true"></em><span>Add Outcome</span></button>
                                         </li> 
                                         <li class="preview-item">
-                                            <button type="button" class="btn btn-success icon ni ni-plus" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#activity_modal">Add Activity</button>
+                                            <button type="button" class="project-logframe__menu-item" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#activity_modal"><em class="icon ni ni-plus" aria-hidden="true"></em><span>Add Activity</span></button>
                                         </li> 
                                         <li class="preview-item">
-                                            <button type="button" class="btn btn-success icon ni ni-plus" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#indicator_modal">Add Indicator</button>
+                                            <button type="button" class="project-logframe__menu-item" data-goal-id="{{ $obj->id }}" data-goal-label="{{ $obj->goal_code }} - {{ $obj->goal_name }}" data-bs-toggle="modal" data-bs-target="#indicator_modal"><em class="icon ni ni-plus" aria-hidden="true"></em><span>Add Indicator</span></button>
                                         </li> 
                                     </ul>
                                 </div>
@@ -793,13 +793,13 @@
                                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                         <ul class="link-list-plain">
                                             <li class="preview-item">
-                                                <button type="button" class="btn btn-success icon ni ni-plus" id="addoutput" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#output_model"></em>Add Output</button>
+                                                <button type="button" class="project-logframe__menu-item" id="addoutput" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#output_model"><em class="icon ni ni-plus" aria-hidden="true"></em><span>Add Output</span></button>
                                             </li> 
                                             <li class="preview-item">
-                                                <button type="button" class="btn btn-success icon ni ni-plus" id="addoutcomeactivity" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#activity1"></em>Add Activity</button>
+                                                <button type="button" class="project-logframe__menu-item" id="addoutcomeactivity" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#activity1"><em class="icon ni ni-plus" aria-hidden="true"></em><span>Add Activity</span></button>
                                             </li>  
                                             <li class="preview-item">
-                                                <button type="button" class="btn btn-success icon ni ni-plus" id="addoutcomeindicator" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#indicator1"></em>Add Indicator</button>
+                                                <button type="button" class="project-logframe__menu-item" id="addoutcomeindicator" data-id="{{ $outcom->id }}" data-bs-toggle="modal" data-bs-target="#indicator1"><em class="icon ni ni-plus" aria-hidden="true"></em><span>Add Indicator</span></button>
                                             </li>
                                         </ul>
                                     </div>
@@ -856,10 +856,10 @@
                                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                             <ul class="link-list-plain">
                                                 <li class="preview-item">
-                                                    <button type="button" class="btn btn-success icon ni ni-plus" id="addoutputactivity1" data-id="{{ $output->id }}" data-bs-toggle="modal" data-bs-target="#activity2"></em>Add Activity</button>
+                                                    <button type="button" class="project-logframe__menu-item" id="addoutputactivity1" data-id="{{ $output->id }}" data-bs-toggle="modal" data-bs-target="#activity2"><em class="icon ni ni-plus" aria-hidden="true"></em><span>Add Activity</span></button>
                                                 </li> 
                                                 <li class="preview-item">
-                                                    <button type="button" class="btn btn-success icon ni ni-plus" id="addoutputindicator" data-id="{{ $output->id }}" data-bs-toggle="modal" data-bs-target="#indicator2"></em>Add Indicator</button>
+                                                    <button type="button" class="project-logframe__menu-item" id="addoutputindicator" data-id="{{ $output->id }}" data-bs-toggle="modal" data-bs-target="#indicator2"><em class="icon ni ni-plus" aria-hidden="true"></em><span>Add Indicator</span></button>
                                                 </li> 
                                             </ul>
                                         </div>

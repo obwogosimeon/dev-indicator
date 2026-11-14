@@ -7,7 +7,7 @@
 			<h1 class="admin-page__title">{{ $projectshow->project_name }}</h1>
 			<p class="admin-page__description">
 				@if ($projectshow->start_date || $projectshow->end_date)
-					{{ $projectshow->start_date ?: '—' }} <span class="report-page__date-separator">to</span> {{ $projectshow->end_date ?: '—' }}
+					{{ $projectshow->start_date ? \Carbon\Carbon::parse($projectshow->start_date)->format('M j, Y') : '—' }} <span class="report-page__date-separator">to</span> {{ $projectshow->end_date ? \Carbon\Carbon::parse($projectshow->end_date)->format('M j, Y') : '—' }}
 				@else
 					Reporting workspace
 				@endif

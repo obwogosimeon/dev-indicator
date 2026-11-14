@@ -8,14 +8,14 @@
 <h1 class="auth-heading">{{ __('Create your account') }}</h1>
 <p class="auth-description">Set up your DevIndicator workspace to start planning and measuring results.</p>
 
-<form action="{{ route('register') }}" method="POST" class="auth-form auth-form--register" aria-label="{{ __('Register') }}">
+<form action="{{ route('register') }}" method="POST" class="auth-form auth-form--register" aria-label="{{ __('Register') }}" data-enable-when-complete data-match-fields="password,password_confirmation">
     @csrf
     <input type="hidden" name="role" value="admin">
 
     <div class="auth-field auth-field--full">
         <label class="auth-label" for="account_type">{{ __('Account type') }}</label>
-        <select class="auth-select{{ $errors->has('account_type') ? ' is-invalid' : '' }}" name="account_type" id="account_type">
-            <option value="null" {{ old('account_type', 'null') == 'null' ? 'selected' : '' }}>{{ __('Select an account type') }}</option>
+        <select class="auth-select{{ $errors->has('account_type') ? ' is-invalid' : '' }}" name="account_type" id="account_type" required>
+            <option value="" {{ old('account_type') ? '' : 'selected' }}>{{ __('Select an account type') }}</option>
             <option value="Organization" {{ old('account_type') == 'Organization' ? 'selected' : '' }}>{{ __('Organization') }}</option>
             <option value="Consultant" {{ old('account_type') == 'Consultant' ? 'selected' : '' }}>{{ __('Consultant') }}</option>
             <option value="Student" {{ old('account_type') == 'Student' ? 'selected' : '' }}>{{ __('Student') }}</option>
@@ -83,8 +83,19 @@
                    class="auth-input{{ $errors->has('password') ? ' is-invalid' : '' }}"
                    placeholder="{{ __('Create a password') }}" required autocomplete="new-password">
             <button type="button" class="auth-password__toggle" data-password-toggle
-                    data-show-label="{{ __('Show') }}" data-hide-label="{{ __('Hide') }}"
-                    aria-label="{{ __('Show password') }}" aria-controls="password" aria-pressed="false">{{ __('Show') }}</button>
+                    data-show-label="{{ __('Show password') }}" data-hide-label="{{ __('Hide password') }}"
+                    aria-label="{{ __('Show password') }}" aria-controls="password" aria-pressed="false">
+                <svg class="auth-password__icon auth-password__icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="auth-password__icon auth-password__icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m3 3 18 18"></path>
+                    <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+                    <path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a15.8 15.8 0 0 1-3.1 3.9"></path>
+                    <path d="M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7c1.2 0 2.3-.2 3.3-.6"></path>
+                </svg>
+            </button>
         </div>
         @if ($errors->has('password'))
             <span class="auth-error" role="alert">{{ $errors->first('password') }}</span>
@@ -97,13 +108,24 @@
             <input type="password" name="password_confirmation" id="password_confirmation"
                    class="auth-input" placeholder="{{ __('Re-enter your password') }}" required autocomplete="new-password">
             <button type="button" class="auth-password__toggle" data-password-toggle
-                    data-show-label="{{ __('Show') }}" data-hide-label="{{ __('Hide') }}"
-                    aria-label="{{ __('Show password') }}" aria-controls="password_confirmation" aria-pressed="false">{{ __('Show') }}</button>
+                    data-show-label="{{ __('Show password') }}" data-hide-label="{{ __('Hide password') }}"
+                    aria-label="{{ __('Show password') }}" aria-controls="password_confirmation" aria-pressed="false">
+                <svg class="auth-password__icon auth-password__icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="auth-password__icon auth-password__icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m3 3 18 18"></path>
+                    <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+                    <path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a15.8 15.8 0 0 1-3.1 3.9"></path>
+                    <path d="M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7c1.2 0 2.3-.2 3.3-.6"></path>
+                </svg>
+            </button>
         </div>
     </div>
 
     <div class="auth-field auth-field--full">
-        <button type="submit" class="auth-button">{{ __('Create account') }}</button>
+        <button type="submit" class="auth-button" data-submit-button disabled>{{ __('Create account') }}</button>
     </div>
 </form>
 
@@ -127,6 +149,9 @@
             var isOrganization = accountType.value === 'Organization';
             organizationField.hidden = !isOrganization;
             domainField.hidden = !isOrganization;
+            organizationName.required = isOrganization;
+            domain.required = isOrganization;
+            accountType.form.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
         function updateDomainHint() {

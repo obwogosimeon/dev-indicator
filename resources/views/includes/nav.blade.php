@@ -24,15 +24,15 @@
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dataToolsMenu">
                                             <div class="dropdown-inner data-tools-menu__body">
-                                                <a class="data-tools-menu__link" href="https://kf.kobo.visystem.net/" target="_blank" rel="noopener noreferrer">
+                                                <a class="data-tools-menu__link" href="http://kf.kobo.visystem.net/" target="_blank" rel="noopener noreferrer">
                                                     <span class="data-tools-menu__icon data-tools-menu__icon--teal"><em class="icon ni ni-file-code" aria-hidden="true"></em></span>
                                                     <span class="data-tools-menu__copy"><strong>KoboToolbox</strong><small>Data collection</small></span>
                                                 </a>
-                                                <a class="data-tools-menu__link" href="https://rstudio.visystem.net/" target="_blank" rel="noopener noreferrer">
+                                                <a class="data-tools-menu__link" href="http://rstudio.visystem.net/" target="_blank" rel="noopener noreferrer">
                                                     <span class="data-tools-menu__icon data-tools-menu__icon--blue"><em class="icon ni ni-bar-chart" aria-hidden="true"></em></span>
                                                     <span class="data-tools-menu__copy"><strong>RStudio</strong><small>Statistical analysis</small></span>
                                                 </a>
-                                                <a class="data-tools-menu__link" href="https://jupyter.visystem.net" target="_blank" rel="noopener noreferrer">
+                                                <a class="data-tools-menu__link" href="http://jupyter.visystem.net/" target="_blank" rel="noopener noreferrer">
                                                     <span class="data-tools-menu__icon data-tools-menu__icon--violet"><em class="icon ni ni-code" aria-hidden="true"></em></span>
                                                     <span class="data-tools-menu__copy"><strong>Jupyter</strong><small>Notebooks and code</small></span>
                                                 </a>
@@ -58,7 +58,7 @@
                                                         </div>
                                                         <div class="nk-notification-content">
                                                             <div class="nk-notification-text"><span>{{ $notify->type }}</span></div>
-                                                            <div class="nk-notification-time">{{ $notify->datetime }}</div>
+                                                            <div class="nk-notification-time">{{ $notify->datetime ? \Carbon\Carbon::parse($notify->datetime)->format('M j, Y') : '—' }}</div>
                                                         </div>
                                                     </div>
                                                     @empty

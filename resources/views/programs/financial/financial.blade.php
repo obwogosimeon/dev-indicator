@@ -30,8 +30,8 @@
                         <div class="program-detail__record-main">
                             <h3>{{ $object->year_name }}</h3>
                             <div class="program-detail__record-meta">
-                                <span><strong>Start</strong> {{ $object->start_date }}</span>
-                                <span><strong>End</strong> {{ $object->end_date }}</span>
+                                <span><strong>Start</strong> {{ $object->start_date ? \Carbon\Carbon::parse($object->start_date)->format('M j, Y') : '—' }}</span>
+                                <span><strong>End</strong> {{ $object->end_date ? \Carbon\Carbon::parse($object->end_date)->format('M j, Y') : '—' }}</span>
                             </div>
                         </div>
                         <div class="program-detail__record-actions">

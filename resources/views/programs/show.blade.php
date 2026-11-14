@@ -25,7 +25,7 @@
                 {{ optional($programshow->basecurrency)->currency_name ?: 'Base currency not set' }}
                 @if ($programshow->start_date || $programshow->end_date)
                     <span class="program-detail__divider">·</span>
-                    {{ $programshow->start_date ?: 'Start date not set' }} – {{ $programshow->end_date ?: 'End date not set' }}
+                    {{ $programshow->start_date ? \Carbon\Carbon::parse($programshow->start_date)->format('M j, Y') : 'Start date not set' }} – {{ $programshow->end_date ? \Carbon\Carbon::parse($programshow->end_date)->format('M j, Y') : 'End date not set' }}
                 @endif
             </p>
         </div>

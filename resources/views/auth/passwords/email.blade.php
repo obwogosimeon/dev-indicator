@@ -6,7 +6,7 @@
 <h1 class="auth-heading">{{ __('Reset your password') }}</h1>
 <p class="auth-description">{{ __('Enter the email address linked to your account and we will send you a password reset link.') }}</p>
 
-<form method="POST" action="{{ route('password.email') }}" class="auth-form" aria-label="{{ __('Send password reset link') }}">
+<form method="POST" action="{{ route('password.email') }}" class="auth-form" aria-label="{{ __('Send password reset link') }}" data-enable-when-complete>
     @csrf
 
     <div class="auth-field">
@@ -19,7 +19,7 @@
         @endif
     </div>
 
-    <button type="submit" class="auth-button">{{ __('Email me a reset link') }}</button>
+    <button type="submit" class="auth-button" data-submit-button disabled>{{ __('Email me a reset link') }}</button>
 </form>
 
 <a class="auth-back" href="{{ route('login') }}">&larr; {{ __('Back to sign in') }}</a>

@@ -42,11 +42,11 @@
             </div>
             <div>
                 <dt>Start date</dt>
-                <dd>{{ $yearshow->start_date }}</dd>
+                <dd>{{ $yearshow->start_date ? \Carbon\Carbon::parse($yearshow->start_date)->format('M j, Y') : '—' }}</dd>
             </div>
             <div>
                 <dt>End date</dt>
-                <dd>{{ $yearshow->end_date }}</dd>
+                <dd>{{ $yearshow->end_date ? \Carbon\Carbon::parse($yearshow->end_date)->format('M j, Y') : '—' }}</dd>
             </div>
         </dl>
     </section>

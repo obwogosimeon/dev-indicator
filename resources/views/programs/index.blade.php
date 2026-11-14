@@ -67,9 +67,9 @@
                             </td>
                             <td>{{ optional($program->basecurrency)->currency_name ?: 'Not set' }}</td>
                             <td>
-                                {{ $program->start_date ?: '—' }}
+                                {{ $program->start_date ? \Carbon\Carbon::parse($program->start_date)->format('M j, Y') : '—' }}
                                 <span class="admin-page__date-separator">to</span>
-                                {{ $program->end_date ?: '—' }}
+                                {{ $program->end_date ? \Carbon\Carbon::parse($program->end_date)->format('M j, Y') : '—' }}
                             </td>
                             <td>
                                 @if ($program->status === '00')

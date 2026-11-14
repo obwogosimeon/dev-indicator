@@ -335,7 +335,7 @@
                                                 <td>{{ $object->workplan_name }}</td>
                                                 <!-- <td>{{ $object->financial_year }}</td> -->
                                                 <!-- <td>{{ $object->activity }}</td> -->
-                                                <td>{{ $object->start_date }} - {{ $object->end_date }}</td>
+                                                <td>{{ $object->start_date ? \Carbon\Carbon::parse($object->start_date)->format('M j, Y') : '—' }} – {{ $object->end_date ? \Carbon\Carbon::parse($object->end_date)->format('M j, Y') : '—' }}</td>
                                                 @if($projectshow->basecurrency_id != '')
                                                 <td>{{$projectshow->basecurrency->currency_code}} @convert($object->annual_amounta)</td>
                                                 <td>{{$projectshow->basecurrency->currency_code}} @convert($object->annual_amountb)</td>

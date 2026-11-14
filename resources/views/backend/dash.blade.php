@@ -67,7 +67,7 @@
         </div>
 
         <div class="me-home__integrations">
-            <a class="me-home__integration" href="{{ route('getkobo') }}">
+            <a class="me-home__integration" href="http://kf.kobo.visystem.net/" target="_blank" rel="noopener noreferrer">
                 <span class="me-home__integration-icon me-home__integration-icon--teal" aria-hidden="true"><em class="icon ni ni-file-code"></em></span>
                 <span class="me-home__integration-content">
                     <strong>KoboToolbox</strong>
@@ -75,7 +75,7 @@
                 </span>
                 <span class="me-home__integration-link">Open tool <em class="icon ni ni-arrow-up-right" aria-hidden="true"></em></span>
             </a>
-            <a class="me-home__integration" href="{{ route('rstudio') }}">
+            <a class="me-home__integration" href="http://rstudio.visystem.net/" target="_blank" rel="noopener noreferrer">
                 <span class="me-home__integration-icon me-home__integration-icon--blue" aria-hidden="true"><em class="icon ni ni-bar-chart"></em></span>
                 <span class="me-home__integration-content">
                     <strong>RStudio</strong>
@@ -83,7 +83,7 @@
                 </span>
                 <span class="me-home__integration-link">Open tool <em class="icon ni ni-arrow-up-right" aria-hidden="true"></em></span>
             </a>
-            <a class="me-home__integration" href="{{ route('jupyter') }}">
+            <a class="me-home__integration" href="http://jupyter.visystem.net/" target="_blank" rel="noopener noreferrer">
                 <span class="me-home__integration-icon me-home__integration-icon--violet" aria-hidden="true"><em class="icon ni ni-code"></em></span>
                 <span class="me-home__integration-content">
                     <strong>Jupyter</strong>

@@ -43,8 +43,8 @@
                                     <tr>
                                         <td>{{$i}}</td>
                                         <td>{{ $object->year_name }}</td>
-                                        <td>{{ $object->start_date }}</td>
-                                        <td>{{ $object->end_date }}</td>
+                                        <td>{{ $object->start_date ? \Carbon\Carbon::parse($object->start_date)->format('M j, Y') : '—' }}</td>
+                                        <td>{{ $object->end_date ? \Carbon\Carbon::parse($object->end_date)->format('M j, Y') : '—' }}</td>
                                         <td>
                                             <li class="col-sm-6 col-lg-3">
 
